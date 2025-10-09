@@ -10,7 +10,7 @@
   ],
   "equipes_data": {
     "Saint-Pierre A": {
-      "equipe1": "Saint-Pierre AZA",
+      "equipe1": "Saint-Pierre A",
       "equipe2": "Libramont D",
       "lieu": "exterieur",
       "score1": 13,
@@ -264,7 +264,7 @@
   "meilleures_perfs": [
     {
       "nom": "Florian Vincent",
-      "points": 60
+      "points": 68
     },
     {
       "nom": "Mathis Jacoby",
@@ -272,7 +272,7 @@
     },
     {
       "nom": "Rémi Vuidar",
-      "points": 12
+      "points": 27
     }
   ]
 }
