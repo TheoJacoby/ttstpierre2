@@ -8,12 +8,6 @@
     "Saint-Pierre F",
     "Saint-Pierre G"
   ],
-
-  
-
-
-
-
   "equipes_data": {
     "Saint-Pierre A": {
       "equipe1": "Saint-Pierre A",
@@ -216,26 +210,14 @@
       }
     ]
   },
-
-
-
-  
-  
-  "joueur_du_mois": {
+"joueur_du_mois": {
     "nom": "Irchad Poncin",
     "victoires": 7,
     "performances": 2,
     "points": 87,
     "mois": "septembre"
   },
-
-
-
-
-  
-
-  
-  "matchs_du_jour": [
+ "matchs_du_jour": [
     {
       "home": "Saint-Pierre A",
       "away": "Hachy C",
@@ -279,13 +261,7 @@
       "score2": 0
     }
   ],
-
-
-
-
-  
-  
-  "meilleures_perfs": [
+"meilleures_perfs": [
     {
       "nom": "Lucas Maas",
       "points": 68
