@@ -8,6 +8,9 @@
     "Saint-Pierre F",
     "Saint-Pierre G"
   ],
+
+//// EQUIPES DATA /////
+  
   "equipes_data": {
     "Saint-Pierre A": {
       "equipe1": "Saint-Pierre A",
@@ -210,13 +213,20 @@
       }
     ]
   },
+
+//////// JOUEUR DU MOIS ////////
+  
   "joueur_du_mois": {
-    "nom": "Antoine Guebs",
-    "victoires": 10,
-    "performances": 6,
-    "points": 76,
+    "nom": "Irchad Poncin",
+    "victoires": 7,
+    "performances": 2,
+    "points": 87,
     "mois": "septembre"
   },
+
+
+////// MATCHS DU JOUR //////
+  
   "matchs_du_jour": [
     {
       "home": "Saint-Pierre A",
@@ -261,18 +271,21 @@
       "score2": 0
     }
   ],
+
+  /////// MEILLEURES PERFS //////
+  
   "meilleures_perfs": [
     {
-      "nom": "Florian Vincent",
-      "points": 96
+      "nom": "Lucas Maas",
+      "points": 68
     },
     {
-      "nom": "Mathis Jacoby",
-      "points": 48
+      "nom": "Nicolas Maas",
+      "points": 28
     },
     {
-      "nom": "Rémi Vuidar",
-      "points":38
+      "nom": "Enzo Jacoby",
+      "points": 26
     }
   ]
 }
