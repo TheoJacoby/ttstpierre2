@@ -240,10 +240,10 @@
       "heure": "19:15",
       "lieu": "Extérieur",
       "joueurs": [
-        { "nom": "Gilles" },
-        { "nom": "Eric" },
-        { "nom": "Theo" },
-        { "nom": "Simon" }
+        { "nom": "/" },
+        { "nom": "/" },
+        { "nom": "/" },
+        { "nom": "/" }
       ]
     },
     {
@@ -254,10 +254,10 @@
       "heure": "19:15",
       "lieu": "Domicile",
       "joueurs": [
-        { "nom": "Tchouse" },
-        { "nom": "Eric" },
-        { "nom": "Aurélien" },
-        { "nom": "Lucas" }
+        { "nom": "Eric V" },
+        { "nom": "Eric C" },
+        { "nom": "Theo" },
+        { "nom": "Marc" }
       ]
     },
     {
@@ -268,10 +268,10 @@
       "heure": "19:15",
       "lieu": "Extérieur",
       "joueurs": [
-        { "nom": "/" },
-        { "nom": "/" },
-        { "nom": "/" },
-        { "nom": "/" }
+        { "nom": "Eric Calay" },
+        { "nom": "Lucas" },
+        { "nom": "Titi" },
+        { "nom": "Romain (WO)" }
       ]
     },
     {
@@ -298,8 +298,8 @@
       "joueurs": [
         { "nom": "Alina" },
         { "nom": "Anastasia" },
-        { "nom": "Simon" },
-        { "nom": "Mathilde" }
+        { "nom": "Sophie" },
+        { "nom": "Enzo" }
       ]
     },
     {
@@ -310,7 +310,7 @@
       "heure": "15:30",
       "lieu": "Extérieur",
       "joueurs": [
-        { "nom": "Charly" },
+        { "nom": "Mathilde" },
         { "nom": "Axel" },
         { "nom": "Louis" },
         { "nom": "Leo" }
