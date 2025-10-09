@@ -73,9 +73,10 @@
                         <h2 class="section-title">Matchs du jour</h2>
                         <div class="matches-list">
                             <div class="match-item" v-for="(match, idx) in matchesWithScores" :key="idx">
-                                <span>{{ match.home }}</span>
+                                <span class="match-home">{{ match.home }}</span>
                                 <span class="match-score-inline">{{ match.score1 }} - {{ match.score2 }}</span>
-                                <span>{{ match.away }}</span>
+                                <span class="match-away">{{ match.away }}</span>
+                                <span class="match-info">{{ match.heure }} • {{ match.lieu }}</span>
                             </div>
                         </div>
                     </div>

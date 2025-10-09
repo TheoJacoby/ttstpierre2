@@ -209,20 +209,36 @@ body {
     padding: 12px 0 12px 20px;
     font-size: 1.1em;
     border-bottom: 1px solid #444;
-    display: flex;
+    display: grid;
+    grid-template-columns: 2fr auto 2fr 1.2fr;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
 }
 
 .match-item:last-child {
     border-bottom: none;
 }
 
-/* ancien badge supprimé */
+.match-home {
+    text-align: right;
+}
+
+.match-away {
+    text-align: left;
+}
+
 .match-score-inline {
     font-weight: 700;
     color: #ff6b35;
-    margin: 0 6px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.match-info {
+    text-align: right;
+    color: #aaa;
+    font-size: 0.9em;
+    white-space: nowrap;
 }
 
 .match-edit-inputs {
@@ -460,6 +476,7 @@ body {
     .score { font-size: 1.4em; }
     .player-result { padding: 12px 0; }
     .matches-list::before { width: 3px; }
-    .match-item { padding: 16px 0 16px 24px; font-size: 1.2em; }
+    .match-item { padding: 16px 0 16px 24px; font-size: 1.2em; gap: 20px; }
+    .match-info { font-size: 0.95em; }
     .admin-toggle { width: 68px; height: 68px; font-size: 1.8em; bottom: 38px; right: 38px; }
 }
