@@ -1,6 +1,6 @@
 {
   "equipes": [
-    "Saint-Pierre ABAA",
+    "Saint-Pierre A",
     "Saint-Pierre B",
     "Saint-Pierre C",
     "Saint-Pierre D",
@@ -10,7 +10,7 @@
   ],
   "equipes_data": {
     "Saint-Pierre A": {
-      "equipe1": "Saint-Pierre A",
+      "equipe1": "Saint-Pierre AZA",
       "equipe2": "Libramont D",
       "lieu": "exterieur",
       "score1": 13,
