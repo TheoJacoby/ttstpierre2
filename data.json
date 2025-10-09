@@ -10,7 +10,7 @@
   ],
 
   
-{ "comment"://// EQUIPES DATA /////}
+{ "comment":"//// EQUIPES DATA /////"}
 
 
 
@@ -217,7 +217,7 @@
     ]
   },
 
-{ "comment2"://// JOUEUR DU MOIS/////}
+{ "comment2":"//// JOUEUR DU MOIS/////"}
   
   "joueur_du_mois": {
     "nom": "Irchad Poncin",
@@ -228,7 +228,7 @@
   },
 
 
-{ "comment3"://// MATCHS DU JOUR /////}
+{ "comment3":"//// MATCHS DU JOUR /////"}
   
   "matchs_du_jour": [
     {
@@ -275,7 +275,7 @@
     }
   ],
 
-  { "comment3"://// MEILLEURES PERFS/////}
+  { "comment3":"//// MEILLEURES PERFS/////"}
   
   "meilleures_perfs": [
     {
