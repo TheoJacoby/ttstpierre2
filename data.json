@@ -224,7 +224,13 @@
       "score1": 0,
       "score2": 0,
       "heure": "19:15",
-      "lieu": "Domicile"
+      "lieu": "Domicile",
+      "joueurs": [
+        { "nom": "Denis"},
+        { "nom": "Antoine" },
+        { "nom": "Rémi" },
+        { "nom": "Benja" }
+      ]
     },
     {
       "home": "Hondelange A",
@@ -232,7 +238,13 @@
       "score1": 0,
       "score2": 0,
       "heure": "19:15",
-      "lieu": "Extérieur"
+      "lieu": "Extérieur",
+      "joueurs": [
+        { "nom": "Gilles" },
+        { "nom": "Eric" },
+        { "nom": "Theo" },
+        { "nom": "Simon" }
+      ]
     },
     {
       "home": "Saint-Pierre C",
@@ -240,7 +252,13 @@
       "score1": 0,
       "score2": 0,
       "heure": "19:15",
-      "lieu": "Domicile"
+      "lieu": "Domicile",
+      "joueurs": [
+        { "nom": "Tchouse" },
+        { "nom": "Eric" },
+        { "nom": "Aurélien" },
+        { "nom": "Lucas" }
+      ]
     },
     {
       "home": "Fays-les-veneurs B",
@@ -248,7 +266,13 @@
       "score1": 0,
       "score2": 0,
       "heure": "19:15",
-      "lieu": "Extérieur"
+      "lieu": "Extérieur",
+      "joueurs": [
+        { "nom": "/" },
+        { "nom": "/" },
+        { "nom": "/" },
+        { "nom": "/" }
+      ]
     },
     {
       "home": "Saint-Pierre E",
@@ -256,7 +280,13 @@
       "score1": 0,
       "score2": 0,
       "heure": "15:30",
-      "lieu": "Domicile"
+      "lieu": "Domicile",
+      "joueurs": [
+        { "nom": "Nico Maas" },
+        { "nom": "Nico Schimt" },
+        { "nom": "Fred" },
+        { "nom": "Irchad" }
+      ]
     },
     {
       "home": "Ochamps D",
@@ -264,7 +294,13 @@
       "score1": 0,
       "score2": 0,
       "heure": "15:30",
-      "lieu": "Extérieur"
+      "lieu": "Extérieur",
+      "joueurs": [
+        { "nom": "Alina" },
+        { "nom": "Anastasia" },
+        { "nom": "Simon" },
+        { "nom": "Mathilde" }
+      ]
     },
     {
       "home": "Bras F",
@@ -272,7 +308,13 @@
       "score1": 0,
       "score2": 0,
       "heure": "15:30",
-      "lieu": "Extérieur"
+      "lieu": "Extérieur",
+      "joueurs": [
+        { "nom": "Charly" },
+        { "nom": "Axel" },
+        { "nom": "Louis" },
+        { "nom": "Leo" }
+      ]
     }
   ],
 "meilleures_perfs": [

@@ -72,11 +72,22 @@
                     <div class="section">
                         <h2 class="section-title">Matchs du jour</h2>
                         <div class="matches-list">
-                            <div class="match-item" v-for="(match, idx) in matchesWithScores" :key="idx">
-                                <span class="match-home">{{ match.home }}</span>
-                                <span class="match-score-inline">{{ match.score1 }} - {{ match.score2 }}</span>
-                                <span class="match-away">{{ match.away }}</span>
-                                <span class="match-info">{{ match.heure }} • {{ match.lieu }}</span>
+                            <div class="match-container" v-for="(match, idx) in matchesWithScores" :key="idx">
+                                <div class="match-item clickable" @click="toggleMatch(idx)">
+                                    <span class="match-home">{{ match.home }}</span>
+                                    <span class="match-score-inline">{{ match.score1 }} - {{ match.score2 }}</span>
+                                    <span class="match-away">{{ match.away }}</span>
+                                    <span class="match-info">{{ match.heure }} • {{ match.lieu }}</span>
+                                    <span class="expand-icon">{{ expandedMatch === idx ? '▼' : '▶' }}</span>
+                                </div>
+                                <div class="match-players" v-if="expandedMatch === idx">
+                                    <div class="players-header">Joueurs :</div>
+                                    <div class="players-list">
+                                        <div class="player-item" v-for="(joueur, playerIdx) in getMatchPlayers(match)" :key="playerIdx">
+                                            <span class="player-name">{{ joueur.nom }}</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
