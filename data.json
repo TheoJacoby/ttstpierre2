@@ -9,8 +9,11 @@
     "Saint-Pierre G"
   ],
 
-//// EQUIPES DATA /////
   
+{ "comment"://// EQUIPES DATA /////}
+
+
+
   "equipes_data": {
     "Saint-Pierre A": {
       "equipe1": "Saint-Pierre A",
@@ -214,7 +217,7 @@
     ]
   },
 
-//////// JOUEUR DU MOIS ////////
+{ "comment2"://// JOUEUR DU MOIS/////}
   
   "joueur_du_mois": {
     "nom": "Irchad Poncin",
@@ -225,7 +228,7 @@
   },
 
 
-////// MATCHS DU JOUR //////
+{ "comment3"://// MATCHS DU JOUR /////}
   
   "matchs_du_jour": [
     {
@@ -272,7 +275,7 @@
     }
   ],
 
-  /////// MEILLEURES PERFS //////
+  { "comment3"://// MEILLEURES PERFS/////}
   
   "meilleures_perfs": [
     {
