@@ -1,0 +1,278 @@
+{
+  "equipes": [
+    "Saint-Pierre A",
+    "Saint-Pierre B",
+    "Saint-Pierre C",
+    "Saint-Pierre D",
+    "Saint-Pierre E",
+    "Saint-Pierre F",
+    "Saint-Pierre G"
+  ],
+  "equipes_data": {
+    "Saint-Pierre A": {
+      "equipe1": "Saint-Pierre A",
+      "equipe2": "Libramont D",
+      "lieu": "exterieur",
+      "score1": 13,
+      "score2": 3,
+      "joueurs": [
+        {
+          "nom": "Denis",
+          "victoires": 3
+        },
+        {
+          "nom": "Antoine",
+          "victoires": 4
+        },
+        {
+          "nom": "Rémi",
+          "victoires": 3
+        },
+        {
+          "nom": "Benja",
+          "victoires": 3
+        }
+      ]
+    },
+    "Saint-Pierre B": {
+      "equipe1": "Saint-Pierre B",
+      "equipe2": "Centre Ardenne C",
+      "lieu": "exterieur",
+      "score1": 3,
+      "score2": 13,
+      "joueurs": [
+        {
+          "nom": "Gilles",
+          "victoires": 0
+        },
+        {
+          "nom": "Eric",
+          "victoires": 1
+        },
+        {
+          "nom": "Theo",
+          "victoires": 1
+        },
+        {
+          "nom": "Simon",
+          "victoires": 1
+        }
+      ]
+    },
+    "Saint-Pierre C": {
+      "equipe1": "Saint-Pierre C",
+      "equipe2": "Melreux D (à 3 joueurs)",
+      "lieu": "domicile",
+      "score1": 7,
+      "score2": 9,
+      "joueurs": [
+        {
+          "nom": "Tchouse",
+          "victoires": 2
+        },
+        {
+          "nom": "Eric",
+          "victoires": 0
+        },
+        {
+          "nom": "Aurélien",
+          "victoires": 0
+        },
+        {
+          "nom": "Lucas",
+          "victoires": 1
+        }
+      ]
+    },
+    "Saint-Pierre D": {
+      "equipe1": "Saint-Pierre D",
+      "equipe2": "Basse-Semois B",
+      "lieu": "domicile",
+      "score1": 0,
+      "score2": 16,
+      "joueurs": [
+        {
+          "nom": "/",
+          "victoires": 0
+        },
+        {
+          "nom": "/",
+          "victoires": 0
+        },
+        {
+          "nom": "/",
+          "victoires": 0
+        },
+        {
+          "nom": "/",
+          "victoires": 0
+        }
+      ]
+    },
+    "Saint-Pierre E": {
+      "equipe1": "Saint-Pierre E",
+      "equipe2": "Ochamps E",
+      "lieu": "domicile",
+      "score1": 13,
+      "score2": 3,
+      "joueurs": [
+        {
+          "nom": "Nico Maas",
+          "victoires": 4
+        },
+        {
+          "nom": "Nico Schimt",
+          "victoires": 4
+        },
+        {
+          "nom": "Fred",
+          "victoires": 1
+        },
+        {
+          "nom": "Irchad",
+          "victoires": 4
+        }
+      ]
+    },
+    "Saint-Pierre F": {
+      "equipe1": "Saint-Pierre F",
+      "equipe2": "Jamoigne F",
+      "lieu": "exterieur",
+      "score1": 1,
+      "score2": 15,
+      "joueurs": [
+        {
+          "nom": "Alina",
+          "victoires": 0
+        },
+        {
+          "nom": "Anastasia",
+          "victoires": 0
+        },
+        {
+          "nom": "Simon",
+          "victoires": 1
+        },
+        {
+          "nom": "Mathilde",
+          "victoires": 0
+        }
+      ]
+    },
+    "Saint-Pierre G": {
+      "equipe1": "Saint-Pierre G",
+      "equipe2": "Bastogne D (à 3 joueurs)",
+      "lieu": "exterieur",
+      "score1": 5,
+      "score2": 11,
+      "joueurs": [
+        {
+          "nom": "Charly",
+          "victoires": 0
+        },
+        {
+          "nom": "Axel",
+          "victoires": 1
+        },
+        {
+          "nom": "Louis",
+          "victoires": 0
+        },
+        {
+          "nom": "Leo",
+          "victoires": 0
+        }
+      ]
+    }
+  },
+  "derniers_resultats": {
+    "equipe1": "Saint-Pierre A",
+    "equipe2": "Libramont D",
+    "score1": 13,
+    "score2": 3,
+    "joueurs": [
+      {
+        "nom": "Denis",
+        "victoires": 3
+      },
+      {
+        "nom": "Antoine",
+        "victoires": 4,
+        "highlight": true
+      },
+      {
+        "nom": "Rémi",
+        "victoires": 3
+      },
+      {
+        "nom": "Benja",
+        "victoires": 3
+      }
+    ]
+  },
+  "joueur_du_mois": {
+    "nom": "Antoine Guebs",
+    "victoires": 10,
+    "performances": 6,
+    "points": 76,
+    "mois": "septembre"
+  },
+  "matchs_du_jour": [
+    {
+      "home": "Saint-Pierre A",
+      "away": "Hachy C",
+      "score1": 0,
+      "score2": 0
+    },
+    {
+      "home": "Hondelange A",
+      "away": "Saint-Pierre B (fg)",
+      "score1": 0,
+      "score2": 0
+    },
+    {
+      "home": "Saint-Pierre C",
+      "away": "Marloie D",
+      "score1": 0,
+      "score2": 0
+    },
+    {
+      "home": "Fays-les-veneurs B",
+      "away": "Saint-Pierre D",
+      "score1": 0,
+      "score2": 0
+    },
+    {
+      "home": "Saint-Pierre E",
+      "away": "Schoppach-Arlon G",
+      "score1": 0,
+      "score2": 0
+    },
+    {
+      "home": "Ochamps D",
+      "away": "Saint-Pierre F",
+      "score1": 0,
+      "score2": 0
+    },
+    {
+      "home": "Bras F",
+      "away": "Saint-Pierre G",
+      "score1": 0,
+      "score2": 0
+    }
+  ],
+  "meilleures_perfs": [
+    {
+      "nom": "Florian Vincent",
+      "points": 60
+    },
+    {
+      "nom": "Mathis Jacoby",
+      "points": 48
+    },
+    {
+      "nom": "Rémi Vuidar",
+      "points": 34
+    }
+  ]
+}
