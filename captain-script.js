@@ -141,6 +141,10 @@ function setupEventListeners() {
 
 async function loadMatchData() {
     try {
+        console.log('🔄 Tentative de chargement des données...');
+        console.log('📍 URL:', `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filePath}`);
+        console.log('🔑 Token:', GITHUB_CONFIG.token ? 'Présent' : 'Manquant');
+        
         const response = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filePath}`, {
             headers: {
                 'Authorization': `token ${GITHUB_CONFIG.token}`,
@@ -148,11 +152,14 @@ async function loadMatchData() {
             }
         });
         
+        console.log('📡 Réponse HTTP:', response.status, response.statusText);
+        
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         
         const fileData = await response.json();
+        console.log('📄 Données reçues:', fileData);
         
         // Correction de l'encodage UTF-8
         const binaryString = atob(fileData.content);
