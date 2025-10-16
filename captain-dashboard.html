@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Capitaines - Tennis de Table</title>
+    <link rel="stylesheet" href="captain-styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <img src="img/logo.png" alt="Logo du club" class="logo-img">
+            </div>
+            <h1>Dashboard Capitaines</h1>
+            <p>Saisissez les résultats de votre équipe</p>
+        </header>
+
+        <!-- Sélection d'équipe -->
+        <div class="team-selection">
+            <h2>1. Sélectionnez votre équipe</h2>
+            <div class="team-grid">
+                <button class="team-btn" data-team="Saint-Pierre A">Saint-Pierre A</button>
+                <button class="team-btn" data-team="Saint-Pierre B">Saint-Pierre B</button>
+                <button class="team-btn" data-team="Saint-Pierre C">Saint-Pierre C</button>
+                <button class="team-btn" data-team="Saint-Pierre D">Saint-Pierre D</button>
+                <button class="team-btn" data-team="Saint-Pierre E">Saint-Pierre E</button>
+                <button class="team-btn" data-team="Saint-Pierre F">Saint-Pierre F</button>
+                <button class="team-btn" data-team="Saint-Pierre G">Saint-Pierre G</button>
+            </div>
+        </div>
+
+        <!-- Formulaire de saisie -->
+        <div class="match-form" id="matchForm" style="display: none;">
+            <h2>2. Informations du match</h2>
+            
+            <div class="match-info">
+                <div class="match-details">
+                    <h3 id="matchTitle">Match : </h3>
+                    <div class="score-section">
+                        <label>Score de votre équipe :</label>
+                        <input type="number" id="ourScore" min="0" max="20" placeholder="0">
+                    </div>
+                    <div class="score-section">
+                        <label>Score de l'adversaire :</label>
+                        <input type="number" id="opponentScore" min="0" max="20" placeholder="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="players-section">
+                <h3>3. Joueurs et victoires</h3>
+                <div class="players-grid" id="playersGrid">
+                    <!-- Les joueurs seront générés dynamiquement -->
+                </div>
+            </div>
+
+            <div class="submit-section">
+                <button class="submit-btn" id="submitBtn" disabled>
+                    <span class="btn-text">Envoyer les résultats</span>
+                    <span class="btn-loading" style="display: none;">Envoi en cours...</span>
+                </button>
+                <div class="status-message" id="statusMessage"></div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="instructions">
+            <h3>Instructions :</h3>
+            <ol>
+                <li>Sélectionnez votre équipe</li>
+                <li>Vérifiez les informations du match</li>
+                <li>Saisissez les scores finaux</li>
+                <li>Indiquez le nombre de victoires par joueur</li>
+                <li>Cliquez sur "Envoyer les résultats"</li>
+            </ol>
+        </div>
+    </div>
+
+    <script src="captain-script.js"></script>
+</body>
+</html>
