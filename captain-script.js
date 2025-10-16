@@ -97,9 +97,9 @@ function requestGitHubToken() {
 function validateCaptainPassword(password) {
     // Liste des mots de passe capitaines avec tokens cryptés
     const captainPasswords = {
-        'ping2024': 'Z2l0aHViX3BhdF8xMUJSQjRFR0EwZll3ZXc0RDY1Y3Q2X004UXFnM1NlR0k3YTZpeXBTZTNCQjRjYUVJY2tCSDJGMmpYbld4U0tjdnRQNjdJQUtSNUlMSWhDV1JY',
-        'saintpierre': 'Z2l0aHViX3BhdF8xMUJSQjRFR0EwZll3ZXc0RDY1Y3Q2X004UXFnM1NlR0k3YTZpeXBTZTNCQjRjYUVJY2tCSDJGMmpYbld4U0tjdnRQNjdJQUtSNUlMSWhDV1JY',
-        'tennis2024': 'Z2l0aHViX3BhdF8xMUJSQjRFR0EwZll3ZXc0RDY1Y3Q2X004UXFnM1NlR0k3YTZpeXBTZTNCQjRjYUVJY2tCSDJGMmpYbld4U0tjdnRQNjdJQUtSNUlMSWhDV1JY'
+        'ping2024': 'Z2l0aHViX3BhdF8xMUJSQjRFQ0EwZllyZXc0RDY1Y3Q2X000UXFnM1NlR0k3YTZpeXBTZTNCTjRjYUVJY2tCSDJGMmpYYld4U0tjdnRQNjdJQUtSNUlMSWhDV1JYCg==',
+        'saintpierre': 'Z2l0aHViX3BhdF8xMUJSQjRFQ0EwZllyZXc0RDY1Y3Q2X000UXFnM1NlR0k3YTZpeXBTZTNCTjRjYUVJY2tCSDJGMmpYYld4U0tjdnRQNjdJQUtSNUlMSWhDV1JYCg==',
+        'tennis2024': 'Z2l0aHViX3BhdF8xMUJSQjRFQ0EwZllyZXc0RDY1Y3Q2X000UXFnM1NlR0k3YTZpeXBTZTNCTjRjYUVJY2tCSDJGMmpYYld4U0tjdnRQNjdJQUtSNUlMSWhDV1JYCg=='
     };
     
     return captainPasswords[password] || null;
