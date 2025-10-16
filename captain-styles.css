@@ -154,9 +154,89 @@ body {
 }
 
 
-/* Bouton d'envoi */
-.submit-section {
+/* Formulaire de connexion */
+.login-form {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     text-align: center;
+}
+
+.login-form h3 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+}
+
+.login-input {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.login-input input {
+    padding: 12px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    width: 250px;
+    transition: border-color 0.3s ease;
+}
+
+.login-input input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.login-input button {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(52, 152, 219, 0.3);
+}
+
+.login-input button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+    background: linear-gradient(135deg, #2980b9, #1f618d);
+}
+
+.login-status {
+    font-size: 0.9rem;
+    font-weight: 600;
+    min-height: 20px;
+}
+
+.login-status.success {
+    color: #27ae60;
+}
+
+.login-status.error {
+    color: #e74c3c;
+}
+
+.login-status.info {
+    color: #3498db;
+}
+
+/* Masquer le contenu principal jusqu'à la connexion */
+.main-content {
+    display: none;
+}
+
+.main-content.authenticated {
+    display: block;
 }
 
 .submit-btn {
@@ -198,6 +278,29 @@ body {
     display: inline;
 }
 
+
+
+/* Équipe en forfait */
+.team-forfeit {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    border-radius: 15px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: not-allowed;
+    opacity: 0.7;
+    text-align: center;
+    box-shadow: 0 3px 10px rgba(149, 165, 166, 0.3);
+    transition: all 0.3s ease;
+}
+
+.team-forfeit small {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    font-weight: 400;
+}
 
 
 /* Responsive */

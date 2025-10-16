@@ -17,12 +17,23 @@
             <p>Saisissez les résultats de votre équipe</p>
         </header>
 
+        <!-- Formulaire de connexion -->
+        <div class="login-form" id="loginForm">
+            <h3>🔐 Accès Capitaine</h3>
+            <div class="login-input">
+                <input type="password" id="passwordInput" placeholder="Entrez le mot de passe capitaine" maxlength="20">
+                <button id="loginBtn">Accéder</button>
+            </div>
+            <div class="login-status" id="loginStatus"></div>
+        </div>
+
         <!-- Sélection d'équipe -->
-        <div class="team-selection">
+        <div class="main-content" id="mainContent">
+            <div class="team-selection">
             <h2>1. Sélectionnez votre équipe</h2>
             <div class="team-grid">
                 <button class="team-btn" data-team="Saint-Pierre A">Saint-Pierre A</button>
-                <button class="team-btn" data-team="Saint-Pierre B">Saint-Pierre B</button>
+                <div class="team-forfeit">Saint-Pierre B<br><small>(Forfait saison)</small></div>
                 <button class="team-btn" data-team="Saint-Pierre C">Saint-Pierre C</button>
                 <button class="team-btn" data-team="Saint-Pierre D">Saint-Pierre D</button>
                 <button class="team-btn" data-team="Saint-Pierre E">Saint-Pierre E</button>
@@ -56,6 +67,7 @@
                     <span class="btn-loading" style="display: none;">Envoi en cours...</span>
                 </button>
             </div>
+        </div>
         </div>
 
     </div>

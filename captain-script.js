@@ -10,6 +10,7 @@ const GITHUB_CONFIG = {
 let selectedTeam = null;
 let currentMatchData = null;
 let allMatchesData = null;
+let isAuthenticated = false;
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
@@ -17,28 +18,31 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function initializeApp() {
-    try {
-        console.log('🚀 Initialisation du dashboard...');
+    console.log('🚀 Initialisation du dashboard capitaines...');
+    
+    // Vérifier si déjà authentifié
+    const storedToken = localStorage.getItem('github_token');
+    if (storedToken) {
+        GITHUB_CONFIG.token = storedToken;
+        console.log('✅ Token GitHub récupéré depuis le stockage local');
         
-        // Configurer les événements d'abord (pour que les boutons soient cliquables)
-        setupEventListeners();
-        
-        // Demander le token GitHub si pas configuré
-        if (!GITHUB_CONFIG.token) {
-            requestGitHubToken();
-            return;
+        // Recharger les données avec le token stocké
+        try {
+            await loadMatchData();
+            authenticateUser();
+        } catch (error) {
+            console.error('❌ Erreur avec le token stocké:', error);
+            localStorage.removeItem('github_token');
+            showLoginForm();
         }
-        
-        // Charger les données depuis GitHub
-        await loadMatchData();
-        
-        console.log('✅ Dashboard capitaines initialisé');
-    } catch (error) {
-        console.error('❌ Erreur lors de l\'initialisation:', error);
-        
-        // Même en cas d'erreur, permettre la sélection d'équipe
-        setupEventListeners();
+    } else {
+        showLoginForm();
     }
+    
+    // Configurer les événements
+    setupEventListeners();
+    
+    console.log('✅ Dashboard capitaines initialisé');
 }
 
 function requestGitHubToken() {
@@ -118,7 +122,25 @@ function decryptToken(encryptedToken) {
 function setupEventListeners() {
     console.log('🔧 Configuration des événements...');
     
-    // Boutons d'équipe
+    // Bouton de connexion
+    const loginBtn = document.getElementById('loginBtn');
+    const passwordInput = document.getElementById('passwordInput');
+    
+    if (loginBtn) {
+        loginBtn.addEventListener('click', handleLogin);
+        console.log('✅ Bouton de connexion configuré');
+    }
+    
+    if (passwordInput) {
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
+        console.log('✅ Champ mot de passe configuré');
+    }
+    
+    // Boutons d'équipe (exclure Saint-Pierre B qui est en forfait)
     const teamButtons = document.querySelectorAll('.team-btn');
     console.log(`📋 ${teamButtons.length} boutons d'équipe trouvés`);
     
@@ -139,9 +161,8 @@ function setupEventListeners() {
         console.log('❌ Bouton d\'envoi non trouvé');
     }
     
-    
     // Validation en temps réel
-    const inputs = document.querySelectorAll('input');
+    const inputs = document.querySelectorAll('input[type="number"]');
     inputs.forEach(input => {
         input.addEventListener('input', validateForm);
     });
@@ -253,6 +274,15 @@ function showMatchForm(match) {
     
     // Valider le formulaire
     validateForm();
+    
+    // Scroll automatique vers le formulaire (mobile-friendly)
+    setTimeout(() => {
+        matchForm.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start',
+            inline: 'nearest'
+        });
+    }, 100);
 }
 
 function showTestForm(teamName) {
@@ -277,6 +307,15 @@ function showTestForm(teamName) {
     
     // Valider le formulaire
     validateForm();
+    
+    // Scroll automatique vers le formulaire (mobile-friendly)
+    setTimeout(() => {
+        matchForm.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start',
+            inline: 'nearest'
+        });
+    }, 100);
 }
 
 
@@ -418,5 +457,97 @@ function resetForm() {
     // Réinitialiser les variables
     selectedTeam = null;
     currentMatchData = null;
+}
+
+function showLoginForm() {
+    const loginForm = document.getElementById('loginForm');
+    const mainContent = document.getElementById('mainContent');
+    
+    if (loginForm) {
+        loginForm.style.display = 'block';
+    }
+    if (mainContent) {
+        mainContent.classList.remove('authenticated');
+    }
+}
+
+function authenticateUser() {
+    const loginForm = document.getElementById('loginForm');
+    const mainContent = document.getElementById('mainContent');
+    
+    if (loginForm) {
+        loginForm.style.display = 'none';
+    }
+    if (mainContent) {
+        mainContent.classList.add('authenticated');
+    }
+    
+    isAuthenticated = true;
+    
+    // Scroll vers la sélection d'équipe (mobile-friendly)
+    setTimeout(() => {
+        const teamSelection = document.querySelector('.team-selection');
+        if (teamSelection) {
+            teamSelection.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start',
+                inline: 'nearest'
+            });
+        }
+    }, 200);
+}
+
+async function handleLogin() {
+    const passwordInput = document.getElementById('passwordInput');
+    const loginStatus = document.getElementById('loginStatus');
+    
+    if (!passwordInput) return;
+    
+    const password = passwordInput.value.trim();
+    
+    if (!password) {
+        showLoginStatus('Veuillez entrer un mot de passe', 'error');
+        return;
+    }
+    
+    // Vérifier le mot de passe et récupérer le token crypté
+    const encryptedToken = validateCaptainPassword(password);
+    
+    if (encryptedToken) {
+        // Décrypter le token
+        const token = decryptToken(encryptedToken);
+        if (token) {
+            GITHUB_CONFIG.token = token;
+            localStorage.setItem('github_token', token);
+            console.log('✅ Token GitHub décrypté et configuré');
+            
+            showLoginStatus('Connexion en cours...', 'info');
+            
+            // Recharger les données avec le token
+            try {
+                await loadMatchData();
+                showLoginStatus('✅ Connexion réussie !', 'success');
+                setTimeout(() => {
+                    authenticateUser();
+                }, 1000);
+            } catch (error) {
+                console.error('❌ Erreur avec le token:', error);
+                showLoginStatus('❌ Erreur de connexion', 'error');
+                localStorage.removeItem('github_token');
+            }
+        } else {
+            showLoginStatus('❌ Erreur de décryptage du token', 'error');
+        }
+    } else {
+        showLoginStatus('❌ Mot de passe incorrect', 'error');
+    }
+}
+
+function showLoginStatus(message, type) {
+    const loginStatus = document.getElementById('loginStatus');
+    if (loginStatus) {
+        loginStatus.textContent = message;
+        loginStatus.className = `login-status ${type}`;
+    }
 }
 
