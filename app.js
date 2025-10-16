@@ -83,6 +83,33 @@ createApp({
                     console.log('Données mises à jour depuis le JSON');
                 }
             }, 60000); // Refresh toutes les 60 secondes
+        },
+        getMatchStatus(score1, score2) {
+            const total = score1 + score2;
+            if (total === 0) {
+                return 'Non commencé';
+            } else if (total === 16) {
+                return 'Terminé';
+            } else {
+                return 'En cours';
+            }
+        },
+        getStatusClass(score1, score2) {
+            const total = score1 + score2;
+            if (total === 0) {
+                return 'status-not-started';
+            } else if (total === 16) {
+                return 'status-finished';
+            } else {
+                return 'status-ongoing';
+            }
+        },
+        getTeamColorClass(teamName, teamScore, opponentScore) {
+            // Vérifier si c'est une équipe Saint-Pierre et si le match est terminé
+            if (teamName.includes('Saint-Pierre') && (teamScore + opponentScore) === 16) {
+                return teamScore > opponentScore ? 'team-winner' : 'team-loser';
+            }
+            return '';
         }
     }
 }).mount('#app');

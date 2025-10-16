@@ -11,18 +11,18 @@
   "equipes_data": {
     "Saint-Pierre A": {
       "equipe1": "Saint-Pierre A",
-      "equipe2": "Libramont D",
-      "lieu": "exterieur",
-      "score1": 9,
-      "score2": 7,
+      "equipe2": "Hachy C",
+      "lieu": "domicile",
+      "score1": 12,
+      "score2": 4,
       "joueurs": [
         {
           "nom": "Denis",
-          "victoires": 1
+          "victoires": 4
         },
         {
           "nom": "Antoine",
-          "victoires": 3
+          "victoires": 4
         },
         {
           "nom": "Rémi",
@@ -30,64 +30,14 @@
         },
         {
           "nom": "Benja",
-          "victoires": 2
+          "victoires": 1
         }
       ]
     },
     "Saint-Pierre B": {
-      "equipe1": "Saint-Pierre B",
-      "equipe2": "Centre Ardenne C",
+      "equipe1": "Saint-Pierre B (fg)",
+      "equipe2": "Hondelange A",
       "lieu": "exterieur",
-      "score1": 3,
-      "score2": 13,
-      "joueurs": [
-        {
-          "nom": "Gilles",
-          "victoires": 0
-        },
-        {
-          "nom": "Eric",
-          "victoires": 1
-        },
-        {
-          "nom": "Theo",
-          "victoires": 1
-        },
-        {
-          "nom": "Simon",
-          "victoires": 1
-        }
-      ]
-    },
-    "Saint-Pierre C": {
-      "equipe1": "Saint-Pierre C",
-      "equipe2": "Melreux D (à 3 joueurs)",
-      "lieu": "domicile",
-      "score1": 7,
-      "score2": 9,
-      "joueurs": [
-        {
-          "nom": "Tchouse",
-          "victoires": 2
-        },
-        {
-          "nom": "Eric",
-          "victoires": 0
-        },
-        {
-          "nom": "Aurélien",
-          "victoires": 0
-        },
-        {
-          "nom": "Lucas",
-          "victoires": 1
-        }
-      ]
-    },
-    "Saint-Pierre D": {
-      "equipe1": "Saint-Pierre D",
-      "equipe2": "Basse-Semois B",
-      "lieu": "domicile",
       "score1": 0,
       "score2": 16,
       "joueurs": [
@@ -109,28 +59,78 @@
         }
       ]
     },
+    "Saint-Pierre C": {
+      "equipe1": "Saint-Pierre C",
+      "equipe2": "Marloie D",
+      "lieu": "domicile",
+      "score1": 11,
+      "score2": 5,
+      "joueurs": [
+        {
+          "nom": "Eric V.",
+          "victoires": 4
+        },
+        {
+          "nom": "Eric C.",
+          "victoires": 2
+        },
+        {
+          "nom": "Théo",
+          "victoires": 3
+        },
+        {
+          "nom": "Marc",
+          "victoires": 2
+        }
+      ]
+    },
+    "Saint-Pierre D": {
+      "equipe1": "Saint-Pierre D (1 W.O)",
+      "equipe2": "Fays-les-veneurs B",
+      "lieu": "exterieur",
+      "score1": 2,
+      "score2": 14,
+      "joueurs": [
+        {
+          "nom": "Eric",
+          "victoires": 1
+        },
+        {
+          "nom": "Lucas",
+          "victoires": 0
+        },
+        {
+          "nom": "Titi",
+          "victoires": 2
+        },
+        {
+          "nom": "/",
+          "victoires": 0
+        }
+      ]
+    },
     "Saint-Pierre E": {
       "equipe1": "Saint-Pierre E",
       "equipe2": "Ochamps E",
       "lieu": "domicile",
-      "score1": 13,
-      "score2": 3,
+      "score1": 11,
+      "score2": 5,
       "joueurs": [
         {
           "nom": "Nico Maas",
-          "victoires": 4
+          "victoires": 3
         },
         {
           "nom": "Nico Schimt",
-          "victoires": 4
+          "victoires": 3
         },
         {
           "nom": "Fred",
-          "victoires": 1
+          "victoires": 2
         },
         {
           "nom": "Irchad",
-          "victoires": 4
+          "victoires": 3
         }
       ]
     },
@@ -138,41 +138,41 @@
       "equipe1": "Saint-Pierre F",
       "equipe2": "Jamoigne F",
       "lieu": "exterieur",
-      "score1": 1,
-      "score2": 15,
+      "score1": 4,
+      "score2": 12,
       "joueurs": [
         {
           "nom": "Alina",
-          "victoires": 0
+          "victoires": 2
         },
         {
           "nom": "Anastasia",
-          "victoires": 0
-        },
-        {
-          "nom": "Simon",
           "victoires": 1
         },
         {
-          "nom": "Mathilde",
+          "nom": "Sophie",
+          "victoires": 1
+        },
+        {
+          "nom": "Enzo",
           "victoires": 0
         }
       ]
     },
     "Saint-Pierre G": {
       "equipe1": "Saint-Pierre G",
-      "equipe2": "Centre Ardenne J (à 3 joueurs)",
+      "equipe2": "Centre Ardenne J (1 W.O)",
       "lieu": "exterieur",
-      "score1": 5,
-      "score2": 11,
+      "score1": 3,
+      "score2": 13,
       "joueurs": [
         {
-          "nom": "Charly",
+          "nom": "Mathilde",
           "victoires": 0
         },
         {
           "nom": "Axel",
-          "victoires": 1
+          "victoires": 3
         },
         {
           "nom": "Louis",
@@ -184,31 +184,6 @@
         }
       ]
     }
-  },
-  "derniers_resultats": {
-    "equipe1": "Saint-Pierre A",
-    "equipe2": "Libramont D",
-    "score1": 9,
-    "score2": 7,
-    "joueurs": [
-      {
-        "nom": "Denis",
-        "victoires": 1
-      },
-      {
-        "nom": "Antoine",
-        "victoires": 3,
-        "highlight": true
-      },
-      {
-        "nom": "Rémi",
-        "victoires": 3
-      },
-      {
-        "nom": "Benja",
-        "victoires": 2
-      }
-    ]
   },
   "joueur_du_mois": {
     "nom": "Irchad Poncin",

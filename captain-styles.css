@@ -7,9 +7,9 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-color: #2c2c2c;
     min-height: 100vh;
-    color: #333;
+    color: white;
 }
 
 .container {
@@ -21,45 +21,53 @@ body {
 /* Header */
 .header {
     text-align: center;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(44, 62, 80, 0.95);
     border-radius: 20px;
     padding: 30px;
     margin-bottom: 30px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .logo {
-    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    background: #ff6b35;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
 }
 
 .logo-img {
-    max-height: 80px;
+    max-height: 50px;
     width: auto;
 }
 
 .header h1 {
-    color: #2c3e50;
+    color: white;
     font-size: 2.5rem;
     margin-bottom: 10px;
     font-weight: 700;
 }
 
 .header p {
-    color: #7f8c8d;
+    color: #bdc3c7;
     font-size: 1.1rem;
 }
 
 /* Sélection d'équipe */
 .team-selection {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(44, 62, 80, 0.95);
     border-radius: 20px;
     padding: 30px;
     margin-bottom: 30px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .team-selection h2 {
-    color: #2c3e50;
+    color: white;
     margin-bottom: 20px;
     font-size: 1.8rem;
 }
@@ -71,7 +79,7 @@ body {
 }
 
 .team-btn {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, #ff6b35, #e55a2b);
     color: white;
     border: none;
     padding: 20px;
@@ -80,31 +88,32 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
 }
 
 .team-btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
-    background: linear-gradient(135deg, #2980b9, #1f618d);
+    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+    background: linear-gradient(135deg, #e55a2b, #d14a1b);
 }
 
 .team-btn.selected {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+    background: linear-gradient(135deg, #ecf0f1, #bdc3c7);
+    color: #2c3e50;
+    box-shadow: 0 8px 25px rgba(236, 240, 241, 0.4);
 }
 
 /* Formulaire de match */
 .match-form {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(44, 62, 80, 0.95);
     border-radius: 20px;
     padding: 30px;
     margin-bottom: 30px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .match-form h2 {
-    color: #2c3e50;
+    color: white;
     margin-bottom: 25px;
     font-size: 1.8rem;
 }
@@ -156,16 +165,16 @@ body {
 
 /* Formulaire de connexion */
 .login-form {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(44, 62, 80, 0.95);
     border-radius: 20px;
     padding: 30px;
     margin-bottom: 30px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     text-align: center;
 }
 
 .login-form h3 {
-    color: #2c3e50;
+    color: white;
     margin-bottom: 20px;
     font-size: 1.4rem;
 }
@@ -189,12 +198,12 @@ body {
 
 .login-input input:focus {
     outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    border-color: #ff6b35;
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
 }
 
 .login-input button {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, #ff6b35, #e55a2b);
     color: white;
     border: none;
     padding: 12px 25px;
@@ -203,13 +212,27 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 3px 10px rgba(52, 152, 219, 0.3);
+    box-shadow: 0 3px 10px rgba(255, 107, 53, 0.3);
+    animation: pulse 2s infinite;
 }
 
 .login-input button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
-    background: linear-gradient(135deg, #2980b9, #1f618d);
+    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+    background: linear-gradient(135deg, #e55a2b, #d14a1b);
+    animation: none;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 3px 10px rgba(255, 107, 53, 0.3);
+    }
+    50% {
+        box-shadow: 0 3px 10px rgba(255, 107, 53, 0.6);
+    }
+    100% {
+        box-shadow: 0 3px 10px rgba(255, 107, 53, 0.3);
+    }
 }
 
 .login-status {
@@ -270,8 +293,21 @@ body {
     display: none;
 }
 
-.submit-btn.loading .btn-text {
-    display: none;
+.submit-btn.loading {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    animation: loadingPulse 1.5s infinite;
+}
+
+@keyframes loadingPulse {
+    0% {
+        box-shadow: 0 5px 15px rgba(149, 165, 166, 0.3);
+    }
+    50% {
+        box-shadow: 0 5px 15px rgba(149, 165, 166, 0.6);
+    }
+    100% {
+        box-shadow: 0 5px 15px rgba(149, 165, 166, 0.3);
+    }
 }
 
 .submit-btn.loading .btn-loading {
