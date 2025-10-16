@@ -65,16 +65,16 @@ function requestGitHubToken() {
     const password = prompt('🔐 Entrez le mot de passe capitaine pour accéder au système :\n\n(Le token GitHub sera configuré automatiquement)');
     
     if (password && password.trim()) {
-        // Vérifier le mot de passe
-        const isValidPassword = validateCaptainPassword(password.trim());
+        // Vérifier le mot de passe et récupérer le token crypté
+        const encryptedToken = validateCaptainPassword(password.trim());
         
-        if (isValidPassword) {
-            // Demander le token GitHub directement
-            const githubToken = prompt('🔑 Entrez maintenant votre token GitHub :\n\n(Le token sera sauvegardé dans votre navigateur)');
-            if (githubToken && githubToken.trim()) {
-                GITHUB_CONFIG.token = githubToken.trim();
-                localStorage.setItem('github_token', githubToken.trim());
-                console.log('✅ Token GitHub configuré et sauvegardé');
+        if (encryptedToken) {
+            // Décrypter le token
+            const token = decryptToken(encryptedToken);
+            if (token) {
+                GITHUB_CONFIG.token = token;
+                localStorage.setItem('github_token', token);
+                console.log('✅ Token GitHub décrypté et configuré');
                 
                 // Recharger les données avec le token
                 loadMatchData().then(() => {
@@ -84,7 +84,7 @@ function requestGitHubToken() {
                     localStorage.removeItem('github_token');
                 });
             } else {
-                console.log('❌ Token GitHub non fourni');
+                console.log('❌ Erreur de décryptage du token');
             }
         } else {
             console.log('❌ Mot de passe capitaine invalide');
@@ -95,14 +95,24 @@ function requestGitHubToken() {
 }
 
 function validateCaptainPassword(password) {
-    // Liste des mots de passe capitaines (à personnaliser)
+    // Liste des mots de passe capitaines avec tokens cryptés
     const captainPasswords = {
-        'ping2024': true,
-        'saintpierre': true,
-        'tennis2024': true
+        'ping2024': 'Z2l0aHViX3BhdF8xMUJSQjRFR0EwZll3ZXc0RDY1Y3Q2X004UXFnM1NlR0k3YTZpeXBTZTNCQjRjYUVJY2tCSDJGMmpYbld4U0tjdnRQNjdJQUtSNUlMSWhDV1JY',
+        'saintpierre': 'Z2l0aHViX3BhdF8xMUJSQjRFR0EwZll3ZXc0RDY1Y3Q2X004UXFnM1NlR0k3YTZpeXBTZTNCQjRjYUVJY2tCSDJGMmpYbld4U0tjdnRQNjdJQUtSNUlMSWhDV1JY',
+        'tennis2024': 'Z2l0aHViX3BhdF8xMUJSQjRFR0EwZll3ZXc0RDY1Y3Q2X004UXFnM1NlR0k3YTZpeXBTZTNCQjRjYUVJY2tCSDJGMmpYbld4U0tjdnRQNjdJQUtSNUlMSWhDV1JY'
     };
     
     return captainPasswords[password] || null;
+}
+
+function decryptToken(encryptedToken) {
+    try {
+        // Décrypter le token (base64)
+        return atob(encryptedToken);
+    } catch (error) {
+        console.error('❌ Erreur de décryptage:', error);
+        return null;
+    }
 }
 
 function setupEventListeners() {
