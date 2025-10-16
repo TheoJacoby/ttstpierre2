@@ -223,98 +223,56 @@
       "away": "Saint-Pierre A",
       "score1": 0,
       "score2": 0,
-      "heure": "19:15",
-      "lieu": "Domicile",
-      "joueurs": [
-        { "nom": "Denis"},
-        { "nom": "Antoine" },
-        { "nom": "Rémi" },
-        { "nom": "Benja" }
-      ]
+      "heure": "20:00",
+      "lieu": "Extérieur"
     },
     {
-      "home": "Hondelange A",
-      "away": "Saint-Pierre B (fg)",
-      "score1": 16,
+      "home": "Saint-Pierre B (fg)",
+      "away": "Meix B",
+      "score1": 0,
+      "score2": 16,
+      "heure": "19:15",
+      "lieu": "Domicile"
+    },
+    {
+      "home": "Aye G",
+      "away": "Saint-Pierre C",
+      "score1": 0,
+      "score2": 0,
+      "heure": "15:30",
+      "lieu": "Extérieur"
+    },
+    {
+      "home": "Saint-Pierre D",
+      "away": "Bouillon D",
+      "score1": 0,
       "score2": 0,
       "heure": "19:15",
-      "lieu": "Extérieur",
-      "joueurs": [
-        { "nom": "/" },
-        { "nom": "/" },
-        { "nom": "/" },
-        { "nom": "/" }
-      ]
+      "lieu": "Domicile"
     },
     {
-      "home": "Saint-Pierre C",
-      "away": "Marloie D",
-      "score1": 11,
-      "score2": 5,
-      "heure": "19:15",
-      "lieu": "Domicile",
-      "joueurs": [
-        { "nom": "Eric V" },
-        { "nom": "Eric C" },
-        { "nom": "Theo" },
-        { "nom": "Marc" }
-      ]
-    },
-    {
-      "home": "Fays-les-veneurs B",
-      "away": "Saint-Pierre D",
-      "score1": 14,
-      "score2": 2,
-      "heure": "19:15",
-      "lieu": "Extérieur",
-      "joueurs": [
-        { "nom": "Eric Calay" },
-        { "nom": "Lucas" },
-        { "nom": "Titi" },
-        { "nom": "Romain (WO)" }
-      ]
-    },
-    {
-      "home": "Saint-Pierre E",
-      "away": "Schoppach-Arlon G",
-      "score1": 11,
-      "score2": 5,
+      "home": "Centre Ardenne H",
+      "away": "Saint-Pierre E",
+      "score1": 0,
+      "score2": 0,
       "heure": "15:30",
-      "lieu": "Domicile",
-      "joueurs": [
-        { "nom": "Nico Maas" },
-        { "nom": "Nico Schimt" },
-        { "nom": "Fred" },
-        { "nom": "Irchad" }
-      ]
+      "lieu": "Extérieur"
     },
     {
-      "home": "Ochamps D",
-      "away": "Saint-Pierre F",
-      "score1": 12,
-      "score2": 4,
+      "home": "Saint-Pierre F",
+      "away": "Rulles F",
+      "score1": 0,
+      "score2": 0,
       "heure": "15:30",
-      "lieu": "Extérieur",
-      "joueurs": [
-        { "nom": "Alina" },
-        { "nom": "Anastasia" },
-        { "nom": "Sophie" },
-        { "nom": "Enzo" }
-      ]
+      "lieu": "Domicile"
     },
     {
-      "home": "Bras F",
-      "away": "Saint-Pierre G",
-      "score1": 13,
-      "score2": 3,
+      "home": "Saint-Pierre G",
+      "away": "Ochamps F",
+      "score1": 0,
+      "score2": 0,
       "heure": "15:30",
-      "lieu": "Extérieur",
-      "joueurs": [
-        { "nom": "Mathilde" },
-        { "nom": "Axel" },
-        { "nom": "Louis" },
-        { "nom": "Leo" }
-      ]
+      "lieu": "Domicile"
     }
   ],
   "meilleures_perfs": [

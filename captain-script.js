@@ -35,7 +35,6 @@ async function initializeApp() {
         console.log('✅ Dashboard capitaines initialisé');
     } catch (error) {
         console.error('❌ Erreur lors de l\'initialisation:', error);
-        showStatus('Erreur lors du chargement des données. Les boutons d\'équipe devraient quand même fonctionner.', 'error');
         
         // Même en cas d'erreur, permettre la sélection d'équipe
         setupEventListeners();
@@ -43,23 +42,67 @@ async function initializeApp() {
 }
 
 function requestGitHubToken() {
-    const token = prompt('🔑 Entrez votre token GitHub pour permettre la mise à jour automatique des données :\n\n(Optionnel - vous pouvez laisser vide pour tester l\'interface)');
+    // Vérifier si le token est déjà stocké
+    const storedToken = localStorage.getItem('github_token');
     
-    if (token && token.trim()) {
-        GITHUB_CONFIG.token = token.trim();
-        console.log('✅ Token GitHub configuré');
+    if (storedToken) {
+        GITHUB_CONFIG.token = storedToken;
+        console.log('✅ Token GitHub récupéré depuis le stockage local');
         
-        // Recharger les données avec le token
+        // Recharger les données avec le token stocké
         loadMatchData().then(() => {
-            showStatus('✅ Token configuré et données chargées !', 'success');
+            console.log('✅ Données chargées avec le token sauvegardé');
         }).catch(error => {
-            console.error('❌ Erreur avec le token:', error);
-            showStatus('❌ Token invalide ou erreur de connexion', 'error');
+            console.error('❌ Erreur avec le token stocké:', error);
+            // Token invalide, le supprimer
+            localStorage.removeItem('github_token');
+            requestGitHubToken();
         });
-    } else {
-        console.log('ℹ️ Pas de token configuré - mode test uniquement');
-        showStatus('ℹ️ Mode test - Configurez un token GitHub pour la mise à jour automatique', 'info');
+        return;
     }
+    
+    // Demander le mot de passe capitaine
+    const password = prompt('🔐 Entrez le mot de passe capitaine pour accéder au système :\n\n(Le token GitHub sera configuré automatiquement)');
+    
+    if (password && password.trim()) {
+        // Vérifier le mot de passe
+        const isValidPassword = validateCaptainPassword(password.trim());
+        
+        if (isValidPassword) {
+            // Demander le token GitHub directement
+            const githubToken = prompt('🔑 Entrez maintenant votre token GitHub :\n\n(Le token sera sauvegardé dans votre navigateur)');
+            if (githubToken && githubToken.trim()) {
+                GITHUB_CONFIG.token = githubToken.trim();
+                localStorage.setItem('github_token', githubToken.trim());
+                console.log('✅ Token GitHub configuré et sauvegardé');
+                
+                // Recharger les données avec le token
+                loadMatchData().then(() => {
+                    console.log('✅ Accès autorisé ! Données chargées.');
+                }).catch(error => {
+                    console.error('❌ Erreur avec le token:', error);
+                    localStorage.removeItem('github_token');
+                });
+            } else {
+                console.log('❌ Token GitHub non fourni');
+            }
+        } else {
+            console.log('❌ Mot de passe capitaine invalide');
+        }
+    } else {
+        console.log('ℹ️ Pas de mot de passe saisi - mode test uniquement');
+    }
+}
+
+function validateCaptainPassword(password) {
+    // Liste des mots de passe capitaines (à personnaliser)
+    const captainPasswords = {
+        'ping2024': true,
+        'saintpierre': true,
+        'tennis2024': true
+    };
+    
+    return captainPasswords[password] || null;
 }
 
 function setupEventListeners() {
@@ -86,6 +129,7 @@ function setupEventListeners() {
         console.log('❌ Bouton d\'envoi non trouvé');
     }
     
+    
     // Validation en temps réel
     const inputs = document.querySelectorAll('input');
     inputs.forEach(input => {
@@ -109,10 +153,24 @@ async function loadMatchData() {
         }
         
         const fileData = await response.json();
-        const content = atob(fileData.content);
+        
+        // Correction de l'encodage UTF-8
+        const binaryString = atob(fileData.content);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        const content = new TextDecoder('utf-8').decode(bytes);
+        
         allMatchesData = JSON.parse(content);
         
-        console.log('✅ Données chargées depuis GitHub');
+        console.log('✅ Données chargées depuis GitHub avec encodage UTF-8');
+        console.log('📊 Matchs trouvés:', allMatchesData.matchs_du_jour?.length || 0);
+        
+        // Debug : afficher les premiers matchs pour vérifier l'encodage
+        if (allMatchesData.matchs_du_jour && allMatchesData.matchs_du_jour.length > 0) {
+            console.log('🔍 Premier match:', allMatchesData.matchs_du_jour[0]);
+        }
     } catch (error) {
         console.error('❌ Erreur lors du chargement:', error);
         throw error;
@@ -140,7 +198,6 @@ function selectTeam(teamName) {
         showMatchForm(match);
     } else {
         console.log('❌ Aucun match trouvé pour', teamName);
-        showStatus(`Aucun match trouvé pour ${teamName}. Vérifiez que les données sont chargées.`, 'error');
         
         // Afficher quand même un formulaire de test
         showTestForm(teamName);
@@ -160,6 +217,8 @@ function findTeamMatch(teamName) {
 function showMatchForm(match) {
     const matchForm = document.getElementById('matchForm');
     const matchTitle = document.getElementById('matchTitle');
+    const team1Label = document.getElementById('team1Label');
+    const team2Label = document.getElementById('team2Label');
     
     // Afficher le formulaire
     matchForm.style.display = 'block';
@@ -167,12 +226,13 @@ function showMatchForm(match) {
     // Mettre à jour le titre
     matchTitle.textContent = `Match : ${match.home} vs ${match.away}`;
     
-    // Générer les joueurs
-    generatePlayersForm(match);
+    // Mettre à jour les labels avec les noms des équipes
+    team1Label.textContent = `${match.home} :`;
+    team2Label.textContent = `${match.away} :`;
     
     // Réinitialiser les scores
-    document.getElementById('ourScore').value = match.score1 || 0;
-    document.getElementById('opponentScore').value = match.score2 || 0;
+    document.getElementById('team1Score').value = match.score1 || 0;
+    document.getElementById('team2Score').value = match.score2 || 0;
     
     // Valider le formulaire
     validateForm();
@@ -181,6 +241,8 @@ function showMatchForm(match) {
 function showTestForm(teamName) {
     const matchForm = document.getElementById('matchForm');
     const matchTitle = document.getElementById('matchTitle');
+    const team1Label = document.getElementById('team1Label');
+    const team2Label = document.getElementById('team2Label');
     
     // Afficher le formulaire
     matchForm.style.display = 'block';
@@ -188,90 +250,31 @@ function showTestForm(teamName) {
     // Mettre à jour le titre avec un message de test
     matchTitle.textContent = `Test - ${teamName} (données non chargées)`;
     
-    // Générer un formulaire de test avec des joueurs fictifs
-    const testMatch = {
-        home: teamName,
-        away: "Adversaire",
-        joueurs: [
-            { nom: "Joueur 1" },
-            { nom: "Joueur 2" },
-            { nom: "Joueur 3" },
-            { nom: "Joueur 4" }
-        ]
-    };
-    
-    generatePlayersForm(testMatch);
+    // Mettre à jour les labels avec des noms de test
+    team1Label.textContent = `${teamName} :`;
+    team2Label.textContent = `Adversaire :`;
     
     // Réinitialiser les scores
-    document.getElementById('ourScore').value = 0;
-    document.getElementById('opponentScore').value = 0;
+    document.getElementById('team1Score').value = 0;
+    document.getElementById('team2Score').value = 0;
     
     // Valider le formulaire
     validateForm();
 }
 
-function generatePlayersForm(match) {
-    const playersGrid = document.getElementById('playersGrid');
-    playersGrid.innerHTML = '';
-    
-    const players = match.joueurs || [];
-    
-    players.forEach((player, index) => {
-        const playerCard = document.createElement('div');
-        playerCard.className = 'player-card';
-        playerCard.innerHTML = `
-            <h4>${player.nom}</h4>
-            <label>Victoires :</label>
-            <input type="number" 
-                   id="player-${index}" 
-                   min="0" 
-                   max="4" 
-                   value="${player.victoires || 0}"
-                   placeholder="0">
-        `;
-        playersGrid.appendChild(playerCard);
-    });
-    
-    // Ajouter les événements de validation
-    const playerInputs = playersGrid.querySelectorAll('input');
-    playerInputs.forEach(input => {
-        input.addEventListener('input', validateForm);
-    });
-}
 
 function validateForm() {
-    const ourScore = parseInt(document.getElementById('ourScore').value) || 0;
-    const opponentScore = parseInt(document.getElementById('opponentScore').value) || 0;
+    const team1Score = parseInt(document.getElementById('team1Score').value) || 0;
+    const team2Score = parseInt(document.getElementById('team2Score').value) || 0;
     
-    // Vérifier que les scores sont valides
-    const scoresValid = ourScore >= 0 && opponentScore >= 0 && (ourScore + opponentScore) <= 32;
-    
-    // Vérifier que la somme des victoires des joueurs correspond au score
-    const playerInputs = document.querySelectorAll('#playersGrid input');
-    let totalVictories = 0;
-    
-    playerInputs.forEach(input => {
-        totalVictories += parseInt(input.value) || 0;
-    });
-    
-    const victoriesValid = totalVictories === ourScore;
+    // Vérifier que les scores sont valides (positifs seulement)
+    const scoresValid = team1Score >= 0 && team2Score >= 0;
     
     // Activer/désactiver le bouton
     const submitBtn = document.getElementById('submitBtn');
-    const isValid = scoresValid && victoriesValid && selectedTeam;
+    const isValid = scoresValid && selectedTeam;
     
     submitBtn.disabled = !isValid;
-    
-    // Afficher les messages d'erreur
-    if (ourScore > 0 || opponentScore > 0) {
-        if (!scoresValid) {
-            showStatus('Les scores doivent être valides (max 16 chacun)', 'error');
-        } else if (!victoriesValid) {
-            showStatus(`La somme des victoires (${totalVictories}) doit correspondre au score de votre équipe (${ourScore})`, 'error');
-        } else {
-            showStatus('Formulaire valide', 'success');
-        }
-    }
 }
 
 async function submitResults() {
@@ -293,7 +296,7 @@ async function submitResults() {
         // Envoyer vers GitHub
         await sendToGitHub();
         
-        showStatus('✅ Résultats envoyés avec succès !', 'success');
+        console.log('✅ Résultats envoyés avec succès !');
         
         // Réinitialiser le formulaire après 3 secondes
         setTimeout(() => {
@@ -302,7 +305,6 @@ async function submitResults() {
         
     } catch (error) {
         console.error('❌ Erreur lors de l\'envoi:', error);
-        showStatus(`❌ Erreur lors de l'envoi: ${error.message}`, 'error');
     } finally {
         // Masquer l'état de chargement
         submitBtn.classList.remove('loading');
@@ -311,24 +313,12 @@ async function submitResults() {
 }
 
 function collectFormData() {
-    const ourScore = parseInt(document.getElementById('ourScore').value);
-    const opponentScore = parseInt(document.getElementById('opponentScore').value);
-    
-    const players = [];
-    const playerInputs = document.querySelectorAll('#playersGrid input');
-    
-    playerInputs.forEach((input, index) => {
-        const playerName = currentMatchData.joueurs[index].nom;
-        players.push({
-            nom: playerName,
-            victoires: parseInt(input.value) || 0
-        });
-    });
+    const team1Score = parseInt(document.getElementById('team1Score').value);
+    const team2Score = parseInt(document.getElementById('team2Score').value);
     
     return {
-        ourScore,
-        opponentScore,
-        players
+        team1Score,
+        team2Score
     };
 }
 
@@ -340,13 +330,10 @@ function updateMatchData(formData) {
     
     if (matchIndex !== -1) {
         // Mettre à jour les scores
-        allMatchesData.matchs_du_jour[matchIndex].score1 = formData.ourScore;
-        allMatchesData.matchs_du_jour[matchIndex].score2 = formData.opponentScore;
+        allMatchesData.matchs_du_jour[matchIndex].score1 = formData.team1Score;
+        allMatchesData.matchs_du_jour[matchIndex].score2 = formData.team2Score;
         
-        // Mettre à jour les joueurs
-        allMatchesData.matchs_du_jour[matchIndex].joueurs = formData.players;
-        
-        console.log('✅ Données mises à jour localement');
+        console.log('✅ Scores mis à jour localement');
     }
 }
 
@@ -367,9 +354,11 @@ async function sendToGitHub() {
         const fileData = await getResponse.json();
         const sha = fileData.sha;
         
-        // Préparer le contenu
-        const content = JSON.stringify(allMatchesData, null, 2);
-        const encodedContent = btoa(unescape(encodeURIComponent(content)));
+    // Préparer le contenu avec encodage UTF-8 correct
+    const content = JSON.stringify(allMatchesData, null, 2);
+    const encoder = new TextEncoder();
+    const bytes = encoder.encode(content);
+    const encodedContent = btoa(String.fromCharCode(...bytes));
         
         // Envoyer la mise à jour
         const updateResponse = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filePath}`, {
@@ -399,17 +388,6 @@ async function sendToGitHub() {
     }
 }
 
-function showStatus(message, type) {
-    const statusMessage = document.getElementById('statusMessage');
-    statusMessage.textContent = message;
-    statusMessage.className = `status-message ${type}`;
-    
-    // Masquer le message après 5 secondes
-    setTimeout(() => {
-        statusMessage.textContent = '';
-        statusMessage.className = 'status-message';
-    }, 5000);
-}
 
 function resetForm() {
     // Réinitialiser la sélection d'équipe
@@ -423,7 +401,5 @@ function resetForm() {
     // Réinitialiser les variables
     selectedTeam = null;
     currentMatchData = null;
-    
-    // Masquer le message de statut
-    showStatus('', '');
 }
+

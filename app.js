@@ -12,8 +12,7 @@ createApp({
             },
             dataLoaded: false,
             currentEquipeIndex: 0,
-            isFading: false,
-            expandedMatch: null // Index du match déroulé (-1 si aucun)
+            isFading: false
         };
     },
     computed: {
@@ -84,28 +83,6 @@ createApp({
                     console.log('Données mises à jour depuis le JSON');
                 }
             }, 60000); // Refresh toutes les 60 secondes
-        },
-        toggleMatch(index) {
-            this.expandedMatch = this.expandedMatch === index ? null : index;
-        },
-        getMatchPlayers(match) {
-            // Vérifier si c'est une équipe Saint-Pierre (home ou away)
-            const homeTeam = match.home;
-            const awayTeam = match.away;
-            
-            // Si l'équipe home est Saint-Pierre, retourner ses joueurs
-            if (homeTeam.includes('Saint-Pierre') && match.joueurs) {
-                return match.joueurs;
-            }
-            
-            // Si l'équipe away est Saint-Pierre, retourner un message ou les joueurs si disponibles
-            if (awayTeam.includes('Saint-Pierre')) {
-                // Pour les matchs à l'extérieur, on n'a pas forcément les joueurs
-                return match.joueurs || [];
-            }
-            
-            // Si pas trouvé, retourner un tableau vide
-            return [];
         }
     }
 }).mount('#app');
