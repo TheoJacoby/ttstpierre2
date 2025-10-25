@@ -196,8 +196,8 @@
     {
       "home": "Saint-Pierre A",
       "away": "Ochamps A",
-      "score1": 3,
-      "score2": 11,
+      "score1": 4,
+      "score2": 12,
       "heure": "19:15",
       "lieu": "Domicile"
     },
@@ -212,15 +212,15 @@
     {
       "home": "Saint-Pierre C",
       "away": "Wellin C",
-      "score1": 11,
-      "score2": 3,
+      "score1": 12,
+      "score2": 4,
       "heure": "15:30",
       "lieu": "Domicile"
     },
     {
       "home": "Centre Ardenne E",
       "away": "Saint-Pierre D",
-      "score1": 5,
+      "score1": 15,
       "score2": 1,
       "heure": "19:00",
       "lieu": "Extérieur"
