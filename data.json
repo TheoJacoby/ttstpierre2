@@ -228,8 +228,8 @@
     {
       "home": "Saint-Pierre E",
       "away": "Musson I",
-      "score1": 10,
-      "score2": 4,
+      "score1": 5,
+      "score2": 3,
       "heure": "15:30",
       "lieu": "Domicile"
     },
@@ -244,7 +244,7 @@
     {
       "home": "Libramont H",
       "away": "Saint-Pierre G",
-      "score1": 13,
+      "score1": 15,
       "score2": 1,
       "heure": "15:30",
       "lieu": "Extérieur"
