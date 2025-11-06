@@ -186,11 +186,11 @@
     }
   },
   "joueur_du_mois": {
-    "nom": "Irchad Poncin",
-    "victoires": 7,
-    "performances": 2,
-    "points": 87,
-    "mois": "septembre"
+    "nom": "Éric Vermersch",
+    "victoires": 16,
+    "performances": 3,
+    "points": 103,
+    "mois": "octobre"
   },
   "matchs_du_jour": [
     {
@@ -252,16 +252,16 @@
   ],
   "meilleures_perfs": [
     {
-      "nom": "Lucas Maas",
-      "points": 68
+      "nom": "Théo Jacoby (GOAT)",
+      "points": 31
     },
     {
-      "nom": "Nicolas Maas",
-      "points": 28
+      "nom": "Denis",
+      "points": 30
     },
     {
-      "nom": "Enzo Jacoby",
-      "points": 26
+      "nom": "Nico Schmit",
+      "points": 30
     }
   ]
 }
