@@ -10,8 +10,8 @@
   ],
   "equipes_data": {
     "Saint-Pierre A": {
-      "equipe1": "Ochamps A",
-      "equipe2": "Saint-Pierre A",
+      "equipe1": "Saint-Pierre A",
+      "equipe2": "Ochamps A",
       "lieu": "domicile",
       "score1": 4,
       "score2": 12,
@@ -87,7 +87,7 @@
     "Saint-Pierre D": {
       "equipe1": "Centre Ardenne E",
       "equipe2": "Saint-Pierre D",
-      "lieu": "exterieur",
+      "lieu": "extérieur",
       "score1": 15,
       "score2": 1,
       "joueurs": [
@@ -137,7 +137,7 @@
     "Saint-Pierre F": {
       "equipe1": "Attert E",
       "equipe2": "Saint-Pierre F",
-      "lieu": "exterieur",
+      "lieu": "extérieur",
       "score1": 13,
       "score2": 3,
       "joueurs": [
@@ -162,7 +162,7 @@
     "Saint-Pierre G": {
       "equipe1": "Libramont H",
       "equipe2": "Saint-Pierre G (à 3)",
-      "lieu": "exterieur",
+      "lieu": "extérieur",
       "score1": 15,
       "score2": 1,
       "joueurs": [
