@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles.css?v=logo_white_fix">
+    <link rel="stylesheet" href="styles.css?v=final_cursor_glass">
     
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
 </head>
@@ -23,7 +23,7 @@
             <header class="header">
                 <div class="logo-container">
                     <div class="logo">
-                        <img src="img/logoTT.png" alt="Logo du club" class="logo-img">
+                        <img src="img/logoTT.png" alt="Logo TT Saint-Pierre" class="logo-img">
                     </div>
                 </div>
             </header>
@@ -85,14 +85,23 @@
                         <h2 class="section-title">Matchs du jour</h2>
                         <div class="matches-list">
                             <div class="match-row" v-for="(match, idx) in matchesWithScores" :key="idx">
+                                
+                                <div class="match-icon-wrapper">
+                                    <span v-if="match.lieu === 'Domicile' || match.lieu === 'domicile'" class="match-icon home">🏠</span>
+                                    <span v-else class="match-icon away">🚗</span>
+                                </div>
+
                                 <div class="match-teams">
                                     <span class="team-home" :class="getTeamColorClass(match.home, match.score1, match.score2)">{{ match.home }}</span>
                                     <span class="vs-badge">{{ match.score1 }} - {{ match.score2 }}</span>
                                     <span class="team-away" :class="getTeamColorClass(match.away, match.score2, match.score1)">{{ match.away }}</span>
                                 </div>
+                                
                                 <div class="match-meta">
                                     <span class="match-time">{{ match.heure }}</span>
-                                    <span class="status-pill" :class="getStatusClass(match.score1, match.score2)">{{ getMatchStatus(match.score1, match.score2) }}</span>
+                                    <span class="status-pill" :class="getStatusClass(match.score1, match.score2)">
+                                        {{ getMatchStatus(match.score1, match.score2) }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -112,8 +121,12 @@
                 </div>
             </main>
         </div>
-        <div v-else class="loading-screen"><div class="loader"></div></div>
+        
+        <div v-else class="loading-screen">
+            <div class="loader"></div>
+        </div>
     </div>
+
     <script src="app.js"></script>
 </body>
 </html>
