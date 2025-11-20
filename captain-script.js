@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function initializeApp() {
-    console.log('🚀 Initialisation du dashboard capitaines...');
+    console.log('Initialisation du dashboard capitaines...');
     
     // Vérifier si déjà authentifié
     const storedToken = localStorage.getItem('github_token');
