@@ -1,119 +1,250 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Tennis de Table - Liquid Edition</title>
+/* --- VARIABLES & RESET --- */
+:root {
+    --primary-orange: #ff6b35;
+    --bg-dark: #0f0f13;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-main: #ffffff;
+    --font-stack: 'Inter', sans-serif;
+    --success: #00f2a9;
+    --danger: #ff4b4b;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden; /* Pas de scroll global */
+    background-color: var(--bg-dark);
+    color: white;
+    font-family: var(--font-stack);
+    background: radial-gradient(circle at top center, #1a1a20 0%, #000000 100%);
+}
+
+/* --- FOND LIQUID ANIMÉ --- */
+.ambient-light { position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.4; animation: float 15s infinite alternate; }
+.ambient-light.one { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--primary-orange); opacity: 0.2; }
+.ambient-light.two { bottom: -10%; right: -10%; width: 40vw; height: 40vw; background: #4a00e0; opacity: 0.2; }
+.ambient-light.three { top: 30%; left: 40%; width: 25vw; height: 25vw; background: radial-gradient(circle, #00d2ff, transparent 70%); opacity: 0.1; animation-delay: -10s; }
+
+@keyframes float { 0% { transform: translate(0,0); } 100% { transform: translate(20px,20px); } }
+
+/* --- LAYOUT GLOBAL --- */
+.container {
+    height: 100vh;
+    padding: 1.5vh 2vw;
+    display: flex;
+    flex-direction: column;
+}
+
+/* HEADER & LOGO */
+.header { height: 10vh; display: flex; justify-content: center; align-items: center; margin-bottom: 1vh; flex-shrink: 0; }
+
+.logo-container { 
+    width: 18vh; /* Ajusté pour bonne visibilité */
+    height: 100%; 
+    display: flex; align-items: center; justify-content: center;
+    position: relative; 
+}
+
+.logo { 
+    width: 100%; height: 100%; background: transparent; border: none;
+    display: flex; align-items: center; justify-content: center; 
+}
+
+.logo-img { 
+    height: auto; 
+    max-height: 100%; 
+    max-width: 100%;
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    /* LA FORMULE MAGIQUE : */
+    /* 1. invert(1): Inverse tout (Noir->Blanc, Orange->Bleu) */
+    /* 2. hue-rotate(180deg): Tourne le Bleu pour qu'il redevienne Orange */
+    /* 3. brightness(1.5): Éclaire l'orange qui a tendance à s'assombrir à l'inversion */
+    /* 4. saturate(1.2): Ravive la couleur */
+    filter: invert(1) hue-rotate(180deg) brightness(1.5) saturate(1.2);
     
-    <link rel="stylesheet" href="styles.css?v=logo_white_fix">
-    
-    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
-</head>
-<body>
-    <div class="ambient-light one"></div>
-    <div class="ambient-light two"></div>
-    <div class="ambient-light three"></div>
+    opacity: 1;
+}
+/* GRILLE PRINCIPALE */
+.main-content {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 400px 1fr; /* Gauche fixe, Droite flexible */
+    gap: 1.5vw;
+    min-height: 0;
+    padding-bottom: 1vh;
+}
 
-    <div id="app">
-        <div class="container" v-if="dataLoaded">
-            <header class="header">
-                <div class="logo-container">
-                    <div class="logo">
-                        <img src="img/logoTT.png" alt="Logo du club" class="logo-img">
-                    </div>
-                </div>
-            </header>
+/* --- COLONNE GAUCHE --- */
+.left-column { 
+    display: flex; flex-direction: column; gap: 1.5vh; height: 100%; 
+}
 
-            <main class="main-content">
-                <div class="left-column">
-                    <div class="glass-card fixed-width">
-                        <h2 class="card-title">Derniers résultats</h2>
-                        
-                        <div class="results-container" :class="{ fading: isFading }">
-                            <div class="result-slide">
-                                <div class="main-result">
-                                    <span class="team-name team1" :class="getTeamColorClass(currentResult.leftTeam, currentResult.leftScore, currentResult.rightScore)">{{ currentResult.leftTeam }}</span>
-                                    <div class="score-badge">
-                                        <span class="score-val">{{ currentResult.leftScore }}</span>
-                                        <span class="score-sep">-</span>
-                                        <span class="score-val">{{ currentResult.rightScore }}</span>
-                                    </div>
-                                    <span class="team-name team2" :class="getTeamColorClass(currentResult.rightTeam, currentResult.rightScore, currentResult.leftScore)">{{ currentResult.rightTeam }}</span>
-                                </div>
-                                
-                                <div class="player-results">
-                                    <div class="player-result" v-for="(joueur, idx) in currentResult.joueurs" :key="idx">
-                                        <span class="player-name">{{ joueur.nom }}</span>
-                                        <span class="player-victories">
-                                            <span class="vic-count">{{ joueur.victoires }}</span>
-                                            <span class="vic-label">{{ joueur.victoires === 1 ? 'victoire' : 'victoires' }}</span>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+/* 1. DERNIERS RÉSULTATS (Prend 60% de l'espace gauche) */
+.glass-card.fixed-width { 
+    flex: 1.5; 
+    display: flex; flex-direction: column; justify-content: space-evenly;
+}
 
-                    <div class="glass-card highlight-card">
-                        <div class="card-header">
-                            <h2 class="card-title">{{ data.joueur_du_mois.genre === 'F' ? 'Joueuse' : 'Joueur' }} du mois</h2>
-                            <span class="month-badge">{{ data.joueur_du_mois.mois }}</span>
-                        </div>
-                        <div class="player-of-month">
-                            <div class="player-avatar">
-                                <div class="avatar-circle">{{ data.joueur_du_mois.genre === 'F' ? '👩' : '👨' }}</div>
-                                <div class="avatar-glow"></div>
-                            </div>
-                            <div class="player-info">
-                                <h3 class="player-hero-name">{{ data.joueur_du_mois.nom }}</h3>
-                                <div class="stats-grid">
-                                    <div class="stat-box"><span class="stat-num">{{ data.joueur_du_mois.victoires }}</span><span class="stat-label">Victoires</span></div>
-                                    <div class="stat-box accent"><span class="stat-num">{{ data.joueur_du_mois.performances }}</span><span class="stat-label">Perfs</span></div>
-                                    <div class="stat-box"><span class="stat-num">+{{ data.joueur_du_mois.points }}</span><span class="stat-label">Points</span></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+/* 2. JOUEUR DU MOIS (Prend 40% de l'espace gauche) */
+.highlight-card { 
+    flex: 1; 
+    background: linear-gradient(160deg, rgba(255,255,255,0.05), transparent); 
+    justify-content: center; 
+    padding: 1vh 1vw;
+}
 
-                <div class="middle-column">
-                    <div class="glass-panel scrollable-panel">
-                        <h2 class="section-title">Matchs du jour</h2>
-                        <div class="matches-list">
-                            <div class="match-row" v-for="(match, idx) in matchesWithScores" :key="idx">
-                                <div class="match-teams">
-                                    <span class="team-home" :class="getTeamColorClass(match.home, match.score1, match.score2)">{{ match.home }}</span>
-                                    <span class="vs-badge">{{ match.score1 }} - {{ match.score2 }}</span>
-                                    <span class="team-away" :class="getTeamColorClass(match.away, match.score2, match.score1)">{{ match.away }}</span>
-                                </div>
-                                <div class="match-meta">
-                                    <span class="match-time">{{ match.heure }}</span>
-                                    <span class="status-pill" :class="getStatusClass(match.score1, match.score2)">{{ getMatchStatus(match.score1, match.score2) }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+/* --- COLONNE DROITE --- */
+.middle-column { 
+    display: grid; 
+    /* Haut flexible, Bas affiné à 18vh */
+    grid-template-rows: 1fr 18vh; 
+    gap: 1.5vh; 
+    height: 100%;
+}
 
-                    <div class="glass-panel small-panel">
-                        <h2 class="section-title">Meilleures perfs <span class="orange-dot">.</span></h2>
-                        <div class="performances-grid">
-                            <div class="perf-card" v-for="(perf, idx) in data.meilleures_perfs" :key="idx">
-                                <div class="perf-info">
-                                    <span class="perf-points">+{{ perf.points }}</span>
-                                    <span class="perf-name">{{ perf.nom }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-        <div v-else class="loading-screen"><div class="loader"></div></div>
-    </div>
-    <script src="app.js"></script>
-</body>
-</html>
+/* --- GLASS CARD BASE --- */
+.glass-card, .glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.5vh 1.2vw;
+    position: relative;
+    display: flex; flex-direction: column;
+    color: white !important; /* FORCE LE TEXTE BLANC */
+}
+
+.card-title, .section-title {
+    font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: #ccc !important; margin-bottom: 1vh; font-weight: 700; flex-shrink: 0;
+}
+
+/* --- CONTENU GAUCHE --- */
+
+/* Animation fluide des résultats */
+.results-container {
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 1; transform: translateY(0) scale(1); filter: blur(0);
+}
+.results-container.fading {
+    opacity: 0; transform: translateY(20px) scale(0.95); filter: blur(10px);
+}
+
+/* Carte score principale */
+.main-result {
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255, 107, 53, 0.3);
+    border-radius: 12px; padding: 2vh 1vw;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin-bottom: 2vh; flex-grow: 1;
+}
+
+.score-badge {
+    font-size: 3rem; font-weight: 900; 
+    background: -webkit-linear-gradient(#fff, var(--primary-orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.5));
+    margin: 0.5vh 0; line-height: 1;
+}
+.team-name { font-size: 1.1rem; font-weight: 700; color: white !important; text-align: center; }
+
+/* Liste joueurs */
+.player-results { display: flex; flex-direction: column; gap: 0.5vh; }
+.player-result { 
+    display: flex; justify-content: space-between; 
+    background: rgba(255,255,255,0.05); padding: 0.6vh 1vw; border-radius: 6px; 
+    border-left: 3px solid var(--primary-orange);
+}
+.player-name { font-size: 0.95rem; color: white !important; }
+.vic-count { font-weight: bold; color: var(--primary-orange) !important; }
+
+/* Joueur du mois */
+.card-header { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 1.5vh; }
+.month-badge { font-size: 0.8rem; background: rgba(255,107,53,0.2); color: var(--primary-orange); padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(255,107,53,0.3); }
+.player-of-month { display: flex; flex-direction: column; align-items: center; gap: 1vh; }
+.player-avatar { width: 9vh; height: 9vh; position: relative; flex-shrink: 0; }
+.avatar-circle { width: 100%; height: 100%; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; border: 2px solid rgba(255,255,255,0.1); position: relative; z-index: 2; }
+.avatar-glow { position: absolute; inset: 0; background: var(--primary-orange); filter: blur(15px); opacity: 0.5; border-radius: 50%; }
+.player-hero-name { font-size: 1.5rem; font-weight: 800; color: white !important; margin: 0.5vh 0; }
+
+.stats-grid { display: flex; gap: 10px; justify-content: center; width: 100%; }
+.stat-box { background: rgba(0,0,0,0.4); padding: 0.8vh 1vw; border-radius: 8px; min-width: 60px; text-align: center; }
+.stat-box.accent { border: 1px solid rgba(255, 107, 53, 0.4); background: rgba(255, 107, 53, 0.1); }
+.stat-num { display: block; font-size: 1.1rem; font-weight: 800; color: white !important; }
+.stat-box.accent .stat-num { color: var(--primary-orange) !important; }
+.stat-label { font-size: 0.65rem; color: #aaa !important; text-transform: uppercase; }
+
+/* --- CONTENU DROITE --- */
+
+/* Matchs du jour */
+.scrollable-panel { overflow: hidden; display: flex; flex-direction: column; }
+.matches-list { 
+    flex: 1; 
+    display: flex; flex-direction: column; justify-content: space-evenly; /* Répartition égale */
+    gap: 4px; 
+    overflow: hidden;
+}
+
+.match-row {
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(255,255,255,0.03); padding: 0.8vh 1vw;
+    border-radius: 10px; min-height: 4vh;
+}
+.match-teams { display: flex; align-items: center; gap: 10px; flex: 1; overflow: hidden; }
+.team-home, .team-away { font-weight: 700; font-size: 1rem; color: white !important; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; flex: 1; }
+.team-home { text-align: right; }
+.vs-badge { background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 4px; font-weight: 700; color: var(--primary-orange); font-family: monospace; font-size: 1rem; min-width: 50px; text-align: center; }
+.match-meta { display: flex; flex-direction: column; align-items: flex-end; min-width: 80px; margin-left: 10px; }
+.match-time { font-weight: 600; font-size: 0.9rem; color: white !important; }
+.status-pill { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-top: 2px; text-transform: uppercase; }
+.status-ongoing { color: #ffd700; background: rgba(255, 215, 0, 0.1); }
+.status-finished { color: var(--success); background: rgba(0, 242, 169, 0.1); }
+.status-not-started { color: #888; background: rgba(255,255,255,0.05); }
+
+/* Meilleures perfs (AFFINÉES) */
+.performances-grid { 
+    display: flex; 
+    width: 100%; height: 100%; gap: 1.5vw; 
+}
+
+.perf-card { 
+    background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+    border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; 
+    flex: 1; 
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 0.5vh 0.5vw; /* Padding réduit */
+    transition: transform 0.2s;
+}
+.perf-card:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); }
+
+.perf-info { display: flex; flex-direction: column; align-items: center; text-align: center; }
+
+.perf-points { 
+    font-weight: 900; color: var(--success) !important; 
+    font-size: 1.8rem; /* Taille réduite pour élégance */
+    line-height: 1; margin-bottom: 0.5vh;
+    text-shadow: 0 0 15px rgba(0, 242, 169, 0.2);
+}
+.perf-name { 
+    font-weight: 600; 
+    font-size: 0.9rem; /* Nom un peu plus discret */
+    color: #bbb !important; 
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* --- COULEURS & HELPERS --- */
+.team-winner { color: var(--success) !important; text-shadow: 0 0 10px rgba(0, 242, 169, 0.3); }
+.team-loser { color: var(--danger) !important; opacity: 0.8; }
+.orange-dot { color: var(--primary-orange); }
+
+/* --- LOADING & RESPONSIVE --- */
+.loading-screen { height: 100vh; display: flex; align-items: center; justify-content: center; }
+.loader { width: 50px; height: 50px; border: 3px solid var(--primary-orange); border-radius: 50%; border-top-color: transparent; animation: float 1s infinite linear; }
+
+@media (max-width: 1000px) {
+    .main-content { display: flex; flex-direction: column; }
+    body { overflow-y: auto; height: auto; }
+    .container { height: auto; }
+    .middle-column { display: flex; flex-direction: column; }
+}
