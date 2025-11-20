@@ -71,7 +71,7 @@ createApp({
                 setTimeout(() => {
                     this.currentEquipeIndex = (this.currentEquipeIndex + 1) % this.data.equipes.length;
                     this.isFading = false;
-                }, 350);
+                }, 800);
             }, 10000);
         },
         async startAutoRefresh() {
