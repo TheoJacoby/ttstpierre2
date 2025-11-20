@@ -20,6 +20,7 @@ body {
     color: white;
     font-family: var(--font-stack);
     background: radial-gradient(circle at top center, #1a1a20 0%, #000000 100%);
+    cursor: default;
 }
 
 /* --- FOND LIQUID ANIMÉ --- */
@@ -27,7 +28,6 @@ body {
 .ambient-light.one { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--primary-orange); opacity: 0.2; }
 .ambient-light.two { bottom: -10%; right: -10%; width: 40vw; height: 40vw; background: #4a00e0; opacity: 0.2; }
 .ambient-light.three { top: 30%; left: 40%; width: 25vw; height: 25vw; background: radial-gradient(circle, #00d2ff, transparent 70%); opacity: 0.1; animation-delay: -10s; }
-
 @keyframes float { 0% { transform: translate(0,0); } 100% { transform: translate(20px,20px); } }
 
 /* --- LAYOUT GLOBAL --- */
@@ -42,7 +42,7 @@ body {
 .header { height: 10vh; display: flex; justify-content: center; align-items: center; margin-bottom: 1vh; flex-shrink: 0; }
 
 .logo-container { 
-    width: 18vh; /* Ajusté pour bonne visibilité */
+    width: 18vh; 
     height: 100%; 
     display: flex; align-items: center; justify-content: center;
     position: relative; 
@@ -54,19 +54,12 @@ body {
 }
 
 .logo-img { 
-    height: auto; 
-    max-height: 100%; 
-    max-width: 100%;
-    
-    /* LA FORMULE MAGIQUE : */
-    /* 1. invert(1): Inverse tout (Noir->Blanc, Orange->Bleu) */
-    /* 2. hue-rotate(180deg): Tourne le Bleu pour qu'il redevienne Orange */
-    /* 3. brightness(1.5): Éclaire l'orange qui a tendance à s'assombrir à l'inversion */
-    /* 4. saturate(1.2): Ravive la couleur */
+    height: auto; max-height: 100%; max-width: 100%;
+    /* Filtre logo Blanc + Orange */
     filter: invert(1) hue-rotate(180deg) brightness(1.5) saturate(1.2);
-    
     opacity: 1;
 }
+
 /* GRILLE PRINCIPALE */
 .main-content {
     flex: 1;
@@ -82,13 +75,13 @@ body {
     display: flex; flex-direction: column; gap: 1.5vh; height: 100%; 
 }
 
-/* 1. DERNIERS RÉSULTATS (Prend 60% de l'espace gauche) */
+/* 1. DERNIERS RÉSULTATS (60% espace) */
 .glass-card.fixed-width { 
     flex: 1.5; 
     display: flex; flex-direction: column; justify-content: space-evenly;
 }
 
-/* 2. JOUEUR DU MOIS (Prend 40% de l'espace gauche) */
+/* 2. JOUEUR DU MOIS (40% espace) */
 .highlight-card { 
     flex: 1; 
     background: linear-gradient(160deg, rgba(255,255,255,0.05), transparent); 
@@ -99,7 +92,6 @@ body {
 /* --- COLONNE DROITE --- */
 .middle-column { 
     display: grid; 
-    /* Haut flexible, Bas affiné à 18vh */
     grid-template-rows: 1fr 18vh; 
     gap: 1.5vh; 
     height: 100%;
@@ -114,7 +106,7 @@ body {
     padding: 1.5vh 1.2vw;
     position: relative;
     display: flex; flex-direction: column;
-    color: white !important; /* FORCE LE TEXTE BLANC */
+    color: white !important;
 }
 
 .card-title, .section-title {
@@ -122,17 +114,9 @@ body {
 }
 
 /* --- CONTENU GAUCHE --- */
+.results-container { transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+.results-container.fading { opacity: 0; transform: translateY(20px) scale(0.95); filter: blur(10px); }
 
-/* Animation fluide des résultats */
-.results-container {
-    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity: 1; transform: translateY(0) scale(1); filter: blur(0);
-}
-.results-container.fading {
-    opacity: 0; transform: translateY(20px) scale(0.95); filter: blur(10px);
-}
-
-/* Carte score principale */
 .main-result {
     background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(255,255,255,0.02));
     border: 1px solid rgba(255, 107, 53, 0.3);
@@ -140,7 +124,6 @@ body {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     margin-bottom: 2vh; flex-grow: 1;
 }
-
 .score-badge {
     font-size: 3rem; font-weight: 900; 
     background: -webkit-linear-gradient(#fff, var(--primary-orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -149,7 +132,6 @@ body {
 }
 .team-name { font-size: 1.1rem; font-weight: 700; color: white !important; text-align: center; }
 
-/* Liste joueurs */
 .player-results { display: flex; flex-direction: column; gap: 0.5vh; }
 .player-result { 
     display: flex; justify-content: space-between; 
@@ -167,7 +149,6 @@ body {
 .avatar-circle { width: 100%; height: 100%; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; border: 2px solid rgba(255,255,255,0.1); position: relative; z-index: 2; }
 .avatar-glow { position: absolute; inset: 0; background: var(--primary-orange); filter: blur(15px); opacity: 0.5; border-radius: 50%; }
 .player-hero-name { font-size: 1.5rem; font-weight: 800; color: white !important; margin: 0.5vh 0; }
-
 .stats-grid { display: flex; gap: 10px; justify-content: center; width: 100%; }
 .stat-box { background: rgba(0,0,0,0.4); padding: 0.8vh 1vw; border-radius: 8px; min-width: 60px; text-align: center; }
 .stat-box.accent { border: 1px solid rgba(255, 107, 53, 0.4); background: rgba(255, 107, 53, 0.1); }
@@ -176,15 +157,8 @@ body {
 .stat-label { font-size: 0.65rem; color: #aaa !important; text-transform: uppercase; }
 
 /* --- CONTENU DROITE --- */
-
-/* Matchs du jour */
 .scrollable-panel { overflow: hidden; display: flex; flex-direction: column; }
-.matches-list { 
-    flex: 1; 
-    display: flex; flex-direction: column; justify-content: space-evenly; /* Répartition égale */
-    gap: 4px; 
-    overflow: hidden;
-}
+.matches-list { flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; gap: 4px; overflow: hidden; }
 
 .match-row {
     display: flex; justify-content: space-between; align-items: center;
@@ -202,49 +176,41 @@ body {
 .status-finished { color: var(--success); background: rgba(0, 242, 169, 0.1); }
 .status-not-started { color: #888; background: rgba(255,255,255,0.05); }
 
-/* Meilleures perfs (AFFINÉES) */
-.performances-grid { 
-    display: flex; 
-    width: 100%; height: 100%; gap: 1.5vw; 
+/* ICÔNES (SOBRES ET SANS GLOW) */
+.match-icon-wrapper { display: flex; align-items: center; justify-content: center; margin-right: 1vw; width: 30px; }
+.match-icon {
+    font-size: 1.4rem;
+    /* Juste noir et blanc éclairci, pas de flou/glow, simple et propre */
+    filter: grayscale(100%) brightness(1.5); 
+    opacity: 0.7;
 }
 
+/* PERFS */
+.performances-grid { display: flex; width: 100%; height: 100%; gap: 1.5vw; }
 .perf-card { 
     background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
     border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; 
     flex: 1; 
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 0.5vh 0.5vw; /* Padding réduit */
-    transition: transform 0.2s;
+    padding: 0.5vh 0.5vw;
 }
-.perf-card:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); }
-
 .perf-info { display: flex; flex-direction: column; align-items: center; text-align: center; }
-
 .perf-points { 
     font-weight: 900; color: var(--success) !important; 
-    font-size: 1.8rem; /* Taille réduite pour élégance */
-    line-height: 1; margin-bottom: 0.5vh;
+    font-size: 1.8rem; line-height: 1; margin-bottom: 0.5vh;
     text-shadow: 0 0 15px rgba(0, 242, 169, 0.2);
 }
 .perf-name { 
-    font-weight: 600; 
-    font-size: 0.9rem; /* Nom un peu plus discret */
-    color: #bbb !important; 
+    font-weight: 600; font-size: 0.9rem; color: #bbb !important; 
     max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-/* --- COULEURS & HELPERS --- */
+/* HELPERS */
 .team-winner { color: var(--success) !important; text-shadow: 0 0 10px rgba(0, 242, 169, 0.3); }
 .team-loser { color: var(--danger) !important; opacity: 0.8; }
 .orange-dot { color: var(--primary-orange); }
 
-/* --- LOADING & RESPONSIVE --- */
+/* LOADING & MOBILE */
 .loading-screen { height: 100vh; display: flex; align-items: center; justify-content: center; }
 .loader { width: 50px; height: 50px; border: 3px solid var(--primary-orange); border-radius: 50%; border-top-color: transparent; animation: float 1s infinite linear; }
-
-@media (max-width: 1000px) {
-    .main-content { display: flex; flex-direction: column; }
-    body { overflow-y: auto; height: auto; }
-    .container { height: auto; }
-    .middle-column { display: flex; flex-direction: column; }
-}
+@media (max-width: 1000px) { .main-content { display: flex; flex-direction: column; } body { overflow-y: auto; height: auto; } .container { height: auto; } }
