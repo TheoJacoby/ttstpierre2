@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard TT Saint-Pierre</title>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=final">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css?v=logo_white_fix">
+    
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
 </head>
 <body>
@@ -19,35 +22,27 @@
         <div class="container" v-if="dataLoaded">
             <header class="header">
                 <div class="logo-container">
-                    <div class="logo-glow"></div>
                     <div class="logo">
-                        <img src="img/logo.png" alt="Logo du club" class="logo-img">
+                        <img src="img/logoTT.png" alt="Logo du club" class="logo-img">
                     </div>
                 </div>
             </header>
 
             <main class="main-content">
-                
                 <div class="left-column">
                     <div class="glass-card fixed-width">
                         <h2 class="card-title">Derniers résultats</h2>
+                        
                         <div class="results-container" :class="{ fading: isFading }">
                             <div class="result-slide">
                                 <div class="main-result">
-                                    <span class="team-name team1" :class="getTeamColorClass(currentResult.leftTeam, currentResult.leftScore, currentResult.rightScore)">
-                                        {{ currentResult.leftTeam }}
-                                    </span>
-                                    
+                                    <span class="team-name team1" :class="getTeamColorClass(currentResult.leftTeam, currentResult.leftScore, currentResult.rightScore)">{{ currentResult.leftTeam }}</span>
                                     <div class="score-badge">
                                         <span class="score-val">{{ currentResult.leftScore }}</span>
                                         <span class="score-sep">-</span>
                                         <span class="score-val">{{ currentResult.rightScore }}</span>
                                     </div>
-                                    
-                                    <span class="team-name team2"
-                                          :class="getTeamColorClass(currentResult.rightTeam, currentResult.rightScore, currentResult.leftScore)">
-                                        {{ currentResult.rightTeam }}
-                                    </span>
+                                    <span class="team-name team2" :class="getTeamColorClass(currentResult.rightTeam, currentResult.rightScore, currentResult.leftScore)">{{ currentResult.rightTeam }}</span>
                                 </div>
                                 
                                 <div class="player-results">
@@ -76,18 +71,9 @@
                             <div class="player-info">
                                 <h3 class="player-hero-name">{{ data.joueur_du_mois.nom }}</h3>
                                 <div class="stats-grid">
-                                    <div class="stat-box">
-                                        <span class="stat-num">{{ data.joueur_du_mois.victoires }}</span>
-                                        <span class="stat-label">Victoires</span>
-                                    </div>
-                                    <div class="stat-box accent">
-                                        <span class="stat-num">{{ data.joueur_du_mois.performances }}</span>
-                                        <span class="stat-label">Perfs</span>
-                                    </div>
-                                    <div class="stat-box">
-                                        <span class="stat-num">+{{ data.joueur_du_mois.points }}</span>
-                                        <span class="stat-label">Points</span>
-                                    </div>
+                                    <div class="stat-box"><span class="stat-num">{{ data.joueur_du_mois.victoires }}</span><span class="stat-label">Victoires</span></div>
+                                    <div class="stat-box accent"><span class="stat-num">{{ data.joueur_du_mois.performances }}</span><span class="stat-label">Perfs</span></div>
+                                    <div class="stat-box"><span class="stat-num">+{{ data.joueur_du_mois.points }}</span><span class="stat-label">Points</span></div>
                                 </div>
                             </div>
                         </div>
@@ -95,7 +81,7 @@
                 </div>
 
                 <div class="middle-column">
-                    <div class="glass-panel">
+                    <div class="glass-panel scrollable-panel">
                         <h2 class="section-title">Matchs du jour</h2>
                         <div class="matches-list">
                             <div class="match-row" v-for="(match, idx) in matchesWithScores" :key="idx">
@@ -106,10 +92,7 @@
                                 </div>
                                 <div class="match-meta">
                                     <span class="match-time">{{ match.heure }}</span>
-                                    <span class="match-location">{{ match.lieu }}</span>
-                                    <span class="status-pill" :class="getStatusClass(match.score1, match.score2)">
-                                        {{ getMatchStatus(match.score1, match.score2) }}
-                                    </span>
+                                    <span class="status-pill" :class="getStatusClass(match.score1, match.score2)">{{ getMatchStatus(match.score1, match.score2) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -119,21 +102,18 @@
                         <h2 class="section-title">Meilleures perfs <span class="orange-dot">.</span></h2>
                         <div class="performances-grid">
                             <div class="perf-card" v-for="(perf, idx) in data.meilleures_perfs" :key="idx">
-                                <span class="perf-name">{{ perf.nom }}</span>
-                                <span class="perf-points">+{{ perf.points }}</span>
+                                <div class="perf-info">
+                                    <span class="perf-points">+{{ perf.points }}</span>
+                                    <span class="perf-name">{{ perf.nom }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </main>
         </div>
-        
-        <div v-else class="loading-screen">
-            <div class="loader"></div>
-            <p>Chargement...</p>
-        </div>
+        <div v-else class="loading-screen"><div class="loader"></div></div>
     </div>
-
     <script src="app.js"></script>
 </body>
 </html>
