@@ -197,7 +197,7 @@
       "home": "Saint-Pierre A",
       "away": "Chatillon C",
       "score1": 3,
-      "score2": 1,
+      "score2": 3,
       "heure": "19:15",
       "lieu": "Domicile"
     },
@@ -212,8 +212,8 @@
     {
       "home": "Saint-Pierre C",
       "away": "Beausaint B",
-      "score1": 1,
-      "score2": 1,
+      "score1": 2,
+      "score2": 2,
       "heure": "19:15",
       "lieu": "Domicile"
     },
