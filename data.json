@@ -212,7 +212,7 @@
     {
       "home": "Saint-Pierre C",
       "away": "Beausaint B",
-      "score1": 10,
+      "score1": 12,
       "score2": 4,
       "heure": "19:15",
       "lieu": "Domicile"
@@ -220,8 +220,8 @@
     {
       "home": "Castors E",
       "away": "Saint-Pierre D",
-      "score1": 9,
-      "score2": 4,
+      "score1": 11,
+      "score2": 5,
       "heure": "19:15",
       "lieu": "Extérieur"
     },
