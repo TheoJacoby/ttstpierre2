@@ -220,8 +220,8 @@
     {
       "home": "Saint-Pierre D",
       "away": "Sainlez C",
-      "score1": 3,
-      "score2": 9,
+      "score1": 4,
+      "score2": 12,
       "heure": "19:15",
       "lieu": "Domicile"
     },
@@ -245,7 +245,7 @@
       "home": "Bye",
       "away": "Saint-Pierre G",
       "score1": 0,
-      "score2": 0,
+      "score2": 16,
       "heure": "15:30",
       "lieu": "Extérieur"
     }
