@@ -10,32 +10,32 @@
   ],
   "equipes_data": {
     "Saint-Pierre A": {
-      "equipe1": "Saint-Pierre A",
-      "equipe2": "Chatillon C",
-      "lieu": "domicile",
-      "score1": 12,
-      "score2": 4,
+      "equipe1": "Centre Ardenne D",
+      "equipe2": "Saint-Pierre A",
+      "lieu": "extérieur",
+      "score1": 14,
+      "score2": 2,
       "joueurs": [
         {
-          "nom": "Flo",
-          "victoires": 1
+          "nom": "Denis",
+          "victoires": 4
         },
         {
           "nom": "Antoine",
-          "victoires": 4
+          "victoires": 3
         },
         {
           "nom": "Rémi",
-          "victoires": 4
+          "victoires": 3
         },
         {
           "nom": "Benja",
-          "victoires": 3
+          "victoires": 4
         }
       ]
     },
     "Saint-Pierre B": {
-      "equipe1": "Athus A",
+      "equipe1": "Virton B",
       "equipe2": "Saint-Pierre B (fg)",
       "lieu": "extérieur",
       "score1": 16,
@@ -61,18 +61,18 @@
     },
     "Saint-Pierre C": {
       "equipe1": "Saint-Pierre C",
-      "equipe2": "Beausaint B",
+      "equipe2": "Lomme C (à 3)",
       "lieu": "domicile",
-      "score1": 12,
-      "score2": 4,
+      "score1": 13,
+      "score2": 3,
       "joueurs": [
         {
           "nom": "Eric V.",
-          "victoires": 4
+          "victoires": 2
         },
         {
           "nom": "Théo",
-          "victoires": 3
+          "victoires": 2
         },
         {
           "nom": "Tchouse",
@@ -85,69 +85,69 @@
       ]
     },
     "Saint-Pierre D": {
-      "equipe1": "Castors E",
-      "equipe2": "Saint-Pierre D",
-      "lieu": "extérieur",
+      "equipe1": "Saint-Pierre D",
+      "equipe2": "Sainlez C",
+      "lieu": "domicile",
       "score1": 11,
       "score2": 5,
       "joueurs": [
         {
-          "nom": "Aurélien",
-          "victoires": 0
-        },
-        {
-          "nom": "Romain",
-          "victoires": 1
-        },
-        {
-          "nom": "Lucas",
+          "nom": "Simon",
           "victoires": 3
         },
         {
-          "nom": "Éric C.",
+          "nom": "Titi",
+          "victoires": O
+        },
+        {
+          "nom": "Lucas",
           "victoires": 1
+        },
+        {
+          "nom": "Éric C.",
+          "victoires": 0
         }
       ]
     },
     "Saint-Pierre E": {
-      "equipe1": "Hondelange C",
-      "equipe2": "Saint-Pierre E",
-      "lieu": "extérieur",
+      "equipe1": "Saint-Pierre E",
+      "equipe2": "Basse Semois D",
+      "lieu": "domicile",
       "score1": 11,
       "score2": 5,
       "joueurs": [
         {
           "nom": "Nico Maas",
-          "victoires": 2
+          "victoires": 4
         },
         {
-          "nom": "Nico Schimt",
-          "victoires": 2
+          "nom": "Romain",
+          "victoires": 3
         },
         {
           "nom": "Fred",
           "victoires": 1
         },
         {
-          "nom": "Sophie",
-          "victoires": 0
+          "nom": "Irchad",
+          "victoires": 2
         }
       ]
     },
     "Saint-Pierre F": {
-      "equipe1": "Saint-Pierre F",
-      "equipe2": "Libramont F",
-      "lieu": "domicile",
-      "score1": 2,
-      "score2": 14,
+      "equipe1": "Fays C",
+      "equipe2": "Saint-Pierre F",
+      "lieu": "extérieur",
+      "score1": 11,
+      "score2": 5,
       "joueurs": [
         {
           "nom": "Alina",
           "victoires": 2
         },
         {
-          "nom": "Anastasia",
-          "victoires": 0
+          "nom": "Axel",
+          "victoires": 1
         },
         {
           "nom": "Simon",
@@ -160,108 +160,108 @@
       ]
     },
     "Saint-Pierre G": {
-      "equipe1": "Rulles G",
+      "equipe1": "Bye",
       "equipe2": "Saint-Pierre G",
       "lieu": "extérieur",
-      "score1": 16,
-      "score2": 0,
+      "score1": 0,
+      "score2": 16,
       "joueurs": [
         {
-          "nom": "Mathilde",
+          "nom": "/",
           "victoires": 0
         },
         {
-          "nom": "Kevin",
+          "nom": "/",
           "victoires": 0
         },
         {
-          "nom": "Charly",
+          "nom": "/",
           "victoires": 0
         },
         {
-          "nom": "Axel",
+          "nom": "/",
           "victoires": 0
         }
       ]
     }
   },
   "joueur_du_mois": {
-    "nom": "Éric Vermersch",
-    "victoires": 16,
-    "performances": 3,
-    "points": 103,
-    "mois": "octobre"
+    "nom": "Thierry Laime",
+    "victoires": 5,
+    "performances": 5,
+    "points": 94,
+    "mois": "novembre"
   },
   "matchs_du_jour": [
     {
-      "home": "Centre Ardenne D",
-      "away": "Saint-Pierre A",
-      "score1": 2,
-      "score2": 14,
-      "heure": "19:00",
-      "lieu": "Extérieur"
+      "home": "Saint-Pierre A",
+      "away": "Jamoigne C",
+      "score1": 0,
+      "score2": 0,
+      "heure": "19:15",
+      "lieu": "Domicile"
     },
     {
-      "home": "Virton B",
-      "away": "Saint-Pierre B (fg)",
-      "score1": 16,
+      "home": "Saint-Pierre B (fg)",
+      "away": "Musson E",
+      "score1": 0,
+      "score2": 16,
+      "heure": "19:15",
+      "lieu": "Domicile"
+    },
+    {
+      "home": "Bras C",
+      "away": "Saint-Pierre C",
+      "score1": 0,
       "score2": 0,
       "heure": "19:15",
       "lieu": "Extérieur"
     },
     {
-      "home": "Saint-Pierre C",
-      "away": "Lomme C",
-      "score1": 13,
-      "score2": 3,
-      "heure": "19:15",
-      "lieu": "Domicile"
-    },
-    {
-      "home": "Saint-Pierre D",
-      "away": "Sainlez C",
-      "score1": 4,
-      "score2": 12,
-      "heure": "19:15",
-      "lieu": "Domicile"
-    },
-    {
-      "home": "Saint-Pierre E",
-      "away": "Basse Semois D",
-      "score1": 10,
-      "score2": 6,
-      "heure": "15:30",
-      "lieu": "Domicile"
-    },
-    {
-      "home": "Fays C",
-      "away": "Saint-Pierre F",
-      "score1": 11,
-      "score2": 5,
-      "heure": "ven 20:00",
-      "lieu": "Extérieur"
-    },
-    {
-      "home": "Bye",
-      "away": "Saint-Pierre G",
+      "home": "Ochamps C",
+      "away": "Saint-Pierre D",
       "score1": 0,
-      "score2": 16,
+      "score2": 0,
       "heure": "15:30",
       "lieu": "Extérieur"
+    },
+    {
+      "home": "Attert D",
+      "away": "Saint-Pierre E",
+      "score1": 0,
+      "score2": 0,
+      "heure": "19:15",
+      "lieu": "Extérieur"
+    },
+    {
+      "home": "Saint-Pierre F",
+      "away": "Basse Semois C",
+      "score1": 0,
+      "score2": 0,
+      "heure": "15:30",
+      "lieu": "Domicile"
+    },
+    {
+      "home": "Saint-Pierre G",
+      "away": "Saint-Hubert F",
+      "score1": 0,
+      "score2": 0,
+      "heure": "15:30",
+      "lieu": "Domicile"
     }
   ],
   "meilleures_perfs": [
     {
-      "nom": "Théo Jacoby (GOAT)",
-      "points": 31
+      "nom": "Nicolas Maas",
+      "points": 69
     },
     {
-      "nom": "Denis",
-      "points": 30
+      "nom": "Lucas Maas",
+      "points": 56
     },
     {
-      "nom": "Nico Schmit",
-      "points": 30
+      "nom": "Éric Calay (TUUUU)",
+      "points": 45
     }
   ]
 }
