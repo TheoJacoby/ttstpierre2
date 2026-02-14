@@ -207,7 +207,7 @@
       "score1": 16,
       "score2": 0,
       "heure": "19:15",
-      "lieu": "Domicile"
+      "lieu": "Extérieur"
     },
     {
       "home": "Saint-Pierre C",
@@ -239,7 +239,7 @@
       "score1": 0,
       "score2": 0,
       "heure": "15:30",
-      "lieu": "Domicile"
+      "lieu": "Extérieur"
     },
     {
       "home": "Ochamps F",
@@ -252,16 +252,16 @@
   ],
   "meilleures_perfs": [
     {
-      "nom": "Nicolas Maas",
-      "points": 69
+      "nom": "ANTOINE GUEBS",
+      "points": 22
     },
     {
-      "nom": "Lucas Maas",
-      "points": 56
+      "nom": "JOYEUX ANNIVERSAIRE",
+      "points": 22
     },
     {
-      "nom": "Éric Calay (TUUUU)",
-      "points": 45
+      "nom": "TUUUU",
+      "points": 22
     }
   ]
 }
