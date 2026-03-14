@@ -26,7 +26,10 @@
                     <img src="img/logoTT.png" alt="Logo TT Saint-Pierre" class="logo-img">
                     </div>
                 </div>
-                <div class="clock">{{ currentTime }}<span class="clock-seconds">{{ currentSeconds }}</span></div>
+                <div class="clock">
+                    <div class="clock-time">{{ currentTime }}<span class="clock-seconds">{{ currentSeconds }}</span></div>
+                    <div class="clock-date">{{ currentDate }}</div>
+                </div>
             </header>
 
             <main class="main-content">
