@@ -39,7 +39,7 @@ body {
 }
 
 /* HEADER & LOGO */
-.header { height: 10vh; display: flex; justify-content: center; align-items: center; margin-bottom: 1vh; flex-shrink: 0; }
+.header { height: 10vh; display: flex; justify-content: center; align-items: center; margin-bottom: 1vh; flex-shrink: 0; position: relative; }
 
 .logo-container { 
     width: 18vh; 
