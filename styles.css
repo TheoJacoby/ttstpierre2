@@ -205,6 +205,29 @@ body {
     max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
+.clock {
+    position: absolute;
+    right: 2vw;
+    font-size: 1.8rem;
+    font-weight: 800;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 2px;
+    color: white;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 0.8vh 1.2vw;
+}
+
+.clock-seconds {
+    font-size: 1.1rem;
+    color: var(--primary-orange);
+    vertical-align: middle;
+    margin-left: 2px;
+}
+
 /* HELPERS */
 .team-winner { color: var(--success) !important; text-shadow: 0 0 10px rgba(0, 242, 169, 0.3); }
 .team-loser { color: var(--danger) !important; opacity: 0.8; }
