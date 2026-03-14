@@ -228,6 +228,17 @@ body {
     margin-left: 2px;
 }
 
+.clock-date {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #aaa;
+    text-align: center;
+    letter-spacing: 1px;
+    margin-top: 2px;
+    text-transform: capitalize;
+}
+
+
 /* HELPERS */
 .team-winner { color: var(--success) !important; text-shadow: 0 0 10px rgba(0, 242, 169, 0.3); }
 .team-loser { color: var(--danger) !important; opacity: 0.8; }
