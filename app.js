@@ -14,7 +14,8 @@ createApp({
             currentEquipeIndex: 0,
             isFading: false,
             currentTime: '',
-            currentSeconds: ''
+            currentSeconds: '',
+            currentDate: ''
             
         };
     },
@@ -124,6 +125,11 @@ createApp({
         minute: '2-digit'
     });
     this.currentSeconds = ':' + String(now.getSeconds()).padStart(2, '0');
+    this.currentDate = now.toLocaleDateString('fr-BE', { 
+        weekday: 'long', 
+        day: '2-digit', 
+        month: 'long'
+    });
 }
     }
 }).mount('#app');
