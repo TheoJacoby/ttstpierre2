@@ -12,7 +12,10 @@ createApp({
             },
             dataLoaded: false,
             currentEquipeIndex: 0,
-            isFading: false
+            isFading: false,
+            currentTime: '',
+            currentSeconds: ''
+            
         };
     },
     computed: {
@@ -49,7 +52,10 @@ createApp({
         if (this.dataLoaded) {
             this.startRotation();
             this.startAutoRefresh();
+            
         }
+        this.updateClock();
+        setInterval(() => this.updateClock(), 1000);    
     },
     methods: {
         async loadData() {
@@ -110,7 +116,15 @@ createApp({
                 return teamScore > opponentScore ? 'team-winner' : 'team-loser';
             }
             return '';
-        }
+        },
+        updateClock() {
+    const now = new Date();
+    this.currentTime = now.toLocaleTimeString('fr-BE', { 
+        hour: '2-digit', 
+        minute: '2-digit'
+    });
+    this.currentSeconds = ':' + String(now.getSeconds()).padStart(2, '0');
+}
     }
 }).mount('#app');
 
