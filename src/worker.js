@@ -10,6 +10,9 @@
 import seed from '../data/seed.json';
 
 const KEY = 'data';
+/** Chaque score vit dans sa propre clé : deux capitaines n'écrivent jamais au même endroit. */
+const scoreKey = (numero, equipe) => `score:${numero}:${equipe}`;
+const SCORE_FIELDS = ['score_sp', 'score_adv', 'forfait', 'joueurs', 'maj'];
 const MAX_SCORE = 16;      // un interclub = 16 matchs
 const MAX_VICTOIRES = 4;   // 4 simples par joueur
 const MAX_JOUEURS = 4;
@@ -59,19 +62,26 @@ async function handleApi(request, env, url) {
     const role = roleFor(body.password, env);
     if (!role) return json({ ok: false, error: 'Mot de passe incorrect' }, 401);
     if (body.action !== 'score') return json({ ok: false, error: 'Action inconnue' }, 400);
-    return withData(env, (data) => applyScore(data, body));
+    return saveScore(env, body);
   }
 
   if (path === '/api/admin') {
     const role = roleFor(body.password, env);
     if (role !== 'admin') return json({ ok: false, error: 'Mot de passe administrateur incorrect' }, 401);
     switch (body.action) {
-      case 'score':    return withData(env, (data) => applyScore(data, body));
-      case 'journee':  return withData(env, (data) => applyJournee(data, body));
+      case 'score':    return saveScore(env, body);
+      case 'journee':  return withData(env, (data) => applyJournee(env, data, body));
       case 'equipes':  return withData(env, (data) => applyEquipes(data, body));
       case 'extras':   return withData(env, (data) => applyExtras(data, body));
-      case 'restore':  return withData(env, () => restore(body));
-      case 'reset':    return withData(env, () => structuredClone(seed));
+      case 'restore':  return withData(env, async () => {
+        await deleteAllScores(env);
+        const d = restore(body);
+        // Les scores de la journée en cours contenus dans la sauvegarde retrouvent leurs clés
+        await Promise.all((d.journee.matchs || []).filter((m) => m.score_sp !== null).map((m) =>
+          env.DATA.put(scoreKey(d.journee.numero, m.equipe), JSON.stringify(Object.fromEntries(SCORE_FIELDS.map((f) => [f, m[f] ?? null]))))));
+        return d;
+      });
+      case 'reset':    return withData(env, async () => { await deleteAllScores(env); return structuredClone(seed); });
       default:         return json({ ok: false, error: 'Action inconnue' }, 400);
     }
   }
@@ -101,74 +111,96 @@ function safeEqual(a, b) {
 
 async function loadData(env) {
   const stored = await env.DATA.get(KEY, 'json');
-  return stored || structuredClone(seed);
+  const data = stored || structuredClone(seed);
+  const matchs = data.journee?.matchs || [];
+  if (matchs.length) {
+    const keys = matchs.map((m) => scoreKey(data.journee.numero, m.equipe));
+    const scores = await env.DATA.get(keys, { type: 'json' });   // lecture groupée
+    for (const m of matchs) {
+      // Les clés sont la seule source de vérité : sans clé, pas de score
+      const sc = scores.get(scoreKey(data.journee.numero, m.equipe)) || { score_sp: null, score_adv: null, forfait: null, joueurs: [], maj: null };
+      SCORE_FIELDS.forEach((f) => { m[f] = sc[f] ?? (f === 'joueurs' ? [] : null); });
+    }
+  }
+  // Les nouveaux noms encodés par les capitaines apparaissent dans la liste du club sans écrire le document
+  const club = new Set(data.joueurs_club || []);
+  matchs.forEach((m) => (m.joueurs || []).forEach((j) => club.add(j.nom)));
+  data.joueurs_club = [...club].sort((a, b) => a.localeCompare(b, 'fr'));
+  return data;
+}
+
+async function deleteScores(env, numero, equipes) {
+  await Promise.all(equipes.map((e) => env.DATA.delete(scoreKey(numero, e))));
+}
+
+async function deleteAllScores(env) {
+  let cursor;
+  do {
+    const page = await env.DATA.list({ prefix: 'score:', cursor });
+    await Promise.all(page.keys.map((k) => env.DATA.delete(k.name)));
+    cursor = page.list_complete ? undefined : page.cursor;
+  } while (cursor);
 }
 
 async function withData(env, mutate) {
   const data = await loadData(env);
-  const result = mutate(data);           // lève une Error avec un message lisible si invalide
+  const result = await mutate(data);     // lève une ValidationError si invalide
   const next = result || data;
   next.updatedAt = new Date().toISOString();
-  await env.DATA.put(KEY, JSON.stringify(next));
+  const toStore = structuredClone(next);
+  // Les scores de la journée en cours vivent dans leurs propres clés : le document n'en garde pas de copie
+  (toStore.journee?.matchs || []).forEach((m) => { m.score_sp = null; m.score_adv = null; m.forfait = null; m.joueurs = []; m.maj = null; });
+  await env.DATA.put(KEY, JSON.stringify(toStore));
   return json({ ok: true, data: next });
 }
 
 /* ---------- Actions ---------- */
 
-function applyScore(data, body) {
+async function saveScore(env, body) {
+  const data = await loadData(env);
   const match = (data.journee?.matchs || []).find((m) => m.equipe === body.equipe);
   if (!match) throw invalid(`Aucun match pour ${body.equipe} cette journée`);
+  const key = scoreKey(data.journee.numero, match.equipe);
 
   const forfait = body.forfait === 'sp' || body.forfait === 'adv' ? body.forfait : null;
+  let record;
 
   if (forfait) {
-    match.forfait = forfait;
-    match.score_sp = forfait === 'adv' ? MAX_SCORE : 0;
-    match.score_adv = forfait === 'adv' ? 0 : MAX_SCORE;
-    match.joueurs = [];
-    match.maj = new Date().toISOString();
-    return data;
+    record = { score_sp: forfait === 'adv' ? MAX_SCORE : 0, score_adv: forfait === 'adv' ? 0 : MAX_SCORE, forfait, joueurs: [], maj: new Date().toISOString() };
+  } else {
+    const joueurs = Array.isArray(body.joueurs) ? body.joueurs : [];
+    if (joueurs.length > MAX_JOUEURS) throw invalid(`Maximum ${MAX_JOUEURS} joueurs`);
+    const cleaned = [];
+    const seen = new Set();
+    for (const j of joueurs) {
+      const nom = String(j?.nom || '').trim();
+      if (!nom) continue;
+      if (seen.has(nom.toLowerCase())) throw invalid(`Le joueur "${nom}" apparaît deux fois`);
+      seen.add(nom.toLowerCase());
+      const v = toInt(j.victoires);
+      if (v === null || v < 0 || v > MAX_VICTOIRES) throw invalid(`Victoires invalides pour ${nom} (0 à ${MAX_VICTOIRES})`);
+      cleaned.push({ nom, victoires: v });
+    }
+    const scoreAdv = toInt(body.score_adv);
+    if (scoreAdv === null || scoreAdv < 0 || scoreAdv > MAX_SCORE) throw invalid(`Score adverse invalide (0 à ${MAX_SCORE})`);
+    const scoreSp = cleaned.reduce((sum, j) => sum + j.victoires, 0);
+    if (scoreSp + scoreAdv > MAX_SCORE) throw invalid(`Total ${scoreSp + scoreAdv} > ${MAX_SCORE} : vérifie les victoires`);
+
+    if (scoreSp + scoreAdv === 0 && cleaned.length === 0) {
+      await env.DATA.delete(key);                       // remise à zéro explicite
+      SCORE_FIELDS.forEach((f) => { match[f] = f === 'joueurs' ? [] : null; });
+      return json({ ok: true, data });
+    }
+    record = { score_sp: scoreSp, score_adv: scoreAdv, forfait: null, joueurs: cleaned, maj: new Date().toISOString() };
   }
 
-  const joueurs = Array.isArray(body.joueurs) ? body.joueurs : [];
-  if (joueurs.length > MAX_JOUEURS) throw invalid(`Maximum ${MAX_JOUEURS} joueurs`);
-  const cleaned = [];
-  const seen = new Set();
-  for (const j of joueurs) {
-    const nom = String(j?.nom || '').trim();
-    if (!nom) continue;
-    if (seen.has(nom.toLowerCase())) throw invalid(`Le joueur "${nom}" apparaît deux fois`);
-    seen.add(nom.toLowerCase());
-    const v = toInt(j.victoires);
-    if (v === null || v < 0 || v > MAX_VICTOIRES) throw invalid(`Victoires invalides pour ${nom} (0 à ${MAX_VICTOIRES})`);
-    cleaned.push({ nom, victoires: v });
-  }
-
-  const scoreAdv = toInt(body.score_adv);
-  if (scoreAdv === null || scoreAdv < 0 || scoreAdv > MAX_SCORE) throw invalid(`Score adverse invalide (0 à ${MAX_SCORE})`);
-  const scoreSp = cleaned.reduce((s, j) => s + j.victoires, 0);
-  if (scoreSp + scoreAdv > MAX_SCORE) throw invalid(`Total ${scoreSp + scoreAdv} > ${MAX_SCORE} : vérifie les victoires`);
-  if (scoreSp + scoreAdv === 0 && cleaned.length === 0) {
-    // remise à zéro explicite
-    match.score_sp = null; match.score_adv = null; match.joueurs = []; match.forfait = null;
-    match.maj = new Date().toISOString();
-    return data;
-  }
-
-  match.forfait = null;
-  match.score_sp = scoreSp;
-  match.score_adv = scoreAdv;
-  match.joueurs = cleaned;
-  match.maj = new Date().toISOString();
-
-  // Mémorise les nouveaux noms dans la liste du club (pratique pour l'autocomplétion)
-  const club = new Set(data.joueurs_club || []);
-  cleaned.forEach((j) => club.add(j.nom));
-  data.joueurs_club = [...club].sort((a, b) => a.localeCompare(b, 'fr'));
-  return data;
+  await env.DATA.put(key, JSON.stringify(record));
+  Object.assign(match, record);
+  record.joueurs.forEach((j) => { if (!data.joueurs_club.includes(j.nom)) data.joueurs_club.push(j.nom); });
+  return json({ ok: true, data });
 }
 
-function applyJournee(data, body) {
+async function applyJournee(env, data, body) {
   const numero = toInt(body.numero);
   if (numero === null || numero < 1) throw invalid('Numéro de journée invalide');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(body.date || ''))) throw invalid('Date invalide (AAAA-MM-JJ)');
@@ -189,21 +221,31 @@ function applyJournee(data, body) {
     };
   });
 
-  // Une journée qui a des scores part dans l'historique (remplace une éventuelle version du même numéro)
-  const current = data.journee;
-  if (current && current.matchs?.some((m) => m.score_sp !== null || m.score_adv !== null)) {
-    data.historique = (data.historique || []).filter((j) => j.numero !== current.numero);
-    data.historique.push(current);
-    data.historique.sort((a, b) => a.numero - b.numero);
-  }
-  // Même numéro republié : on garde les scores déjà encodés pour les équipes inchangées
+  const current = data.journee;   // déjà fusionnée avec les scores par équipe (loadData)
+  const club = new Set(data.joueurs_club || []);
+
   if (current && current.numero === numero) {
+    // Même numéro republié : on garde les scores des équipes dont l'adversaire n'a pas changé
+    const changed = current.matchs.filter((o) => {
+      const n = matchs.find((m) => m.equipe === o.equipe);
+      return !n || n.adversaire !== o.adversaire;
+    }).map((o) => o.equipe);
+    await deleteScores(env, numero, changed);
     for (const m of matchs) {
       const old = current.matchs.find((o) => o.equipe === m.equipe && o.adversaire === m.adversaire);
-      if (old) Object.assign(m, { score_sp: old.score_sp, score_adv: old.score_adv, forfait: old.forfait, joueurs: old.joueurs, maj: old.maj });
+      if (old) SCORE_FIELDS.forEach((f) => { m[f] = old[f]; });
     }
     data.historique = (data.historique || []).filter((j) => j.numero !== numero);
+  } else if (current) {
+    // Nouvelle journée : l'ancienne part dans l'historique si elle a des scores, ses clés sont nettoyées
+    if (current.matchs?.some((m) => m.score_sp !== null || m.score_adv !== null)) {
+      data.historique = (data.historique || []).filter((j) => j.numero !== current.numero);
+      data.historique.push(current);
+      data.historique.sort((a, b) => a.numero - b.numero);
+    }
+    await deleteScores(env, current.numero, current.matchs.map((m) => m.equipe));
   }
+  data.joueurs_club = [...club].sort((a, b) => a.localeCompare(b, 'fr'));
 
   data.journee = { numero, date: body.date, matchs };
 

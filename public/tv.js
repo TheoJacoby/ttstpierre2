@@ -1,7 +1,7 @@
 /* Écran TV du club — lit /api/data et affiche tout en rotation. */
 const { createApp } = Vue;
 
-const REFRESH_MS = 30000;   // relecture des données
+const REFRESH_MS = 15000;   // relecture des données
 const ROTATE_MS = 10000;    // rotation des résultats
 const SLIDE_MS = 12000;     // rotation du panneau du bas
 const OFFLINE_AFTER_MS = 3 * 60 * 1000;
