@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Capitaine · TT Saint-Pierre</title>
+    <link rel="icon" href="img/logoTT.png">
+    <meta name="theme-color" content="#121216">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="app.css?v=2">
+    <script src="vendor/vue.global.prod.js"></script>
+    <script src="api.js?v=2"></script>
+</head>
+<body>
+<div id="app" class="wrap">
+    <div class="topbar">
+        <img src="img/logoTT.png" alt="TT Saint-Pierre">
+        <div>
+            <h1>Saisie des scores</h1>
+            <div class="sub" v-if="data">{{ journeeLabel }}</div>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn small ghost" v-if="role" @click="logout">Quitter</button>
+    </div>
+
+    <!-- CONNEXION -->
+    <div class="card" v-if="!role">
+        <h2>🔐 Accès capitaine</h2>
+        <form @submit.prevent="login">
+            <div class="field">
+                <label for="pwd">Mot de passe</label>
+                <input id="pwd" type="password" v-model="password" autocomplete="current-password" placeholder="Mot de passe capitaine">
+            </div>
+            <button class="btn primary block" type="submit" :disabled="loading || !password">{{ loading ? 'Connexion…' : 'Accéder' }}</button>
+            <div class="msg error" v-if="loginError">{{ loginError }}</div>
+        </form>
+    </div>
+
+    <template v-else>
+        <div class="msg error" v-if="loadError">{{ loadError }} <button class="btn link" @click="reload">Réessayer</button></div>
+
+        <!-- CHOIX DE L'ÉQUIPE -->
+        <div class="card" v-if="data">
+            <h2>1. Ton équipe</h2>
+            <div class="team-grid">
+                <button v-for="m in data.journee.matchs" :key="m.equipe" class="team-btn" :class="{ selected: selectedTeam === m.equipe }" @click="selectTeam(m.equipe)">
+                    {{ m.equipe }}
+                    <small v-if="m.score_sp !== null">{{ m.score_sp }} - {{ m.score_adv }}</small>
+                    <small v-else>{{ m.adversaire ? 'vs ' + m.adversaire : 'pas de match' }}</small>
+                </button>
+            </div>
+        </div>
+
+        <!-- SAISIE -->
+        <template v-if="match">
+            <div class="card accent">
+                <h2>2. Le match</h2>
+                <h3>{{ match.equipe }} <span style="color:var(--muted)">vs</span> {{ match.adversaire || '(adversaire non renseigné)' }}</h3>
+                <p class="help">{{ match.lieu === 'exterieur' ? '🚗 À l’extérieur' : '🏠 À domicile' }}<span v-if="match.heure"> · {{ match.heure }}</span><span v-if="match.note"> · {{ match.note }}</span></p>
+
+                <div class="scoreboard">
+                    <div><div class="name">{{ match.equipe }}</div><div class="num sp">{{ scoreSp }}</div></div>
+                    <div class="sep">–</div>
+                    <div><div class="name">{{ match.adversaire || 'Adversaire' }}</div><div class="num">{{ form.score_adv }}</div></div>
+                </div>
+                <div class="status" :class="{ finished: finished, error: !!validationError }">
+                    <template v-if="validationError">{{ validationError }}</template>
+                    <template v-else-if="finished">✅ Match terminé (16 matchs joués)</template>
+                    <template v-else>{{ total }} / 16 matchs joués · reste {{ 16 - total }}</template>
+                </div>
+            </div>
+
+            <div class="card" v-if="!form.forfait">
+                <h2>3. Nos joueurs et leurs victoires</h2>
+                <p class="help">Le score de {{ match.equipe }} est la somme des victoires. Mets à jour pendant la soirée, puis appuie sur Enregistrer.</p>
+                <div class="player-row" v-for="(row, i) in form.joueurs" :key="i">
+                    <div>
+                        <select v-model="row.nom">
+                            <option value="">— Joueur {{ i + 1 }} —</option>
+                            <option v-for="n in playerOptions(row)" :key="n" :value="n">{{ n }}</option>
+                            <option value="__nouveau__">+ Nouveau joueur…</option>
+                        </select>
+                    </div>
+                    <div class="stepper">
+                        <button type="button" @click="dec(row)" :disabled="row.victoires <= 0">−</button>
+                        <span class="val">{{ row.victoires }}</span>
+                        <button type="button" @click="inc(row)" :disabled="row.victoires >= 4 || total >= 16">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" v-if="!form.forfait">
+                <h2>4. Victoires de l’adversaire</h2>
+                <div class="stepper" style="justify-content:center">
+                    <button type="button" @click="form.score_adv = Math.max(0, form.score_adv - 1)" :disabled="form.score_adv <= 0">−</button>
+                    <span class="val" style="font-size:2rem;min-width:60px">{{ form.score_adv }}</span>
+                    <button type="button" @click="form.score_adv++" :disabled="form.score_adv >= 16 || total >= 16">+</button>
+                </div>
+            </div>
+
+            <div class="card" v-else>
+                <h2>Forfait</h2>
+                <p class="help">Ce match est enregistré comme {{ form.forfait === 'sp' ? 'forfait de ' + match.equipe + ' (0 - 16)' : 'forfait de l’adversaire (16 - 0)' }}.</p>
+                <button class="btn ghost block" style="margin-top:10px" @click="form.forfait = null">Annuler le forfait et encoder les scores</button>
+            </div>
+
+            <button class="btn success block" @click="save" :disabled="saving || !!validationError">{{ saving ? 'Enregistrement…' : '💾 Enregistrer' }}</button>
+            <p class="help" style="text-align:center;margin-top:10px" v-if="match.maj">Dernier enregistrement : {{ TT.heure(match.maj) }}</p>
+
+            <div class="card" style="margin-top:16px">
+                <h2>Autres actions</h2>
+                <div class="grid-2">
+                    <button class="btn ghost" @click="declareForfait('sp')">Forfait de notre équipe</button>
+                    <button class="btn ghost" @click="declareForfait('adv')">Forfait adverse</button>
+                </div>
+                <button class="btn danger block" style="margin-top:10px" @click="resetMatch">Remettre ce match à zéro</button>
+            </div>
+        </template>
+
+        <div class="card" v-else-if="data && selectedTeam">
+            <p class="help">Aucun match programmé pour {{ selectedTeam }} cette journée.</p>
+        </div>
+    </template>
+
+    <transition name="fade">
+        <div class="toast" :class="{ error: toast.error }" v-if="toast.text">{{ toast.text }}</div>
+    </transition>
+</div>
+<script src="capitaine.js?v=2"></script>
+</body>
+</html>

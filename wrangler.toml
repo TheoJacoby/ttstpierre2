@@ -1,0 +1,18 @@
+name = "ttstpierre"
+main = "src/worker.js"
+compatibility_date = "2026-09-01"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+# Stockage des données (scores, journées, joueurs).
+# En local (npm run dev) l'id n'a pas d'importance.
+# En production : `npx wrangler kv namespace create DATA` puis coller l'id ci-dessous.
+[[kv_namespaces]]
+binding = "DATA"
+id = "A_REMPLACER_APRES_wrangler_kv_namespace_create"
+
+[observability]
+enabled = true

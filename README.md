@@ -1,116 +1,80 @@
-# Dashboard Tennis de Table - Vue.js
+# TT Saint-Pierre — Dashboard TV & saisie des scores
 
-## Description
-Dashboard dynamique pour club de tennis de table, construit avec Vue.js 3. Toutes les données proviennent d'un unique fichier JSON.
+Site du club de tennis de table Saint-Pierre : un écran TV pour la salle, une page pour que les
+capitaines encodent les scores pendant la soirée, et une page admin pour préparer les journées.
 
-## Fonctionnalités
-- ✅ Rotation automatique des résultats des équipes A→G toutes les 10 secondes
-- ✅ Affichage domicile/extérieur adaptatif
-- ✅ Matchs du jour (n'affiche que les matchs avec score)
-- ✅ Joueur/Joueuse du mois avec avatar adapté au genre
-- ✅ Meilleures performances du mois
-- ✅ Mise à jour automatique toutes les 60 secondes depuis le JSON
-- ✅ Optimisé pour TV 43 pouces (1920px)
+| Page | URL | Pour qui |
+|------|-----|----------|
+| Écran TV | `/` | la TV du club (s'actualise seule toutes les 30 s) |
+| Saisie des scores | `/capitaine` | les capitaines, sur leur téléphone |
+| Administration | `/admin` | le responsable du site |
+
+Hébergé sur **Cloudflare Workers** (gratuit). Les données vivent dans un stockage KV, il n'y a plus
+de fichier `data.json` à modifier à la main ni de token GitHub dans le navigateur.
+
+## Comment ça marche
+
+- **Le samedi**, chaque capitaine ouvre `/capitaine`, choisit son équipe, met à jour les victoires
+  de ses 4 joueurs et celles de l'adversaire au fil de la soirée, et appuie sur *Enregistrer*.
+  Le score de l'équipe est la somme des victoires. Total plafonné à 16. Forfait possible en un bouton.
+- **La TV** affiche les matchs du jour, fait tourner les résultats déjà encodés (avec les joueurs),
+  calcule le joueur du mois et le top des joueurs de la saison, et fait défiler perfs / annonces.
+- **Pendant la semaine**, l'admin publie la journée suivante (adversaires, lieu, heure) : la journée
+  précédente part dans l'historique avec ses scores. Il peut aussi gérer les équipes, les joueurs,
+  le joueur du mois (auto ou manuel), les meilleures perfs et les annonces, et télécharger une sauvegarde.
 
 ## Structure
+
 ```
-ping2/
-├── index.html          # Template Vue.js
-├── app.js              # Application Vue.js
-├── styles.css          # Styles CSS
-├── data.json           # SOURCE DE DONNÉES UNIQUE
-└── README.md
+public/            fichiers servis tels quels
+  index.html + tv.js + tv.css        écran TV
+  capitaine.html + capitaine.js      saisie des scores
+  admin.html + admin.js              administration
+  app.css, api.js                    partagés par capitaine & admin
+  vendor/vue.global.prod.js          Vue 3 (local, pas de CDN)
+src/worker.js      API (/api/data, /api/login, /api/capitaine, /api/admin) + validation
+data/seed.json     données de départ d'une saison (équipes, joueurs, adversaires connus)
+wrangler.toml      configuration Cloudflare
 ```
 
-## Utilisation
-
-### En local
-Pour tester en local, vous devez utiliser un serveur HTTP (pas file://):
+## Développement local
 
 ```bash
-cd /Users/theojacoby/Desktop/ping2
-python3 -m http.server 8080
+npm install
+npm run dev          # http://127.0.0.1:8787
 ```
 
-Puis ouvrir: `http://localhost:8080`
+Les mots de passe locaux sont dans `.dev.vars` (fichier ignoré par git) : `capitaine-test` et `admin-test`.
+Les données locales sont stockées dans `.wrangler/` ; au premier lancement, `data/seed.json` est utilisé.
 
-### Sur GitHub Pages
+## Déploiement (une fois)
 
-1. **Push initial** :
+1. Créer un compte gratuit sur https://dash.cloudflare.com puis, dans le dossier du projet :
    ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git branch -M main
-   git remote add origin https://github.com/<username>/<repo>.git
-   git push -u origin main
+   npx wrangler login
    ```
+2. Créer l'espace de stockage et coller l'`id` obtenu dans `wrangler.toml` (ligne `id = ...`) :
+   ```bash
+   npx wrangler kv namespace create DATA
+   ```
+3. Définir les deux mots de passe (ils sont demandés à la saisie, jamais écrits dans le code) :
+   ```bash
+   npx wrangler secret put CAPTAIN_PASSWORD
+   npx wrangler secret put ADMIN_PASSWORD
+   ```
+4. Déployer :
+   ```bash
+   npm run deploy
+   ```
+   L'URL est affichée à la fin (`https://ttstpierre.<ton-sous-domaine>.workers.dev`).
+   Un nom de domaine personnalisé peut être ajouté plus tard dans le dashboard Cloudflare.
 
-2. **Activer GitHub Pages** :
-   - Repository Settings > Pages
-   - Source: Deploy from branch `main` / root
+Ensuite, à chaque modification du code : `npm run deploy`. Les données ne sont pas touchées par un déploiement.
 
-3. **Mises à jour hebdomadaires** :
-   - Modifiez uniquement `data.json`
-   - Commit & push:
-     ```bash
-     git add data.json
-     git commit -m "Update week XX"
-     git push
-     ```
-   - Le site se met à jour automatiquement (1-2 min)
+## Règles métier
 
-## Format du fichier data.json
-
-```json
-{
-  "equipes": ["Saint-Pierre A", "Saint-Pierre B", ..., "Saint-Pierre G"],
-  "equipes_data": {
-    "Saint-Pierre A": {
-      "equipe1": "Saint-Pierre A",
-      "equipe2": "Adversaire",
-      "lieu": "domicile",
-      "score1": 12,
-      "score2": 4,
-      "joueurs": [
-        { "nom": "Joueur 1", "victoires": 3 },
-        { "nom": "Joueur 2", "victoires": 4 },
-        { "nom": "Joueur 3", "victoires": 3 },
-        { "nom": "Joueur 4", "victoires": 2 }
-      ]
-    }
-  },
-  "joueur_du_mois": {
-    "nom": "Nom Prénom",
-    "victoires": 12,
-    "performances": 5,
-    "points": 64,
-    "mois": "octobre",
-    "genre": "H"
-  },
-  "matchs_du_jour": [
-    { "home": "Équipe A", "away": "Équipe B", "score1": 12, "score2": 4 }
-  ],
-  "meilleures_perfs": [
-    { "nom": "Joueur", "points": 36 }
-  ]
-}
-```
-
-## Notes importantes
-- **Règle des scores** : score1 + score2 = 16
-- **4 joueurs par équipe** obligatoire
-- **Genre** : "H" (Homme) ou "F" (Femme) pour le joueur du mois
-- **Lieu** : "domicile" ou "exterieur" pour chaque équipe
-- **Matchs sans score** : mettre `score1: null, score2: null` pour ne pas afficher
-
-## Technologies
-- Vue.js 3 (CDN)
-- Vanilla CSS
-- Fetch API pour charger le JSON
-- GitHub Pages pour l'hébergement
-
-## Support
-Compatible avec tous les navigateurs modernes et optimisé pour affichage TV full HD.
-
-
+- Un interclub = 16 matchs, 4 joueurs par équipe, 4 simples chacun.
+- Score de Saint-Pierre = somme des victoires des joueurs ; score adverse encodé séparément ; total ≤ 16.
+- Statuts : *À venir* (rien encodé), *En cours* (< 16), *Terminé* (= 16), *Forfait*, *Bye*.
+- Joueur du mois automatique = le plus de victoires sur le mois en cours (ou le dernier mois joué).
+- Les annonces disparaissent après leur date de fin.

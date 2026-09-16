@@ -1,77 +1,10 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Capitaines - Tennis de Table</title>
-    <link rel="stylesheet" href="captain-styles.css">
-</head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="logo">
-                <img src="img/logo.png" alt="Logo du club" class="logo-img">
-            </div>
-            <h1>Résultat équipes</h1>
-            <p>Saisissez les résultats de votre équipe</p>
-        </header>
-
-        <!-- Formulaire de connexion -->
-        <div class="login-form" id="loginForm">
-            <h3>🔐 Accès Capitaine</h3>
-            <div class="login-input">
-                <input type="password" id="passwordInput" placeholder="Entrez le mot de passe capitaine" maxlength="20">
-                <button id="loginBtn">Accéder</button>
-            </div>
-            <div class="login-status" id="loginStatus"></div>
-        </div>
-
-        <!-- Sélection d'équipe -->
-        <div class="main-content" id="mainContent">
-            <div class="team-selection">
-            <h2>1. Sélectionnez votre équipe</h2>
-            <div class="team-grid">
-                <button class="team-btn" data-team="Saint-Pierre A">Saint-Pierre A</button>
-                <div class="team-forfeit">Saint-Pierre B<br><small>(Forfait saison)</small></div>
-                <button class="team-btn" data-team="Saint-Pierre C">Saint-Pierre C</button>
-                <button class="team-btn" data-team="Saint-Pierre D">Saint-Pierre D</button>
-                <button class="team-btn" data-team="Saint-Pierre E">Saint-Pierre E</button>
-                <button class="team-btn" data-team="Saint-Pierre F">Saint-Pierre F</button>
-                <button class="team-btn" data-team="Saint-Pierre G">Saint-Pierre G</button>
-            </div>
-        </div>
-
-        <!-- Formulaire de saisie -->
-        <div class="match-form" id="matchForm" style="display: none;">
-            <h2>2. Informations du match</h2>
-            
-            <div class="match-info">
-                <div class="match-details">
-                    <h3 id="matchTitle">Match : </h3>
-                    <div class="score-section">
-                        <label id="team1Label">Équipe 1 :</label>
-                        <input type="number" id="team1Score" min="0" placeholder="0">
-                    </div>
-                    <div class="score-section">
-                        <label id="team2Label">Équipe 2 :</label>
-                        <input type="number" id="team2Score" min="0" placeholder="0">
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="submit-section">
-                <button class="submit-btn" id="submitBtn" disabled>
-                    <span class="btn-text">Envoyer les résultats</span>
-                    <span class="btn-loading" style="display: none;">Envoi en cours...</span>
-                </button>
-            </div>
-        </div>
-        </div>
-
-    </div>
-
-    <script src="captain-script.js"></script>
-</body>
-</html>
+<!-- Ancienne adresse GitHub Pages : redirige vers le nouveau site (à compléter après le premier déploiement). -->
+<html lang="fr"><head><meta charset="UTF-8"><title>TT Saint-Pierre</title>
+<script>
+  var NOUVELLE_ADRESSE = ''; // ex : 'https://ttstpierre.xxx.workers.dev'
+  if (NOUVELLE_ADRESSE) location.replace(NOUVELLE_ADRESSE + (location.pathname.indexOf('captain') !== -1 ? '/capitaine' : '/'));
+</script>
+</head><body style="font-family:sans-serif;background:#111;color:#eee;text-align:center;padding:40px">
+<p>Le site du TT Saint-Pierre a déménagé.</p>
+</body></html>

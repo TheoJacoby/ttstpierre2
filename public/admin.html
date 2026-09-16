@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin · TT Saint-Pierre</title>
+    <link rel="icon" href="img/logoTT.png">
+    <meta name="theme-color" content="#121216">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="app.css?v=2">
+    <script src="vendor/vue.global.prod.js"></script>
+    <script src="api.js?v=2"></script>
+</head>
+<body>
+<div id="app" class="wrap wide">
+    <div class="topbar">
+        <img src="img/logoTT.png" alt="TT Saint-Pierre">
+        <div>
+            <h1>Administration</h1>
+            <div class="sub" v-if="data">Saison {{ data.saison }} · {{ TT.journeeLabel(data.journee) }}</div>
+        </div>
+        <div class="spacer"></div>
+        <a class="btn small ghost" href="capitaine" v-if="role">Saisie scores</a>
+        <a class="btn small ghost" href="./" target="_blank" v-if="role">Écran TV</a>
+        <button class="btn small ghost" v-if="role" @click="logout">Quitter</button>
+    </div>
+
+    <div class="card" v-if="!role">
+        <h2>🔐 Accès administrateur</h2>
+        <form @submit.prevent="login">
+            <div class="field"><label for="pwd">Mot de passe admin</label><input id="pwd" type="password" v-model="password" autocomplete="current-password"></div>
+            <button class="btn primary block" type="submit" :disabled="loading || !password">{{ loading ? 'Connexion…' : 'Accéder' }}</button>
+            <div class="msg error" v-if="loginError">{{ loginError }}</div>
+        </form>
+    </div>
+
+    <template v-else-if="data">
+        <div class="tabs">
+            <button class="tab" :class="{ active: tab === 'journee' }" @click="tab = 'journee'">📅 Journée</button>
+            <button class="tab" :class="{ active: tab === 'equipes' }" @click="tab = 'equipes'">👥 Équipes & joueurs</button>
+            <button class="tab" :class="{ active: tab === 'extras' }" @click="tab = 'extras'">⭐ Joueur du mois, perfs, annonces</button>
+            <button class="tab" :class="{ active: tab === 'historique' }" @click="tab = 'historique'">📚 Historique</button>
+            <button class="tab" :class="{ active: tab === 'sauvegarde' }" @click="tab = 'sauvegarde'">💾 Sauvegarde</button>
+        </div>
+
+        <!-- JOURNÉE -->
+        <template v-if="tab === 'journee'">
+            <div class="card">
+                <h2>Journée en cours : {{ TT.journeeLabel(data.journee) }}</h2>
+                <div class="match-line" v-for="m in data.journee.matchs" :key="m.equipe">
+                    <div>
+                        <div class="who">{{ m.equipe }} <span style="color:var(--muted)">vs</span> {{ m.adversaire || '—' }}</div>
+                        <div class="meta">{{ m.lieu === 'exterieur' ? '🚗 Extérieur' : '🏠 Domicile' }} · {{ m.heure || 'heure ?' }}<span v-if="m.note"> · {{ m.note }}</span><span v-if="m.maj"> · encodé à {{ TT.heure(m.maj) }}</span></div>
+                    </div>
+                    <div class="score" :class="resultClass(m)">{{ m.score_sp === null ? '– : –' : m.score_sp + ' : ' + m.score_adv }}</div>
+                </div>
+                <p class="help" style="margin-top:10px">Pour corriger un score, passe par la <a href="capitaine">page de saisie</a> (ton mot de passe admin y fonctionne aussi).</p>
+            </div>
+
+            <div class="card accent">
+                <h2>Préparer la prochaine journée</h2>
+                <div class="grid-2">
+                    <div class="field"><label>Numéro de journée</label><input type="number" min="1" v-model.number="journeeForm.numero"></div>
+                    <div class="field"><label>Date (samedi)</label><input type="date" v-model="journeeForm.date"></div>
+                </div>
+                <div class="table-scroll">
+                    <table>
+                        <thead><tr><th>Équipe</th><th>Adversaire</th><th>Lieu</th><th>Heure</th><th>Note</th></tr></thead>
+                        <tbody>
+                            <tr v-for="m in journeeForm.matchs" :key="m.equipe">
+                                <td><strong>{{ m.equipe }}</strong></td>
+                                <td><input type="text" list="advList" v-model="m.adversaire" placeholder="ex : Rulles C ou Bye"></td>
+                                <td><select v-model="m.lieu"><option value="domicile">🏠 Domicile</option><option value="exterieur">🚗 Extérieur</option></select></td>
+                                <td><input type="time" v-model="m.heure"></td>
+                                <td><input type="text" v-model="m.note" placeholder="ex : à 3 joueurs"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <datalist id="advList"><option v-for="a in data.adversaires_connus" :key="a" :value="a"></option></datalist>
+                <p class="help" style="margin:10px 0">
+                    <template v-if="currentHasScores">La journée {{ data.journee.numero }} actuelle sera archivée dans l'historique avec ses scores.</template>
+                    <template v-else-if="journeeForm.numero === data.journee.numero">Même numéro que la journée en cours : elle sera simplement remplacée.</template>
+                    <template v-else>La journée en cours n'a aucun score : elle sera remplacée sans être archivée.</template>
+                </p>
+                <button class="btn primary block" @click="publishJournee" :disabled="saving">{{ saving ? 'Publication…' : '📢 Publier cette journée sur la TV' }}</button>
+            </div>
+        </template>
+
+        <!-- ÉQUIPES -->
+        <template v-if="tab === 'equipes'">
+            <div class="card">
+                <h2>Équipes de la saison</h2>
+                <p class="help">Une équipe par ligne. Les titulaires pré-remplissent la page capitaine (4 max, séparés par des virgules) mais chaque capitaine peut aligner n'importe quel joueur du club.</p>
+                <div class="field" style="margin-top:12px"><label>Équipes</label><textarea v-model="equipesForm.equipesText"></textarea></div>
+                <div class="field" v-for="e in equipesList" :key="e"><label>Titulaires {{ e }}</label><input type="text" v-model="equipesForm.titulaires[e]" placeholder="Prénom 1, Prénom 2, Prénom 3, Prénom 4"></div>
+                <div class="field"><label>Tous les joueurs du club (un par ligne)</label><textarea v-model="equipesForm.joueursText" style="min-height:160px"></textarea></div>
+                <button class="btn primary block" @click="saveEquipes" :disabled="saving">Enregistrer les équipes</button>
+            </div>
+        </template>
+
+        <!-- EXTRAS -->
+        <template v-if="tab === 'extras'">
+            <div class="card">
+                <h2>Joueur / joueuse du mois</h2>
+                <div class="field">
+                    <label>Mode</label>
+                    <select v-model="extrasForm.joueur_du_mois.mode">
+                        <option value="auto">Automatique (le plus de victoires du mois, calculé depuis les scores)</option>
+                        <option value="manuel">Manuel (je choisis)</option>
+                    </select>
+                </div>
+                <template v-if="extrasForm.joueur_du_mois.mode === 'manuel'">
+                    <div class="grid-2">
+                        <div class="field"><label>Nom</label><input type="text" v-model="extrasForm.joueur_du_mois.nom"></div>
+                        <div class="field"><label>Mois affiché</label><input type="text" v-model="extrasForm.joueur_du_mois.mois" placeholder="octobre"></div>
+                        <div class="field"><label>Victoires</label><input type="number" v-model.number="extrasForm.joueur_du_mois.victoires"></div>
+                        <div class="field"><label>Perfs</label><input type="number" v-model.number="extrasForm.joueur_du_mois.performances"></div>
+                        <div class="field"><label>Points gagnés</label><input type="number" v-model.number="extrasForm.joueur_du_mois.points"></div>
+                        <div class="field"><label>Genre</label><select v-model="extrasForm.joueur_du_mois.genre"><option value="H">Joueur</option><option value="F">Joueuse</option></select></div>
+                    </div>
+                </template>
+                <div class="field" v-else><label>Genre pour l'affichage automatique</label><select v-model="extrasForm.joueur_du_mois.genre"><option value="H">Joueur</option><option value="F">Joueuse</option></select></div>
+            </div>
+
+            <div class="card">
+                <h2>Meilleures perfs (max 6)</h2>
+                <div class="row" v-for="(p, i) in extrasForm.meilleures_perfs" :key="i" style="margin-bottom:8px">
+                    <div style="flex:2"><input type="text" v-model="p.nom" placeholder="Nom"></div>
+                    <div><input type="number" v-model.number="p.points" placeholder="Points"></div>
+                    <div style="flex:0"><button class="btn small danger" @click="extrasForm.meilleures_perfs.splice(i, 1)">✕</button></div>
+                </div>
+                <button class="btn small ghost" @click="extrasForm.meilleures_perfs.push({ nom: '', points: 0 })" :disabled="extrasForm.meilleures_perfs.length >= 6">+ Ajouter</button>
+            </div>
+
+            <div class="card">
+                <h2>Annonces sur la TV</h2>
+                <p class="help">Souper, tournoi, anniversaire… Une annonce disparaît d'elle-même après sa date de fin.</p>
+                <div class="row" v-for="(a, i) in extrasForm.annonces" :key="i" style="margin:8px 0">
+                    <div style="flex:3"><input type="text" v-model="a.texte" placeholder="Texte de l'annonce"></div>
+                    <div><input type="date" v-model="a.fin"></div>
+                    <div style="flex:0"><button class="btn small danger" @click="extrasForm.annonces.splice(i, 1)">✕</button></div>
+                </div>
+                <button class="btn small ghost" @click="extrasForm.annonces.push({ texte: '', fin: '' })" :disabled="extrasForm.annonces.length >= 10">+ Ajouter</button>
+            </div>
+            <button class="btn primary block" @click="saveExtras" :disabled="saving">Enregistrer</button>
+        </template>
+
+        <!-- HISTORIQUE -->
+        <template v-if="tab === 'historique'">
+            <div class="card" v-if="!data.historique.length"><p class="help">Aucune journée archivée pour le moment. Une journée est archivée quand tu publies la suivante.</p></div>
+            <div class="card" v-for="j in [...data.historique].reverse()" :key="j.numero">
+                <h2>{{ TT.journeeLabel(j) }}</h2>
+                <div class="match-line" v-for="m in j.matchs" :key="m.equipe">
+                    <div>
+                        <div class="who">{{ m.equipe }} <span style="color:var(--muted)">vs</span> {{ m.adversaire || '—' }}</div>
+                        <div class="meta">{{ m.lieu === 'exterieur' ? '🚗' : '🏠' }} {{ (m.joueurs || []).map(p => p.nom + ' ' + p.victoires).join(' · ') }}</div>
+                    </div>
+                    <div class="score" :class="resultClass(m)">{{ m.score_sp === null ? '– : –' : m.score_sp + ' : ' + m.score_adv }}</div>
+                </div>
+            </div>
+        </template>
+
+        <!-- SAUVEGARDE -->
+        <template v-if="tab === 'sauvegarde'">
+            <div class="card">
+                <h2>Sauvegarde</h2>
+                <p class="help">Dernière modification : {{ data.updatedAt ? new Date(data.updatedAt).toLocaleString('fr-BE') : 'jamais' }}. Télécharge une copie de temps en temps, par sécurité.</p>
+                <button class="btn primary" style="margin-top:12px" @click="download">⬇️ Télécharger toutes les données (JSON)</button>
+            </div>
+            <div class="card">
+                <h2>Restaurer une sauvegarde</h2>
+                <input type="file" accept="application/json" @change="restore">
+            </div>
+            <div class="card">
+                <h2>Nouvelle saison</h2>
+                <p class="help">Remet les données de départ (équipes A à F, aucun score, aucun historique). Télécharge d'abord une sauvegarde !</p>
+                <button class="btn danger" style="margin-top:12px" @click="resetSeason">Repartir de zéro</button>
+            </div>
+        </template>
+    </template>
+
+    <div class="msg error" v-else-if="loadError">{{ loadError }} <button class="btn link" @click="reload">Réessayer</button></div>
+
+    <transition name="fade">
+        <div class="toast" :class="{ error: toast.error }" v-if="toast.text">{{ toast.text }}</div>
+    </transition>
+</div>
+<script src="admin.js?v=2"></script>
+</body>
+</html>

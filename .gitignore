@@ -3,5 +3,5 @@
 node_modules/
 .vscode/
 .idea/
-
-
+.wrangler/
+.dev.vars

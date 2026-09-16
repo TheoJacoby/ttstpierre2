@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard TT Saint-Pierre</title>
+    <link rel="icon" href="img/logoTT.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="tv.css?v=2">
+    <script src="vendor/vue.global.prod.js"></script>
+</head>
+<body>
+    <div class="ambient-light one"></div>
+    <div class="ambient-light two"></div>
+    <div class="ambient-light three"></div>
+
+    <div id="app">
+        <div class="container" v-if="loaded">
+            <header class="header">
+                <div class="logo"><img src="img/logoTT.png" alt="Logo TT Saint-Pierre" class="logo-img"></div>
+                <div class="header-center">
+                    <div class="journee-label">{{ journeeLabel }}</div>
+                    <div class="saison-label">Saison {{ data.saison }}<span v-if="offline" class="offline-pill">Hors ligne · dernières données affichées</span></div>
+                </div>
+                <div class="clock">
+                    <div class="clock-time">{{ clockTime }}<span class="clock-seconds">{{ clockSeconds }}</span></div>
+                    <div class="clock-date">{{ clockDate }}</div>
+                </div>
+            </header>
+
+            <main class="main-content">
+                <div class="left-column">
+                    <!-- RÉSULTATS EN ROTATION -->
+                    <div class="glass-card results-card">
+                        <h2 class="card-title">{{ rotation.label }}</h2>
+                        <div class="results-container" :class="{ fading: isFading }" v-if="currentResult">
+                            <div class="main-result">
+                                <span class="team-name" :class="currentResult.left.isSp ? currentResult.spClass : ''">{{ currentResult.left.name }}</span>
+                                <div class="score-badge">
+                                    <span class="score-val">{{ score(currentResult.left.score) }}</span>
+                                    <span class="score-sep">-</span>
+                                    <span class="score-val">{{ score(currentResult.right.score) }}</span>
+                                </div>
+                                <span class="team-name" :class="currentResult.right.isSp ? currentResult.spClass : ''">{{ currentResult.right.name }}</span>
+                                <span class="result-meta">{{ currentResult.home ? '🏠 Domicile' : '🚗 Extérieur' }}<span v-if="!currentResult.finished"> · en cours</span></span>
+                            </div>
+                            <div class="player-results" v-if="currentResult.joueurs.length">
+                                <div class="player-result" v-for="j in currentResult.joueurs" :key="j.nom">
+                                    <span class="player-name">{{ j.nom }}</span>
+                                    <span class="player-victories"><span class="vic-count">{{ j.victoires }}</span><span class="vic-label">{{ j.victoires === 1 ? ' victoire' : ' victoires' }}</span></span>
+                                </div>
+                            </div>
+                            <div class="player-results forfait-note" v-else-if="currentResult.forfait">Match perdu ou gagné par forfait</div>
+                        </div>
+                        <div class="empty-state" v-else>Aucun résultat encodé pour le moment.<br>Les scores apparaissent ici dès que les capitaines les encodent.</div>
+                    </div>
+
+                    <!-- JOUEUR DU MOIS -->
+                    <div class="glass-card highlight-card" v-if="joueurDuMois">
+                        <div class="card-header">
+                            <h2 class="card-title">{{ joueurDuMois.genre === 'F' ? 'Joueuse' : 'Joueur' }} du mois</h2>
+                            <span class="month-badge">{{ joueurDuMois.mois }}</span>
+                        </div>
+                        <div class="player-of-month">
+                            <div class="player-avatar">
+                                <div class="avatar-circle">{{ joueurDuMois.genre === 'F' ? '👩' : '👨' }}</div>
+                                <div class="avatar-glow"></div>
+                            </div>
+                            <div class="player-info">
+                                <h3 class="player-hero-name">{{ joueurDuMois.nom }}</h3>
+                                <div class="stats-grid" v-if="joueurDuMois.auto">
+                                    <div class="stat-box"><span class="stat-num">{{ joueurDuMois.victoires }}</span><span class="stat-label">Victoires</span></div>
+                                    <div class="stat-box accent"><span class="stat-num">{{ joueurDuMois.pct }}%</span><span class="stat-label">Réussite</span></div>
+                                    <div class="stat-box"><span class="stat-num">{{ joueurDuMois.matchs }}</span><span class="stat-label">Interclubs</span></div>
+                                </div>
+                                <div class="stats-grid" v-else>
+                                    <div class="stat-box"><span class="stat-num">{{ joueurDuMois.victoires }}</span><span class="stat-label">Victoires</span></div>
+                                    <div class="stat-box accent"><span class="stat-num">{{ joueurDuMois.performances }}</span><span class="stat-label">Perfs</span></div>
+                                    <div class="stat-box"><span class="stat-num">+{{ joueurDuMois.points }}</span><span class="stat-label">Points</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card highlight-card" v-else>
+                        <h2 class="card-title">Joueur du mois</h2>
+                        <div class="empty-state">Calculé automatiquement dès les premiers résultats de la saison.</div>
+                    </div>
+                </div>
+
+                <div class="right-column">
+                    <!-- MATCHS DU JOUR -->
+                    <div class="glass-panel matches-panel">
+                        <h2 class="section-title">Matchs du jour</h2>
+                        <div class="matches-list">
+                            <div class="match-row" v-for="(m, idx) in matchRows" :key="idx">
+                                <div class="match-icon-wrapper"><span class="match-icon">{{ m.home ? '🏠' : '🚗' }}</span></div>
+                                <div class="match-teams">
+                                    <span class="team-home" :class="m.left.isSp ? m.spClass : ''">{{ m.left.name }}</span>
+                                    <span class="vs-badge">{{ score(m.left.score) }} - {{ score(m.right.score) }}</span>
+                                    <span class="team-away" :class="m.right.isSp ? m.spClass : ''">{{ m.right.name }}<small v-if="m.note" class="match-note"> {{ m.note }}</small></span>
+                                </div>
+                                <div class="match-meta">
+                                    <span class="match-time">{{ m.heure }}</span>
+                                    <span class="status-pill" :class="m.status.cls">{{ m.status.text }}</span>
+                                </div>
+                            </div>
+                            <div class="empty-state" v-if="!matchRows.length">Aucun match programmé.</div>
+                        </div>
+                    </div>
+
+                    <!-- PANNEAU DU BAS (rotation) -->
+                    <div class="glass-panel bottom-panel">
+                        <transition name="slide" mode="out-in">
+                            <div :key="currentSlide" class="slide">
+                                <template v-if="currentSlide === 'perfs'">
+                                    <h2 class="section-title">Meilleures perfs <span class="orange-dot">.</span></h2>
+                                    <div class="performances-grid">
+                                        <div class="perf-card" v-for="p in perfs" :key="p.nom">
+                                            <span class="perf-points">+{{ p.points }}</span>
+                                            <span class="perf-name">{{ p.nom }}</span>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template v-else-if="currentSlide === 'top'">
+                                    <h2 class="section-title">Top joueurs de la saison <span class="orange-dot">.</span></h2>
+                                    <div class="top-grid">
+                                        <div class="top-row" v-for="(s, i) in seasonStats" :key="s.nom">
+                                            <span class="top-rank">{{ i + 1 }}</span>
+                                            <span class="top-name">{{ s.nom }}</span>
+                                            <span class="top-vic">{{ s.victoires }}<small> v.</small></span>
+                                            <span class="top-pct">{{ s.pct }}%</span>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template v-else-if="currentSlide === 'annonces'">
+                                    <h2 class="section-title">Le club vous informe <span class="orange-dot">.</span></h2>
+                                    <div class="annonces-list">
+                                        <div class="annonce" v-for="(a, i) in annonces" :key="i">📣 {{ a.texte }}</div>
+                                    </div>
+                                </template>
+                                <template v-else>
+                                    <h2 class="section-title">Bonne saison <span class="orange-dot">.</span></h2>
+                                    <div class="empty-state">Les statistiques de la saison s'afficheront ici.</div>
+                                </template>
+                            </div>
+                        </transition>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <div v-else class="loading-screen">
+            <div class="loader"></div>
+            <p class="loading-text">Chargement des données…</p>
+        </div>
+    </div>
+
+    <script src="tv.js?v=2"></script>
+</body>
+</html>

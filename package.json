@@ -1,0 +1,15 @@
+{
+  "name": "ttstpierre",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Dashboard TV + saisie des scores du club de tennis de table Saint-Pierre",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "seed:local": "wrangler kv key put --binding DATA --local data --path data/seed.json",
+    "seed:prod": "wrangler kv key put --binding DATA --remote data --path data/seed.json"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

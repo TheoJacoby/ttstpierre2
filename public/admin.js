@@ -1,0 +1,129 @@
+/* Page admin : préparation des journées, équipes, extras, sauvegardes. */
+const { createApp } = Vue;
+
+function nextSaturday(fromIso) {
+  const d = fromIso ? new Date(fromIso + 'T12:00:00') : new Date();
+  d.setDate(d.getDate() + ((6 - d.getDay() + 7) % 7 || 7));
+  return d.toISOString().slice(0, 10);
+}
+
+createApp({
+  data() {
+    return {
+      TT: window.TT,
+      password: TT.getPassword(),
+      role: null, loading: false, loginError: '', loadError: '',
+      data: null,
+      tab: 'journee',
+      saving: false,
+      journeeForm: { numero: 1, date: '', matchs: [] },
+      equipesForm: { equipesText: '', titulaires: {}, joueursText: '' },
+      extrasForm: { joueur_du_mois: {}, meilleures_perfs: [], annonces: [] },
+      toast: { text: '', error: false },
+    };
+  },
+  computed: {
+    currentHasScores() { return this.data?.journee?.matchs.some((m) => m.score_sp !== null) || false; },
+    equipesList() { return this.equipesForm.equipesText.split('\n').map((s) => s.trim()).filter(Boolean); },
+  },
+  async mounted() { if (this.password) await this.login(true); },
+  methods: {
+    async login(silent = false) {
+      this.loading = true; this.loginError = '';
+      try {
+        const res = await TT.post('/api/login', { password: this.password });
+        if (res.role !== 'admin') throw new Error('Ce mot de passe est celui des capitaines, pas de l’admin');
+        this.role = res.role;
+        TT.setPassword(this.password);
+        await this.reload();
+      } catch (e) {
+        if (!silent) this.loginError = e.message;
+        if (/mot de passe/i.test(e.message)) { TT.clearPassword(); this.password = ''; }
+      } finally { this.loading = false; }
+    },
+    logout() { TT.clearPassword(); this.role = null; this.password = ''; this.data = null; },
+    async reload() {
+      this.loadError = '';
+      try { this.setData(await TT.getData()); } catch (e) { this.loadError = e.message; }
+    },
+    setData(data) {
+      this.data = data;
+      const j = data.journee;
+      const hasScores = j.matchs.some((m) => m.score_sp !== null);
+      this.journeeForm = {
+        numero: hasScores ? j.numero + 1 : j.numero,
+        date: hasScores ? nextSaturday(j.date) : (j.date || nextSaturday()),
+        matchs: data.equipes.map((e) => {
+          const cur = j.matchs.find((m) => m.equipe === e) || {};
+          return { equipe: e, adversaire: hasScores ? '' : (cur.adversaire || ''), lieu: hasScores ? (cur.lieu === 'exterieur' ? 'domicile' : 'exterieur') : (cur.lieu || 'domicile'), heure: cur.heure || '', note: hasScores ? '' : (cur.note || '') };
+        }),
+      };
+      this.equipesForm = {
+        equipesText: data.equipes.join('\n'),
+        titulaires: Object.fromEntries(data.equipes.map((e) => [e, (data.titulaires?.[e] || []).join(', ')])),
+        joueursText: (data.joueurs_club || []).join('\n'),
+      };
+      this.extrasForm = {
+        joueur_du_mois: { mode: 'auto', nom: '', victoires: 0, performances: 0, points: 0, mois: '', genre: 'H', ...(data.joueur_du_mois || {}) },
+        meilleures_perfs: (data.meilleures_perfs || []).map((p) => ({ ...p })),
+        annonces: (data.annonces || []).map((a) => ({ ...a })),
+      };
+    },
+    async send(payload, okText) {
+      this.saving = true;
+      try {
+        const res = await TT.post('/api/admin', { password: this.password, ...payload });
+        this.setData(res.data);
+        this.showToast(okText);
+        return true;
+      } catch (e) { this.showToast(e.message, true); return false; }
+      finally { this.saving = false; }
+    },
+    publishJournee() {
+      const empty = this.journeeForm.matchs.filter((m) => !m.adversaire).map((m) => m.equipe);
+      let txt = `Publier la journée ${this.journeeForm.numero} du ${this.journeeForm.date} ?`;
+      if (empty.length) txt += `\n\nSans adversaire : ${empty.join(', ')}`;
+      if (this.currentHasScores) txt += `\n\nLa journée ${this.data.journee.numero} sera archivée avec ses scores.`;
+      if (!confirm(txt)) return;
+      this.send({ action: 'journee', ...this.journeeForm }, 'Journée publiée ✔');
+    },
+    saveEquipes() {
+      const equipes = this.equipesList;
+      const titulaires = Object.fromEntries(equipes.map((e) => [e, (this.equipesForm.titulaires[e] || '').split(',').map((s) => s.trim()).filter(Boolean)]));
+      const joueurs_club = this.equipesForm.joueursText.split('\n').map((s) => s.trim()).filter(Boolean);
+      this.send({ action: 'equipes', equipes, titulaires, joueurs_club }, 'Équipes enregistrées ✔');
+    },
+    saveExtras() { this.send({ action: 'extras', ...this.extrasForm }, 'Enregistré ✔'); },
+    download() {
+      const blob = new Blob([JSON.stringify(this.data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `ttstpierre-${this.data.saison}-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    },
+    async restore(ev) {
+      const file = ev.target.files[0];
+      if (!file) return;
+      try {
+        const parsed = JSON.parse(await file.text());
+        if (!confirm(`Remplacer TOUTES les données actuelles par le fichier "${file.name}" ?`)) return;
+        await this.send({ action: 'restore', data: parsed }, 'Sauvegarde restaurée ✔');
+      } catch (e) { this.showToast('Fichier invalide : ' + e.message, true); }
+      finally { ev.target.value = ''; }
+    },
+    resetSeason() {
+      if (prompt('Tape RESET pour confirmer la remise à zéro de la saison :') !== 'RESET') return;
+      this.send({ action: 'reset' }, 'Saison réinitialisée');
+    },
+    resultClass(m) {
+      if (m.score_sp === null || m.score_sp + m.score_adv < 16) return '';
+      return m.score_sp > m.score_adv ? 'win' : m.score_sp < m.score_adv ? 'loss' : 'draw';
+    },
+    showToast(text, error = false) {
+      this.toast = { text, error };
+      clearTimeout(this._t);
+      this._t = setTimeout(() => { this.toast.text = ''; }, error ? 5000 : 3000);
+    },
+  },
+}).mount('#app');
