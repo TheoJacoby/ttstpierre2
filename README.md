@@ -21,7 +21,7 @@ de fichier `data.json` à modifier à la main ni de token GitHub dans le navigat
   calcule le joueur du mois et le top des joueurs de la saison, et fait défiler perfs / annonces.
 - **Pendant la semaine**, l'admin publie la journée suivante (adversaires, lieu, heure) : la journée
   précédente part dans l'historique avec ses scores. Il peut aussi gérer les équipes, les joueurs,
-  le joueur du mois (auto ou manuel), les meilleures perfs et les annonces, et télécharger une sauvegarde.
+  le joueur du mois (auto ou manuel), les meilleures perfs, et télécharger une sauvegarde.
 
 ## Fédération (AFTT)
 

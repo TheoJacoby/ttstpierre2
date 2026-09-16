@@ -38,7 +38,7 @@
         <div class="tabs">
             <button class="tab" :class="{ active: tab === 'journee' }" @click="tab = 'journee'">📅 Journée</button>
             <button class="tab" :class="{ active: tab === 'equipes' }" @click="tab = 'equipes'">👥 Équipes & joueurs</button>
-            <button class="tab" :class="{ active: tab === 'extras' }" @click="tab = 'extras'">⭐ Joueur du mois, perfs, annonces</button>
+            <button class="tab" :class="{ active: tab === 'extras' }" @click="tab = 'extras'">⭐ Joueur du mois & perfs</button>
             <button class="tab" :class="{ active: tab === 'historique' }" @click="tab = 'historique'">📚 Historique</button>
             <button class="tab" :class="{ active: tab === 'sauvegarde' }" @click="tab = 'sauvegarde'">💾 Sauvegarde</button>
         </div>
@@ -186,16 +186,6 @@
                 <button class="btn small ghost" @click="extrasForm.meilleures_perfs.push({ nom: '', points: 0 })" :disabled="extrasForm.meilleures_perfs.length >= 6">+ Ajouter</button>
             </div>
 
-            <div class="card">
-                <h2>Annonces sur la TV</h2>
-                <p class="help">Souper, tournoi, anniversaire… Une annonce disparaît d'elle-même après sa date de fin.</p>
-                <div class="row" v-for="(a, i) in extrasForm.annonces" :key="i" style="margin:8px 0">
-                    <div style="flex:3"><input type="text" v-model="a.texte" placeholder="Texte de l'annonce"></div>
-                    <div><input type="date" v-model="a.fin"></div>
-                    <div style="flex:0"><button class="btn small danger" @click="extrasForm.annonces.splice(i, 1)">✕</button></div>
-                </div>
-                <button class="btn small ghost" @click="extrasForm.annonces.push({ texte: '', fin: '' })" :disabled="extrasForm.annonces.length >= 10">+ Ajouter</button>
-            </div>
             <button class="btn primary block" @click="saveExtras" :disabled="saving">Enregistrer</button>
         </template>
 

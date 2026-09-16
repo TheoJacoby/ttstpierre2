@@ -144,8 +144,6 @@ body {
 .top-vic small { color: #999; font-weight: 400; }
 .top-pct { color: #aaa; font-size: 0.85rem; min-width: 2.5vw; text-align: right; }
 
-.annonces-list { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 0.8vh; }
-.annonce { font-size: 1.6rem; font-weight: 600; background: rgba(255,107,53,0.08); border-left: 4px solid var(--primary-orange); padding: 0.8vh 1vw; border-radius: 8px; }
 
 /* Mise en évidence Saint-Pierre : plus gras + mini logo ; adversaire un cran plus discret */
 .team-home.sp, .team-away.sp, .team-name.sp { font-weight: 800; letter-spacing: 0.2px; color: #ff9a5c; } /* orange doux, entre le pêche et l'accent */

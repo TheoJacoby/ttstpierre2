@@ -19,7 +19,7 @@ createApp({
       journeeForm: { numero: 1, date: '', matchs: [] },
       afttSemaine: 1, importing: false, importInfo: '', autoImport: false, compterTournois: false,
       equipesForm: { equipesText: '', titulaires: {}, joueursText: '', vendredi_domicile: [] },
-      extrasForm: { joueur_du_mois: {}, meilleures_perfs: [], annonces: [] },
+      extrasForm: { joueur_du_mois: {}, meilleures_perfs: [] },
       toast: { text: '', error: false },
       dialog: { open: false, text: '', input: null, okLabel: 'Confirmer', placeholder: '', resolve: () => {} },
     };
@@ -91,7 +91,6 @@ createApp({
       this.extrasForm = {
         joueur_du_mois: { mode: 'auto', nom: '', victoires: 0, performances: 0, points: 0, mois: '', genre: 'H', ...(data.joueur_du_mois || {}) },
         meilleures_perfs: (data.meilleures_perfs || []).map((p) => ({ ...p })),
-        annonces: (data.annonces || []).map((a) => ({ ...a })),
       };
     },
     async send(payload, okText) {

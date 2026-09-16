@@ -89,19 +89,8 @@ createApp({
       return (this.moisPoints?.data.perfs || []).slice(0, 3).map((p) => ({ nom: p.nom, points: Math.round(p.delta), detail: `${p.adversaire} (${p.classement})` }));
     },
     podium() { return (this.moisPoints?.data.joueurs || []).slice(0, 3); },
-    annonces() {
-      const today = this.now.toISOString().slice(0, 10);
-      return (this.data?.annonces || []).filter((a) => !a.fin || a.fin >= today);
-    },
-    classements() { return (this.data?.classements?.divisions || []).filter((d) => d.rows && d.rows.length); },
-    rankOf() {
-      const map = new Map();
-      (this.data?.joueurs_aftt || []).forEach((j) => map.set(j.nom, j.classement));
-      return (nom) => map.get(nom) || '';
-    },
     slides() {
       const s = [];
-      if (this.annonces.length) s.push({ type: 'annonces' });
       if (this.perfs.length) s.push({ type: 'perfs' });
       if (this.podium.length) s.push({ type: 'podium' });
       return s.length ? s : [{ type: 'vide' }];

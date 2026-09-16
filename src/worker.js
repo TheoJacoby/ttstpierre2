@@ -171,6 +171,7 @@ async function loadData(env) {
   const [classements, points] = await env.DATA.get([KEY_CLASSEMENTS, KEY_POINTS], { type: 'json' }).then((m) => [m.get(KEY_CLASSEMENTS), m.get(KEY_POINTS)]);
   data.classements = classements || { maj: null, divisions: [] };
   data.points = points || { maj: null, mois: {} };
+  delete data.annonces;   // fonctionnalité retirée
   // Les nouveaux noms encodés par les capitaines apparaissent dans la liste du club sans écrire le document
   const club = new Set(data.joueurs_club || []);
   matchs.forEach((m) => (m.joueurs || []).forEach((j) => club.add(j.nom)));
@@ -395,12 +396,6 @@ function applyExtras(data, body) {
       .map((p) => ({ nom: String(p.nom || '').trim(), points: toInt(p.points) ?? 0 }))
       .filter((p) => p.nom)
       .slice(0, 6);
-  }
-  if (Array.isArray(body.annonces)) {
-    data.annonces = body.annonces
-      .map((a) => ({ texte: String(a.texte || '').trim(), fin: /^\d{4}-\d{2}-\d{2}$/.test(a.fin || '') ? a.fin : '' }))
-      .filter((a) => a.texte)
-      .slice(0, 10);
   }
   return data;
 }
