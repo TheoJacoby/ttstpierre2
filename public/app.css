@@ -113,3 +113,5 @@ td input, td select { padding: 8px 10px; }
 .jour-diff { color: var(--warning); }
 label.check { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text); margin: 0; padding: 0 4px; white-space: nowrap; min-height: 48px; }
 label.check input { width: 20px; height: 20px; accent-color: var(--orange); }
+.import-box { background: rgba(255,255,255,0.04); border: 1px dashed var(--border); border-radius: 12px; padding: 12px; margin-bottom: 14px; }
+.import-ok { color: var(--success); font-weight: 600; }

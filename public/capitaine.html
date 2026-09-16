@@ -77,7 +77,12 @@
                     <div>
                         <select v-model="row.nom">
                             <option value="">— Joueur {{ i + 1 }} —</option>
-                            <option v-for="n in playerOptions(row)" :key="n" :value="n">{{ n }}</option>
+                            <optgroup label="Joueurs affiliés" v-if="data.joueurs_aftt && data.joueurs_aftt.length">
+                                <option v-for="j in data.joueurs_aftt" :key="j.licence" :value="j.nom">{{ j.nom }} · {{ j.classement }}</option>
+                            </optgroup>
+                            <optgroup label="Autres noms" v-if="autresNoms(row).length">
+                                <option v-for="n in autresNoms(row)" :key="n" :value="n">{{ n }}</option>
+                            </optgroup>
                             <option value="__nouveau__">+ Nouveau joueur…</option>
                         </select>
                     </div>

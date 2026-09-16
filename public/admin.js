@@ -17,6 +17,7 @@ createApp({
       tab: 'journee',
       saving: false,
       journeeForm: { numero: 1, date: '', matchs: [] },
+      afttSemaine: 1, importing: false, importInfo: '', autoImport: false,
       equipesForm: { equipesText: '', titulaires: {}, joueursText: '', vendredi_domicile: [] },
       extrasForm: { joueur_du_mois: {}, meilleures_perfs: [], annonces: [] },
       toast: { text: '', error: false },
@@ -51,6 +52,8 @@ createApp({
       const j = data.journee;
       const hasScores = j.matchs.some((m) => m.score_sp !== null);
       const samedi = hasScores ? nextSaturday(j.date) : (j.date || nextSaturday());
+      this.autoImport = !!data.aftt?.auto_import;
+      this.afttSemaine = hasScores ? j.numero + 1 : j.numero;
       this.journeeForm = {
         numero: hasScores ? j.numero + 1 : j.numero,
         date: samedi,
@@ -107,6 +110,26 @@ createApp({
       else if (row.jour === 'vendredi') { row.date = TT.addDays(samedi, -1); if (!row.heure) row.heure = '20:00'; }
       else if (!row.date) row.date = samedi;
     },
+    async importerAftt() {
+      this.importing = true; this.importInfo = '';
+      try {
+        const res = await TT.post('/api/admin', { password: this.password, action: 'aftt_semaine', semaine: this.afttSemaine });
+        const j = res.journee;
+        this.journeeForm = {
+          numero: j.numero, date: j.date,
+          matchs: j.matchs.map((m) => ({ ...m, jour: m.date === j.date ? 'samedi' : (m.date === TT.addDays(j.date, -1) ? 'vendredi' : 'autre') })),
+        };
+        const byes = j.matchs.filter((m) => /^bye$/i.test(m.adversaire)).length;
+        this.importInfo = `✔ Semaine ${j.numero} chargée (${j.matchs.length - byes} rencontres${byes ? ', ' + byes + ' bye' : ''}).`;
+      } catch (e) { this.showToast(e.message, true); }
+      finally { this.importing = false; }
+    },
+    async syncAftt() {
+      this.importing = true;
+      try { await this.send({ action: 'aftt_sync' }, 'Fédération synchronisée ✔'); }
+      finally { this.importing = false; }
+    },
+    saveAutoImport() { this.send({ action: 'aftt_config', auto_import: this.autoImport }, this.autoImport ? 'Publication automatique activée' : 'Publication automatique désactivée'); },
     publishJournee() {
       this.journeeForm.matchs.forEach((m) => { if (m.jour !== 'autre') this.onJourChange(m); });
       const empty = this.journeeForm.matchs.filter((m) => !m.adversaire).map((m) => m.equipe);

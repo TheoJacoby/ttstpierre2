@@ -14,5 +14,9 @@ run_worker_first = ["/api/*"]
 binding = "DATA"
 id = "f3331fcc124a48fbadf0cf04c1977066"
 
+# Chaque jour à 04:00 UTC : synchronisation fédération (classements, membres) et import auto si activé
+[triggers]
+crons = ["0 4 * * *"]
+
 [observability]
 enabled = true

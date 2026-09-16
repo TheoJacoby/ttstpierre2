@@ -1,6 +1,11 @@
 {
   "saison": "2026-2027",
   "club": "TT Saint-Pierre",
+  "aftt": {
+    "club": "Lx108",
+    "auto_import": false,
+    "derniere_sync": null
+  },
   "equipes": [
     "Saint-Pierre A",
     "Saint-Pierre B",
@@ -90,6 +95,8 @@
     "Théo",
     "Titi"
   ],
+  "joueurs_aftt": [],
+  "equipes_aftt": [],
   "adversaires_connus": [
     "Athus A",
     "Attert D",

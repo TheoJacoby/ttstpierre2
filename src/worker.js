@@ -8,8 +8,10 @@
  * (CAPTAIN_PASSWORD, ADMIN_PASSWORD) et ne quittent jamais le serveur.
  */
 import seed from '../data/seed.json';
+import { aftt } from './aftt.js';
 
 const KEY = 'data';
+const KEY_CLASSEMENTS = 'classements';
 /** Chaque score vit dans sa propre clé : deux capitaines n'écrivent jamais au même endroit. */
 const scoreKey = (numero, equipe) => `score:${numero}:${equipe}`;
 const SCORE_FIELDS = ['score_sp', 'score_adv', 'forfait', 'joueurs', 'maj'];
@@ -22,6 +24,22 @@ class ValidationError extends Error {}
 const invalid = (msg) => new ValidationError(msg);
 
 export default {
+  /** Tâche planifiée (voir wrangler.toml) : synchronise classements et membres, publie la semaine suivante si demandé */
+  async scheduled(event, env) {
+    const data = await loadData(env);
+    try { await syncAftt(env, data); } catch (e) { console.error('sync fédération :', e.message); }
+    if (data.aftt?.auto_import) {
+      const today = new Date().toISOString().slice(0, 10);
+      const cur = data.journee;
+      const finie = cur.date < today || cur.matchs.some((m) => m.score_sp !== null);
+      if (finie) {
+        try { await applyJournee(env, data, await journeeDepuisAftt(data, cur.numero + 1)); } catch (e) { console.error('import auto :', e.message); }
+      }
+    }
+    data.updatedAt = new Date().toISOString();
+    await storeDoc(env, data);
+  },
+
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname.startsWith('/api/')) {
@@ -82,6 +100,12 @@ async function handleApi(request, env, url) {
         return d;
       });
       case 'reset':    return withData(env, async () => { await deleteAllScores(env); return structuredClone(seed); });
+      case 'aftt_semaine': {                       // aperçu d'une semaine fédération, sans rien enregistrer
+        const data = await loadData(env);
+        return json({ ok: true, journee: await journeeDepuisAftt(data, body.semaine) });
+      }
+      case 'aftt_sync':   return withData(env, (data) => syncAftt(env, data));
+      case 'aftt_config': return withData(env, (data) => { data.aftt = { ...(data.aftt || {}), auto_import: !!body.auto_import }; return data; });
       default:         return json({ ok: false, error: 'Action inconnue' }, 400);
     }
   }
@@ -122,6 +146,7 @@ async function loadData(env) {
       SCORE_FIELDS.forEach((f) => { m[f] = sc[f] ?? (f === 'joueurs' ? [] : null); });
     }
   }
+  data.classements = (await env.DATA.get(KEY_CLASSEMENTS, 'json')) || { maj: null, divisions: [] };
   // Les nouveaux noms encodés par les capitaines apparaissent dans la liste du club sans écrire le document
   const club = new Set(data.joueurs_club || []);
   matchs.forEach((m) => (m.joueurs || []).forEach((j) => club.add(j.nom)));
@@ -147,11 +172,54 @@ async function withData(env, mutate) {
   const result = await mutate(data);     // lève une ValidationError si invalide
   const next = result || data;
   next.updatedAt = new Date().toISOString();
-  const toStore = structuredClone(next);
-  // Les scores de la journée en cours vivent dans leurs propres clés : le document n'en garde pas de copie
-  (toStore.journee?.matchs || []).forEach((m) => { m.score_sp = null; m.score_adv = null; m.forfait = null; m.joueurs = []; m.maj = null; });
-  await env.DATA.put(KEY, JSON.stringify(toStore));
+  await storeDoc(env, next);
   return json({ ok: true, data: next });
+}
+
+async function storeDoc(env, data) {
+  const toStore = structuredClone(data);
+  // Les scores de la journée en cours vivent dans leurs propres clés, les classements aussi : pas de copie dans le document
+  (toStore.journee?.matchs || []).forEach((m) => { m.score_sp = null; m.score_adv = null; m.forfait = null; m.joueurs = []; m.maj = null; });
+  delete toStore.classements;
+  await env.DATA.put(KEY, JSON.stringify(toStore));
+}
+
+/* ---------- Fédération (AFTT) ---------- */
+
+const lettre = (equipe) => (String(equipe).match(/\s([A-Z])$/) || [])[1] || '';
+
+/** Construit la journée d'une semaine fédération pour nos équipes (format attendu par applyJournee) */
+async function journeeDepuisAftt(data, semaine) {
+  const numero = toInt(semaine);
+  if (numero === null || numero < 1 || numero > 30) throw invalid('Numéro de semaine invalide (1 à 22)');
+  const club = data.aftt?.club || 'Lx108';
+  const rencontres = await aftt.rencontres(club, numero);
+  if (!rencontres.length) throw invalid(`Aucune rencontre trouvée pour la semaine ${numero}`);
+  const samedis = rencontres.map((r) => r.date).filter((d) => new Date(d + 'T12:00:00').getDay() === 6);
+  const date = (samedis.length ? samedis : rencontres.map((r) => r.date)).sort().pop();
+  const matchs = data.equipes.map((equipe) => {
+    const r = rencontres.find((x) => x.lettre === lettre(equipe));
+    if (!r) return { equipe, adversaire: 'Bye', lieu: 'domicile', heure: '', date, note: '' };
+    return { equipe, adversaire: r.adversaire, lieu: r.lieu, heure: r.heure, date: r.date, note: '' };
+  });
+  return { numero, date, matchs, source: 'aftt' };
+}
+
+/** Rafraîchit équipes, membres et classements depuis la fédération */
+async function syncAftt(env, data) {
+  const club = data.aftt?.club || 'Lx108';
+  const [equipes, membres] = await Promise.all([aftt.equipes(club), aftt.membres(club)]);
+  data.equipes_aftt = equipes.map((e) => ({ equipe: data.equipes.find((n) => lettre(n) === e.lettre) || `Saint-Pierre ${e.lettre}`, ...e }));
+  data.joueurs_aftt = membres.sort((a, b) => a.position - b.position);
+  const divisions = await Promise.all(equipes.map(async (e) => ({
+    equipe: data.equipes.find((n) => lettre(n) === e.lettre) || `Saint-Pierre ${e.lettre}`,
+    lettre: e.lettre, divisionId: e.divisionId, division: e.divisionCourte, nom: e.division,
+    rows: await aftt.classement(e.divisionId),
+  })));
+  data.classements = { maj: new Date().toISOString(), divisions };
+  await env.DATA.put(KEY_CLASSEMENTS, JSON.stringify(data.classements));
+  data.aftt = { ...(data.aftt || {}), club, derniere_sync: data.classements.maj };
+  return data;
 }
 
 /* ---------- Actions ---------- */

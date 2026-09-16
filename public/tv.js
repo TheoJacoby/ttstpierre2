@@ -113,12 +113,19 @@ createApp({
       const today = this.now.toISOString().slice(0, 10);
       return (this.data?.annonces || []).filter((a) => !a.fin || a.fin >= today);
     },
+    classements() { return (this.data?.classements?.divisions || []).filter((d) => d.rows && d.rows.length); },
+    rankOf() {
+      const map = new Map();
+      (this.data?.joueurs_aftt || []).forEach((j) => map.set(j.nom, j.classement));
+      return (nom) => map.get(nom) || '';
+    },
     slides() {
       const s = [];
-      if (this.annonces.length) s.push('annonces');
-      if (this.perfs.length) s.push('perfs');
-      if (this.seasonStats.length) s.push('top');
-      return s.length ? s : ['vide'];
+      if (this.annonces.length) s.push({ type: 'annonces' });
+      if (this.perfs.length) s.push({ type: 'perfs' });
+      if (this.seasonStats.length) s.push({ type: 'top' });
+      this.classements.forEach((c) => s.push({ type: 'classement', classement: c }));
+      return s.length ? s : [{ type: 'vide' }];
     },
     currentSlide() { return this.slides[this.slideIndex % this.slides.length]; },
     clockTime() { return this.now.toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' }); },
@@ -186,5 +193,7 @@ createApp({
       return diff >= -LIVE_BEFORE_MS && diff <= LIVE_MAX_MS;
     },
     score(v) { return v === null || v === undefined ? '–' : v; },
+    isOurTeam(row) { return row.club === (this.data?.aftt?.club || 'Lx108'); },
+    shortTeam(name) { return name.replace(/^(TT|CTT|Asbl TT|Palette|GTT|RTT)\s+/i, '').replace(/\s+Asbl\b/i, ''); },
   },
 }).mount('#app');

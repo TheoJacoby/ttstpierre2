@@ -150,6 +150,19 @@ body {
 .team-letter { font-weight: 900; }
 .team-winner .team-letter, .team-loser .team-letter, .team-draw .team-letter { color: inherit; }
 
+/* Classement de division */
+.section-sub { color: #888; font-weight: 600; margin-left: 0.5vw; text-transform: none; letter-spacing: 0; }
+.ranking-grid { flex: 1; display: grid; grid-template-columns: repeat(2, 1fr); grid-auto-flow: column; grid-template-rows: repeat(6, 1fr); column-gap: 1.5vw; row-gap: 0.3vh; min-height: 0; }
+.ranking-row { display: grid; grid-template-columns: 1.6vw 1fr auto auto; align-items: center; gap: 0.6vw; padding: 0.2vh 0.7vw; border-radius: 6px; font-size: 0.95rem; color: #ccc; }
+.ranking-row.ours { background: rgba(255,107,53,0.14); border: 1px solid rgba(255,107,53,0.4); color: #fff; font-weight: 800; }
+.rk-pos { font-weight: 800; color: #999; }
+.ranking-row.ours .rk-pos { color: var(--primary-orange); }
+.rk-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rk-played { color: #888; font-size: 0.8rem; }
+.rk-pts { font-weight: 800; color: var(--success); min-width: 3vw; text-align: right; }
+.rk-pts small, .rk-played small { font-weight: 400; color: #888; }
+.player-rank { margin-left: 0.5vw; color: var(--primary-orange); font-size: 0.7em; font-weight: 700; background: rgba(255,107,53,0.12); padding: 1px 5px; border-radius: 4px; vertical-align: middle; }
+
 /* Helpers */
 .team-winner { color: var(--success) !important; text-shadow: 0 0 10px rgba(0, 242, 169, 0.3); }
 .team-loser { color: var(--danger) !important; opacity: 0.85; }

@@ -59,6 +59,13 @@
 
             <div class="card accent">
                 <h2>Préparer la prochaine journée</h2>
+                <div class="import-box">
+                    <div class="row">
+                        <div style="flex:0 0 120px"><label>Semaine</label><input type="number" min="1" max="22" v-model.number="afttSemaine"></div>
+                        <div><button class="btn primary block" @click="importerAftt" :disabled="saving || importing">{{ importing ? 'Chargement…' : '⬇️ Charger depuis la fédération' }}</button></div>
+                    </div>
+                    <p class="help" style="margin-top:8px">Remplit adversaires, lieux, dates et heures depuis le calendrier officiel (AFTT). Tu vérifies, puis tu publies.<span v-if="importInfo" class="import-ok"> {{ importInfo }}</span></p>
+                </div>
                 <div class="grid-2">
                     <div class="field"><label>Numéro de journée</label><input type="number" min="1" v-model.number="journeeForm.numero"></div>
                     <div class="field"><label>Date (samedi)</label><input type="date" v-model="journeeForm.date"></div>
@@ -110,6 +117,22 @@
                 </div>
                 <div class="field"><label>Tous les joueurs du club (un par ligne)</label><textarea v-model="equipesForm.joueursText" style="min-height:160px"></textarea></div>
                 <button class="btn primary block" @click="saveEquipes" :disabled="saving">Enregistrer les équipes</button>
+            </div>
+
+            <div class="card">
+                <h2>Fédération (AFTT)</h2>
+                <p class="help">Club {{ data.aftt?.club || 'Lx108' }}. Dernière synchronisation : {{ data.aftt?.derniere_sync ? new Date(data.aftt.derniere_sync).toLocaleString('fr-BE') : 'jamais' }}. Elle se fait aussi toute seule chaque nuit.</p>
+                <div class="match-line" v-for="e in data.equipes_aftt || []" :key="e.lettre">
+                    <div class="who">{{ e.equipe }}</div>
+                    <div class="meta">{{ e.division }}</div>
+                </div>
+                <p class="help" style="margin-top:8px">{{ (data.joueurs_aftt || []).length }} joueurs affiliés avec leur classement, proposés aux capitaines.</p>
+                <button class="btn ghost block" style="margin-top:10px" @click="syncAftt" :disabled="saving || importing">{{ importing ? 'Synchronisation…' : '🔄 Synchroniser maintenant' }}</button>
+                <label class="check" style="margin-top:12px">
+                    <input type="checkbox" v-model="autoImport" @change="saveAutoImport">
+                    Publier automatiquement la semaine suivante (chaque nuit, dès que la journée en cours est jouée)
+                </label>
+                <p class="help">Attention : une fois la journée suivante publiée, les capitaines ne peuvent plus corriger la précédente. Laisse décoché si tu préfères publier toi-même.</p>
             </div>
         </template>
 

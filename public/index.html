@@ -48,7 +48,7 @@
                             </div>
                             <div class="player-results" v-if="currentResult.joueurs.length">
                                 <div class="player-result" v-for="j in currentResult.joueurs" :key="j.nom">
-                                    <span class="player-name">{{ j.nom }}</span>
+                                    <span class="player-name">{{ j.nom }}<small class="player-rank" v-if="rankOf(j.nom)">{{ rankOf(j.nom) }}</small></span>
                                     <span class="player-victories"><span class="vic-count">{{ j.victoires }}</span><span class="vic-label">{{ j.victoires === 1 ? ' victoire' : ' victoires' }}</span></span>
                                 </div>
                             </div>
@@ -113,8 +113,19 @@
                     <!-- PANNEAU DU BAS (rotation) -->
                     <div class="glass-panel bottom-panel">
                         <transition name="slide" mode="out-in">
-                            <div :key="currentSlide" class="slide">
-                                <template v-if="currentSlide === 'perfs'">
+                            <div :key="currentSlide.type + (currentSlide.classement ? currentSlide.classement.lettre : '')" class="slide">
+                                <template v-if="currentSlide.type === 'classement'">
+                                    <h2 class="section-title">Classement · Division {{ currentSlide.classement.division }} <span class="orange-dot">.</span> <span class="section-sub">{{ currentSlide.classement.equipe }}</span></h2>
+                                    <div class="ranking-grid">
+                                        <div class="ranking-row" v-for="r in currentSlide.classement.rows" :key="r.pos" :class="{ ours: isOurTeam(r) }">
+                                            <span class="rk-pos">{{ r.pos }}</span>
+                                            <span class="rk-name">{{ shortTeam(r.equipe) }}</span>
+                                            <span class="rk-played">{{ r.joues }}<small> j.</small></span>
+                                            <span class="rk-pts">{{ r.points }}<small> pts</small></span>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template v-else-if="currentSlide.type === 'perfs'">
                                     <h2 class="section-title">Meilleures perfs <span class="orange-dot">.</span></h2>
                                     <div class="performances-grid">
                                         <div class="perf-card" v-for="p in perfs" :key="p.nom">
@@ -123,7 +134,7 @@
                                         </div>
                                     </div>
                                 </template>
-                                <template v-else-if="currentSlide === 'top'">
+                                <template v-else-if="currentSlide.type === 'top'">
                                     <h2 class="section-title">Top joueurs de la saison <span class="orange-dot">.</span></h2>
                                     <div class="top-grid">
                                         <div class="top-row" v-for="(s, i) in seasonStats" :key="s.nom">
@@ -134,7 +145,7 @@
                                         </div>
                                     </div>
                                 </template>
-                                <template v-else-if="currentSlide === 'annonces'">
+                                <template v-else-if="currentSlide.type === 'annonces'">
                                     <h2 class="section-title">Le club vous informe <span class="orange-dot">.</span></h2>
                                     <div class="annonces-list">
                                         <div class="annonce" v-for="(a, i) in annonces" :key="i">📣 {{ a.texte }}</div>

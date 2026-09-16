@@ -81,9 +81,11 @@ createApp({
       while (rows.length < 4) rows.push({ nom: '', victoires: 0 });
       this.form = { joueurs: rows.slice(0, 4), score_adv: m.score_adv || 0, forfait: m.forfait || null };
     },
-    playerOptions(row) {
-      const list = [...(this.data?.joueurs_club || [])];
-      if (row.nom && !list.includes(row.nom) && row.nom !== '__nouveau__') list.push(row.nom);
+    /** Noms hors liste fédération (surnoms, anciens noms) */
+    autresNoms(row) {
+      const officiels = new Set((this.data?.joueurs_aftt || []).map((j) => j.nom));
+      const list = (this.data?.joueurs_club || []).filter((n) => !officiels.has(n));
+      if (row.nom && !officiels.has(row.nom) && !list.includes(row.nom) && row.nom !== '__nouveau__') list.push(row.nom);
       return list.sort((a, b) => a.localeCompare(b, 'fr'));
     },
     inc(row) { if (row.victoires < 4 && this.total < MAX_SCORE) row.victoires++; },

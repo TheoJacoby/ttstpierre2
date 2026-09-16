@@ -23,6 +23,16 @@ de fichier `data.json` à modifier à la main ni de token GitHub dans le navigat
   précédente part dans l'historique avec ses scores. Il peut aussi gérer les équipes, les joueurs,
   le joueur du mois (auto ou manuel), les meilleures perfs et les annonces, et télécharger une sauvegarde.
 
+## Fédération (AFTT)
+
+Le serveur interroge l'API publique de la fédération (`api.aftt.be`, TabT) pour le club Lx108 :
+
+- **Import d'une semaine** (admin, onglet Journée) : adversaires, lieux, dates et heures officiels pour les six équipes. L'admin vérifie puis publie.
+- **Synchronisation** (admin, onglet Équipes, et automatiquement chaque nuit à 04:00 UTC) : divisions des équipes, membres du club avec leur classement (proposés aux capitaines), classement de chaque division (affiché sur la TV).
+- **Publication automatique** (option, désactivée par défaut) : chaque nuit, si la journée en cours est jouée, la semaine suivante est publiée sans intervention.
+
+Si l'API est indisponible, tout reste faisable à la main comme avant. Le code du client est dans `src/aftt.js`.
+
 ## Structure
 
 ```
@@ -32,7 +42,8 @@ public/            fichiers servis tels quels
   admin.html + admin.js              administration
   app.css, api.js                    partagés par capitaine & admin
   vendor/vue.global.prod.js          Vue 3 (local, pas de CDN)
-src/worker.js      API (/api/data, /api/login, /api/capitaine, /api/admin) + validation
+src/worker.js      API (/api/data, /api/login, /api/capitaine, /api/admin) + validation + tâche planifiée
+src/aftt.js        client de l'API de la fédération (TabT)
 data/seed.json     données de départ d'une saison (équipes, joueurs, adversaires connus)
 wrangler.toml      configuration Cloudflare
 ```
