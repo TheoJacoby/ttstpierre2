@@ -6,6 +6,8 @@ const ROTATE_MS = 10000;    // rotation des résultats
 const SLIDE_MS = 12000;     // rotation du panneau du bas
 const OFFLINE_AFTER_MS = 3 * 60 * 1000;
 const MAX_SCORE = 16;
+const LIVE_BEFORE_MS = 15 * 60 * 1000;      // surbrillance 15 min avant le début
+const LIVE_MAX_MS = 4 * 60 * 60 * 1000;     // ... et au plus 4 h après, si le score n'est jamais encodé
 
 function parseDate(iso) {
   if (!iso) return null;
@@ -59,7 +61,7 @@ createApp({
         return {
           ...this.sides(m), heure: m.heure, note: m.note, status: this.status(m),
           date,
-          today: date === this.todayIso,   // se joue aujourd'hui : mis en surbrillance sur la TV
+          live: this.isLive(m, date),
           jour: date !== ref ? parseDate(date).toLocaleDateString('fr-BE', { weekday: 'short' }).replace('.', '') : '',
         };
       });
@@ -171,6 +173,16 @@ createApp({
       if (!hasStarted(m)) return { text: 'À venir', cls: 'status-not-started' };
       if (isFinished(m)) return { text: 'Terminé', cls: 'status-finished' };
       return { text: `En cours · ${m.score_sp + m.score_adv}/${MAX_SCORE}`, cls: 'status-ongoing' };
+    },
+    /** Match à domicile en surbrillance : de 15 min avant l'heure jusqu'à la fin (ou 4 h après le début). */
+    isLive(m, date) {
+      if (m.lieu === 'exterieur' || isBye(m) || isFinished(m) || !m.heure) return false;
+      const [h, min] = m.heure.split(':').map(Number);
+      const start = parseDate(date);
+      if (!start || isNaN(h)) return false;
+      start.setHours(h, min || 0, 0, 0);
+      const diff = this.now - start;
+      return diff >= -LIVE_BEFORE_MS && diff <= LIVE_MAX_MS;
     },
     score(v) { return v === null || v === undefined ? '–' : v; },
   },

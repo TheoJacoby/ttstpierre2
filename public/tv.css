@@ -99,13 +99,12 @@ body {
 /* Matchs du jour */
 .matches-list { flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; gap: 0.5vh; min-height: 0; }
 .match-row { display: flex; align-items: center; background: rgba(255,255,255,0.03); padding: 0.8vh 1vw; border-radius: 10px; min-height: 4vh; border: 1px solid transparent; }
-.match-row.today {
+.match-row.live {
     background: linear-gradient(90deg, rgba(255,107,53,0.18), rgba(255,107,53,0.06));
     border-color: rgba(255,107,53,0.55);
     box-shadow: 0 0 18px rgba(255,107,53,0.18);
 }
-.match-row.today .match-icon { filter: none; opacity: 1; }
-.team-home.sp, .team-away.sp, .team-name.sp { color: var(--primary-orange); }
+.match-row.live .match-icon { filter: none; opacity: 1; }
 .match-icon-wrapper { width: 2vw; margin-right: 0.8vw; text-align: center; }
 .match-icon { font-size: 1.4rem; filter: grayscale(100%) brightness(1.5); opacity: 0.7; }
 .match-teams { display: flex; align-items: center; gap: 0.8vw; flex: 1; min-width: 0; }
