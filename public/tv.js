@@ -153,7 +153,8 @@ createApp({
     },
     sides(m) {
       const home = m.lieu !== 'exterieur';
-      const sp = { name: m.equipe, score: m.score_sp, isSp: true };
+      const parts = /^(.*?)\s+([A-Z])$/.exec(m.equipe || '');     // "Saint-Pierre C" -> base + lettre
+      const sp = { name: m.equipe, base: parts ? parts[1] : m.equipe, letter: parts ? parts[2] : '', score: m.score_sp, isSp: true };
       const adv = { name: m.adversaire || '—', score: m.score_adv, isSp: false };
       return {
         left: home ? sp : adv, right: home ? adv : sp, home,
