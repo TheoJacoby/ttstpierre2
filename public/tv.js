@@ -59,6 +59,12 @@ createApp({
         };
       });
     },
+    classements() { return (this.data?.classements?.divisions || []).filter((d) => d.rows && d.rows.length); },
+    rankOf() {
+      const map = new Map();
+      (this.data?.joueurs_aftt || []).forEach((j) => map.set(j.nom, j.classement));
+      return (nom) => map.get(nom) || '';
+    },
     /** Dernier mois TERMINÉ ayant des points fédération (le mois en cours n'est jamais affiché) */
     moisPoints() {
       const mois = this.data?.points?.mois || {};
