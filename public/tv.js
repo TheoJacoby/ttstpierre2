@@ -48,15 +48,21 @@ createApp({
       if (!list.length) return null;
       return this.sides(list[this.resultIndex % list.length]);
     },
+    todayIso() {
+      const d = this.now;
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    },
     matchRows() {
       const ref = this.journee.date;
-      return this.matchs
-        .map((m) => ({
+      return this.matchs.map((m) => {
+        const date = m.date || ref;
+        return {
           ...this.sides(m), heure: m.heure, note: m.note, status: this.status(m),
-          date: m.date || ref,
-          jour: m.date && m.date !== ref ? parseDate(m.date).toLocaleDateString('fr-BE', { weekday: 'short' }).replace('.', '') : '',
-        }))
-        .sort((a, b) => (a.date + a.heure).localeCompare(b.date + b.heure));
+          date,
+          today: date === this.todayIso,   // se joue aujourd'hui : mis en surbrillance sur la TV
+          jour: date !== ref ? parseDate(date).toLocaleDateString('fr-BE', { weekday: 'short' }).replace('.', '') : '',
+        };
+      });
     },
     seasonStats() {
       const all = [...(this.data?.historique || []), this.journee];

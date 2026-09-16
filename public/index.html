@@ -37,13 +37,13 @@
                         <h2 class="card-title">{{ rotation.label }}</h2>
                         <div class="results-container" :class="{ fading: isFading }" v-if="currentResult">
                             <div class="main-result">
-                                <span class="team-name" :class="currentResult.left.isSp ? currentResult.spClass : ''">{{ currentResult.left.name }}</span>
+                                <span class="team-name" :class="currentResult.left.isSp ? 'sp ' + currentResult.spClass : ''">{{ currentResult.left.name }}</span>
                                 <div class="score-badge">
                                     <span class="score-val">{{ score(currentResult.left.score) }}</span>
                                     <span class="score-sep">-</span>
                                     <span class="score-val">{{ score(currentResult.right.score) }}</span>
                                 </div>
-                                <span class="team-name" :class="currentResult.right.isSp ? currentResult.spClass : ''">{{ currentResult.right.name }}</span>
+                                <span class="team-name" :class="currentResult.right.isSp ? 'sp ' + currentResult.spClass : ''">{{ currentResult.right.name }}</span>
                                 <span class="result-meta">{{ currentResult.home ? '🏠 Domicile' : '🚗 Extérieur' }}<span v-if="!currentResult.finished"> · en cours</span></span>
                             </div>
                             <div class="player-results" v-if="currentResult.joueurs.length">
@@ -94,12 +94,12 @@
                     <div class="glass-panel matches-panel">
                         <h2 class="section-title">Matchs de la journée</h2>
                         <div class="matches-list">
-                            <div class="match-row" v-for="(m, idx) in matchRows" :key="idx">
+                            <div class="match-row" :class="{ today: m.today }" v-for="(m, idx) in matchRows" :key="idx">
                                 <div class="match-icon-wrapper"><span class="match-icon">{{ m.home ? '🏠' : '🚗' }}</span></div>
                                 <div class="match-teams">
-                                    <span class="team-home" :class="m.left.isSp ? m.spClass : ''">{{ m.left.name }}</span>
+                                    <span class="team-home" :class="m.left.isSp ? 'sp ' + m.spClass : ''">{{ m.left.name }}</span>
                                     <span class="vs-badge">{{ score(m.left.score) }} - {{ score(m.right.score) }}</span>
-                                    <span class="team-away" :class="m.right.isSp ? m.spClass : ''">{{ m.right.name }}<small v-if="m.note" class="match-note"> {{ m.note }}</small></span>
+                                    <span class="team-away" :class="m.right.isSp ? 'sp ' + m.spClass : ''">{{ m.right.name }}<small v-if="m.note" class="match-note"> {{ m.note }}</small></span>
                                 </div>
                                 <div class="match-meta">
                                     <span class="match-time"><span v-if="m.jour" class="match-day">{{ m.jour }}</span>{{ m.heure }}</span>
