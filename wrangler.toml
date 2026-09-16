@@ -12,7 +12,7 @@ run_worker_first = ["/api/*"]
 # En production : `npx wrangler kv namespace create DATA` puis coller l'id ci-dessous.
 [[kv_namespaces]]
 binding = "DATA"
-id = "A_REMPLACER_APRES_wrangler_kv_namespace_create"
+id = "f3331fcc124a48fbadf0cf04c1977066"
 
 [observability]
 enabled = true
