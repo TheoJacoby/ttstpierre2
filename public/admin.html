@@ -27,7 +27,7 @@
 
     <div class="card" v-if="!role">
         <h2>🔐 Accès administrateur</h2>
-        <form @submit.prevent="login">
+        <form @submit.prevent="login()">
             <div class="field"><label for="pwd">Mot de passe admin</label><input id="pwd" type="password" v-model="password" autocomplete="current-password"></div>
             <button class="btn primary block" type="submit" :disabled="loading || !password">{{ loading ? 'Connexion…' : 'Accéder' }}</button>
             <div class="msg error" v-if="loginError">{{ loginError }}</div>

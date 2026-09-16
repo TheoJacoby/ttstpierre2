@@ -26,7 +26,7 @@
     <!-- CONNEXION -->
     <div class="card" v-if="!role">
         <h2>🔐 Accès capitaine</h2>
-        <form @submit.prevent="login">
+        <form @submit.prevent="login()">
             <div class="field">
                 <label for="pwd">Mot de passe</label>
                 <input id="pwd" type="password" v-model="password" autocomplete="current-password" placeholder="Mot de passe capitaine">
