@@ -39,16 +39,9 @@ createApp({
       return `Journée ${this.journee.numero}${date ? ' · ' + date : ''}`;
     },
     started() { return this.matchs.filter(hasStarted); },
-    rotation() {
-      if (this.started.length) return { label: 'Résultats du jour', matchs: this.started };
-      const hist = [...(this.data?.historique || [])].reverse().find((j) => j.matchs?.some(hasStarted));
-      if (hist) return { label: `Journée ${hist.numero} · dernière journée jouée`, matchs: hist.matchs.filter(hasStarted) };
-      return { label: 'Résultats', matchs: [] };
-    },
-    currentResult() {
-      const list = this.rotation.matchs;
-      if (!list.length) return null;
-      return this.sides(list[this.resultIndex % list.length]);
+    currentClassement() {
+      const list = this.classements;
+      return list.length ? list[this.resultIndex % list.length] : null;
     },
     todayIso() {
       const d = this.now;
@@ -124,7 +117,6 @@ createApp({
       if (this.annonces.length) s.push({ type: 'annonces' });
       if (this.perfs.length) s.push({ type: 'perfs' });
       if (this.seasonStats.length) s.push({ type: 'top' });
-      this.classements.forEach((c) => s.push({ type: 'classement', classement: c }));
       return s.length ? s : [{ type: 'vide' }];
     },
     currentSlide() { return this.slides[this.slideIndex % this.slides.length]; },
@@ -154,7 +146,7 @@ createApp({
       }
     },
     nextResult() {
-      if (this.rotation.matchs.length < 2) return;
+      if (this.classements.length < 2) return;
       this.isFading = true;
       setTimeout(() => { this.resultIndex++; this.isFading = false; }, 700);
     },

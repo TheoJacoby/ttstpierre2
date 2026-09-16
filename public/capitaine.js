@@ -16,6 +16,7 @@ createApp({
       form: { joueurs: [], score_adv: 0, forfait: null },
       saving: false,
       toast: { text: '', error: false },
+      dialog: { open: false, text: '', input: null, okLabel: 'Confirmer', placeholder: '', resolve: () => {} },
     };
   },
   computed: {
@@ -36,14 +37,14 @@ createApp({
   watch: {
     'form.joueurs': {
       deep: true,
-      handler(rows) {
-        rows.forEach((row) => {
+      async handler(rows) {
+        for (const row of rows) {
           if (row.nom === '__nouveau__') {
-            const nom = (prompt('Prénom / nom du nouveau joueur :') || '').trim();
-            row.nom = nom;
-            if (nom && !this.data.joueurs_club.includes(nom)) this.data.joueurs_club.push(nom);
+            row.nom = '';
+            const nom = await this.ask('Prénom / nom du nouveau joueur :', { input: '', okLabel: 'Ajouter', placeholder: 'ex : Jean Dupont' });
+            if (nom) { row.nom = nom; if (!this.data.joueurs_club.includes(nom)) this.data.joueurs_club.push(nom); }
           }
-        });
+        }
       },
     },
   },
@@ -108,16 +109,24 @@ createApp({
         this.showToast(e.message, true);
       } finally { this.saving = false; }
     },
-    declareForfait(which) {
+    async declareForfait(which) {
       const txt = which === 'sp' ? `Déclarer un forfait de ${this.selectedTeam} (0 - 16) ?` : `Déclarer un forfait de ${this.match.adversaire || "l'adversaire"} (16 - 0) ?`;
-      if (!confirm(txt)) return;
+      if (!(await this.ask(txt))) return;
       this.form.forfait = which;
       this.save();
     },
-    resetMatch() {
-      if (!confirm('Effacer les scores et les joueurs de ce match ?')) return;
+    async resetMatch() {
+      if (!(await this.ask('Effacer les scores et les joueurs de ce match ?', { okLabel: 'Effacer' }))) return;
       this.form = { joueurs: [{ nom: '', victoires: 0 }, { nom: '', victoires: 0 }, { nom: '', victoires: 0 }, { nom: '', victoires: 0 }], score_adv: 0, forfait: null };
       this.save();
+    },
+    /** Confirmation / saisie dans la page : renvoie une promesse (false ou null si annulé) */
+    ask(text, { input = null, okLabel = 'Confirmer', placeholder = '' } = {}) {
+      return new Promise((resolve) => { this.dialog = { open: true, text, input, okLabel, placeholder, resolve }; });
+    },
+    closeDialog(ok) {
+      const d = this.dialog; this.dialog = { ...d, open: false };
+      d.resolve(ok ? (d.input !== null ? d.input.trim() : true) : (d.input !== null ? null : false));
     },
     showToast(text, error = false) {
       this.toast = { text, error };

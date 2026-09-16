@@ -127,6 +127,18 @@
         </div>
     </template>
 
+
+    <!-- Boîte de dialogue intégrée (remplace confirm / prompt du navigateur) -->
+    <div class="modal-bg" v-if="dialog.open" @click.self="closeDialog(false)">
+        <div class="modal">
+            <p class="modal-text">{{ dialog.text }}</p>
+            <input v-if="dialog.input !== null" type="text" v-model="dialog.input" :placeholder="dialog.placeholder" @keyup.enter="closeDialog(true)" class="modal-input" autofocus>
+            <div class="modal-actions">
+                <button class="btn ghost" @click="closeDialog(false)">Annuler</button>
+                <button class="btn primary" @click="closeDialog(true)">{{ dialog.okLabel }}</button>
+            </div>
+        </div>
+    </div>
     <transition name="fade">
         <div class="toast" :class="{ error: toast.error }" v-if="toast.text">{{ toast.text }}</div>
     </transition>

@@ -21,6 +21,7 @@ createApp({
       equipesForm: { equipesText: '', titulaires: {}, joueursText: '', vendredi_domicile: [] },
       extrasForm: { joueur_du_mois: {}, meilleures_perfs: [], annonces: [] },
       toast: { text: '', error: false },
+      dialog: { open: false, text: '', input: null, okLabel: 'Confirmer', placeholder: '', resolve: () => {} },
     };
   },
   computed: {
@@ -130,13 +131,13 @@ createApp({
       finally { this.importing = false; }
     },
     saveAutoImport() { this.send({ action: 'aftt_config', auto_import: this.autoImport }, this.autoImport ? 'Publication automatique activée' : 'Publication automatique désactivée'); },
-    publishJournee() {
+    async publishJournee() {
       this.journeeForm.matchs.forEach((m) => { if (m.jour !== 'autre') this.onJourChange(m); });
       const empty = this.journeeForm.matchs.filter((m) => !m.adversaire).map((m) => m.equipe);
-      let txt = `Publier la journée ${this.journeeForm.numero} du ${this.journeeForm.date} ?`;
-      if (empty.length) txt += `\n\nSans adversaire : ${empty.join(', ')}`;
-      if (this.currentHasScores) txt += `\n\nLa journée ${this.data.journee.numero} sera archivée avec ses scores.`;
-      if (!confirm(txt)) return;
+      let txt = `Publier la journée ${this.journeeForm.numero} du ${TT.dateLabel(this.journeeForm.date)} ?`;
+      if (empty.length) txt += ` Sans adversaire : ${empty.join(', ')}.`;
+      if (this.currentHasScores) txt += ` La journée ${this.data.journee.numero} sera archivée avec ses scores.`;
+      if (!(await this.ask(txt, { okLabel: 'Publier' }))) return;
       this.send({ action: 'journee', ...this.journeeForm }, 'Journée publiée ✔');
     },
     saveEquipes() {
@@ -159,18 +160,26 @@ createApp({
       if (!file) return;
       try {
         const parsed = JSON.parse(await file.text());
-        if (!confirm(`Remplacer TOUTES les données actuelles par le fichier "${file.name}" ?`)) return;
+        if (!(await this.ask(`Remplacer TOUTES les données actuelles par le fichier "${file.name}" ?`, { okLabel: 'Remplacer' }))) return;
         await this.send({ action: 'restore', data: parsed }, 'Sauvegarde restaurée ✔');
       } catch (e) { this.showToast('Fichier invalide : ' + e.message, true); }
       finally { ev.target.value = ''; }
     },
-    resetSeason() {
-      if (prompt('Tape RESET pour confirmer la remise à zéro de la saison :') !== 'RESET') return;
+    async resetSeason() {
+      if ((await this.ask('Tape RESET pour confirmer la remise à zéro de la saison :', { input: '', okLabel: 'Réinitialiser' })) !== 'RESET') return;
       this.send({ action: 'reset' }, 'Saison réinitialisée');
     },
     resultClass(m) {
       if (m.score_sp === null || m.score_sp + m.score_adv < 16) return '';
       return m.score_sp > m.score_adv ? 'win' : m.score_sp < m.score_adv ? 'loss' : 'draw';
+    },
+    /** Confirmation / saisie dans la page : renvoie une promesse (false ou null si annulé) */
+    ask(text, { input = null, okLabel = 'Confirmer', placeholder = '' } = {}) {
+      return new Promise((resolve) => { this.dialog = { open: true, text, input, okLabel, placeholder, resolve }; });
+    },
+    closeDialog(ok) {
+      const d = this.dialog; this.dialog = { ...d, open: false };
+      d.resolve(ok ? (d.input !== null ? d.input.trim() : true) : (d.input !== null ? null : false));
     },
     showToast(text, error = false) {
       this.toast = { text, error };

@@ -32,29 +32,24 @@
 
             <main class="main-content">
                 <div class="left-column">
-                    <!-- RÉSULTATS EN ROTATION -->
+                    <!-- CLASSEMENTS EN ROTATION -->
                     <div class="glass-card results-card">
-                        <h2 class="card-title">{{ rotation.label }}</h2>
-                        <div class="results-container" :class="{ fading: isFading }" v-if="currentResult">
-                            <div class="main-result">
-                                <span class="team-name" :class="currentResult.left.isSp ? 'sp ' + currentResult.spClass : 'adv'"><template v-if="currentResult.left.isSp">{{ currentResult.left.base }} <span class="team-letter">{{ currentResult.left.letter }}</span></template><template v-else>{{ currentResult.left.name }}</template></span>
-                                <div class="score-badge">
-                                    <span class="score-val">{{ score(currentResult.left.score) }}</span>
-                                    <span class="score-sep">-</span>
-                                    <span class="score-val">{{ score(currentResult.right.score) }}</span>
-                                </div>
-                                <span class="team-name" :class="currentResult.right.isSp ? 'sp ' + currentResult.spClass : 'adv'"><template v-if="currentResult.right.isSp">{{ currentResult.right.base }} <span class="team-letter">{{ currentResult.right.letter }}</span></template><template v-else>{{ currentResult.right.name }}</template></span>
-                                <span class="result-meta">{{ currentResult.home ? '🏠 Domicile' : '🚗 Extérieur' }}<span v-if="!currentResult.finished"> · en cours</span></span>
-                            </div>
-                            <div class="player-results" v-if="currentResult.joueurs.length">
-                                <div class="player-result" v-for="j in currentResult.joueurs" :key="j.nom">
-                                    <span class="player-name">{{ j.nom }}<small class="player-rank" v-if="rankOf(j.nom)">{{ rankOf(j.nom) }}</small></span>
-                                    <span class="player-victories"><span class="vic-count">{{ j.victoires }}</span><span class="vic-label">{{ j.victoires === 1 ? ' victoire' : ' victoires' }}</span></span>
+                        <h2 class="card-title" v-if="currentClassement">Classement · Division {{ currentClassement.division }} <span class="orange-dot">.</span> <span class="section-sub">{{ currentClassement.equipe }}</span></h2>
+                        <h2 class="card-title" v-else>Classements</h2>
+                        <div class="results-container" :class="{ fading: isFading }" v-if="currentClassement">
+                            <div class="ranking-head"><span></span><span>Équipe</span><span>J</span><span>V</span><span>D</span><span>Pts</span></div>
+                            <div class="ranking-list">
+                                <div class="ranking-line" v-for="r in currentClassement.rows" :key="r.pos" :class="{ ours: isOurTeam(r) }">
+                                    <span class="rk-pos">{{ r.pos }}</span>
+                                    <span class="rk-name">{{ shortTeam(r.equipe) }}</span>
+                                    <span class="rk-num">{{ r.joues }}</span>
+                                    <span class="rk-num">{{ r.gagnes }}</span>
+                                    <span class="rk-num">{{ r.perdus }}</span>
+                                    <span class="rk-pts">{{ r.points }}</span>
                                 </div>
                             </div>
-                            <div class="player-results forfait-note" v-else-if="currentResult.forfait">Match perdu ou gagné par forfait</div>
                         </div>
-                        <div class="empty-state" v-else>Aucun résultat encodé pour le moment.<br>Les scores apparaissent ici dès que les capitaines les encodent.</div>
+                        <div class="empty-state" v-else>Les classements des divisions apparaîtront ici après la première synchronisation avec la fédération.</div>
                     </div>
 
                     <!-- JOUEUR DU MOIS -->
@@ -114,18 +109,7 @@
                     <div class="glass-panel bottom-panel">
                         <transition name="slide" mode="out-in">
                             <div :key="currentSlide.type + (currentSlide.classement ? currentSlide.classement.lettre : '')" class="slide">
-                                <template v-if="currentSlide.type === 'classement'">
-                                    <h2 class="section-title">Classement · Division {{ currentSlide.classement.division }} <span class="orange-dot">.</span> <span class="section-sub">{{ currentSlide.classement.equipe }}</span></h2>
-                                    <div class="ranking-grid">
-                                        <div class="ranking-row" v-for="r in currentSlide.classement.rows" :key="r.pos" :class="{ ours: isOurTeam(r) }">
-                                            <span class="rk-pos">{{ r.pos }}</span>
-                                            <span class="rk-name">{{ shortTeam(r.equipe) }}</span>
-                                            <span class="rk-played">{{ r.joues }}<small> j.</small></span>
-                                            <span class="rk-pts">{{ r.points }}<small> pts</small></span>
-                                        </div>
-                                    </div>
-                                </template>
-                                <template v-else-if="currentSlide.type === 'perfs'">
+                                <template v-if="currentSlide.type === 'perfs'">
                                     <h2 class="section-title">Meilleures perfs <span class="orange-dot">.</span></h2>
                                     <div class="performances-grid">
                                         <div class="perf-card" v-for="p in perfs" :key="p.nom">

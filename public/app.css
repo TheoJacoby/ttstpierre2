@@ -115,3 +115,8 @@ label.check { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; c
 label.check input { width: 20px; height: 20px; accent-color: var(--orange); }
 .import-box { background: rgba(255,255,255,0.04); border: 1px dashed var(--border); border-radius: 12px; padding: 12px; margin-bottom: 14px; }
 .import-ok { color: var(--success); font-weight: 600; }
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; z-index: 20; padding: 16px; }
+.modal { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 22px; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+.modal-text { font-size: 1.05rem; line-height: 1.5; margin-bottom: 16px; }
+.modal-input { margin-bottom: 16px; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }

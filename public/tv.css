@@ -150,7 +150,18 @@ body {
 .team-letter { font-weight: 900; }
 .team-winner .team-letter, .team-loser .team-letter, .team-draw .team-letter { color: inherit; }
 
-/* Classement de division */
+/* Classement de division (carte de gauche) */
+.ranking-head, .ranking-line { display: grid; grid-template-columns: 2vw 1fr 2.2vw 2.2vw 2.2vw 3vw; align-items: center; gap: 0.5vw; padding: 0 0.8vw; }
+.ranking-head { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin-bottom: 0.6vh; text-align: center; }
+.ranking-head span:nth-child(2) { text-align: left; }
+.ranking-list { flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; min-height: 0; gap: 0.25vh; }
+.ranking-line { font-size: 1.05rem; color: #ccc; border-radius: 8px; padding-top: 0.35vh; padding-bottom: 0.35vh; background: rgba(255,255,255,0.025); text-align: center; }
+.ranking-line.ours { background: rgba(255,107,53,0.16); border: 1px solid rgba(255,107,53,0.45); color: #fff; font-weight: 800; }
+.ranking-line .rk-name { text-align: left; }
+.rk-num { color: #999; font-size: 0.9rem; }
+.ranking-line.ours .rk-num { color: #ddd; }
+
+/* Classement (styles partagés) */
 .section-sub { color: #888; font-weight: 600; margin-left: 0.5vw; text-transform: none; letter-spacing: 0; }
 .ranking-grid { flex: 1; display: grid; grid-template-columns: repeat(2, 1fr); grid-auto-flow: column; grid-template-rows: repeat(6, 1fr); column-gap: 1.5vw; row-gap: 0.3vh; min-height: 0; }
 .ranking-row { display: grid; grid-template-columns: 1.6vw 1fr auto auto; align-items: center; gap: 0.6vw; padding: 0.2vh 0.7vw; border-radius: 6px; font-size: 0.95rem; color: #ccc; }
