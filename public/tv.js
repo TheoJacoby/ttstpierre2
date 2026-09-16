@@ -48,7 +48,16 @@ createApp({
       if (!list.length) return null;
       return this.sides(list[this.resultIndex % list.length]);
     },
-    matchRows() { return this.matchs.map((m) => ({ ...this.sides(m), heure: m.heure, note: m.note, status: this.status(m) })); },
+    matchRows() {
+      const ref = this.journee.date;
+      return this.matchs
+        .map((m) => ({
+          ...this.sides(m), heure: m.heure, note: m.note, status: this.status(m),
+          date: m.date || ref,
+          jour: m.date && m.date !== ref ? parseDate(m.date).toLocaleDateString('fr-BE', { weekday: 'short' }).replace('.', '') : '',
+        }))
+        .sort((a, b) => (a.date + a.heure).localeCompare(b.date + b.heure));
+    },
     seasonStats() {
       const all = [...(this.data?.historique || []), this.journee];
       const acc = new Map();

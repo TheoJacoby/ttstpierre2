@@ -99,13 +99,17 @@ td input, td select { padding: 8px 10px; }
 .match-line .meta { color: var(--muted); font-size: 0.85rem; }
 .match-line .score { font-weight: 800; font-family: monospace; font-size: 1.1rem; }
 
+.table-scroll { overflow-x: auto; }
+.table-scroll table { min-width: 820px; }
 @media (max-width: 520px) {
     h1 { font-size: 1.15rem; }
     .topbar img { height: 36px; }
     .grid-2 { grid-template-columns: 1fr; }
-    .table-scroll { overflow-x: auto; }
-    .table-scroll table { min-width: 640px; }
 }
 @media (min-width: 720px) {
     .team-grid { grid-template-columns: repeat(3, 1fr); }
 }
+
+.jour-diff { color: var(--warning); }
+label.check { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text); margin: 0; padding: 0 4px; white-space: nowrap; min-height: 48px; }
+label.check input { width: 20px; height: 20px; accent-color: var(--orange); }

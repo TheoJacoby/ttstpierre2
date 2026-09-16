@@ -108,6 +108,7 @@ body {
 .vs-badge { background: rgba(255,255,255,0.08); padding: 0.3vh 0.6vw; border-radius: 6px; font-weight: 800; color: var(--primary-orange); font-family: 'Inter', monospace; font-size: 1.7rem; min-width: 6vw; text-align: center; letter-spacing: 1px; }
 .match-meta { display: flex; flex-direction: column; align-items: flex-end; min-width: 7vw; margin-left: 1vw; }
 .match-time { font-weight: 600; font-size: 1.15rem; }
+.match-day { color: var(--warning); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; margin-right: 0.4vw; }
 .status-pill { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-top: 2px; text-transform: uppercase; white-space: nowrap; }
 .status-ongoing { color: var(--warning); background: rgba(255, 215, 0, 0.1); }
 .status-finished { color: var(--success); background: rgba(0, 242, 169, 0.1); }

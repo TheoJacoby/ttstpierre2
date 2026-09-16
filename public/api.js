@@ -30,6 +30,23 @@ window.TT = {
     return `Journée ${journee.numero}${date ? ' · ' + date : ''}`;
   },
 
+  /** "2026-09-18" -> "vendredi 18 septembre" (ou "ven. 18/09" en court) */
+  dateLabel(iso, court = false) {
+    if (!iso) return '';
+    const [y, m, d] = iso.split('-').map(Number);
+    const date = new Date(y, m - 1, d);
+    return court
+      ? date.toLocaleDateString('fr-BE', { weekday: 'short', day: '2-digit', month: '2-digit' })
+      : date.toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'long' });
+  },
+
+  /** Décale une date ISO de n jours */
+  addDays(iso, n) {
+    const [y, m, d] = iso.split('-').map(Number);
+    const date = new Date(y, m - 1, d + n);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  },
+
   heure(iso) {
     return iso ? new Date(iso).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' }) : '';
   },

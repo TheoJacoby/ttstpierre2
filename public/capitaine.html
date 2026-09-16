@@ -46,7 +46,7 @@
                 <button v-for="m in data.journee.matchs" :key="m.equipe" class="team-btn" :class="{ selected: selectedTeam === m.equipe }" @click="selectTeam(m.equipe)">
                     {{ m.equipe }}
                     <small v-if="m.score_sp !== null">{{ m.score_sp }} - {{ m.score_adv }}</small>
-                    <small v-else>{{ m.adversaire ? 'vs ' + m.adversaire : 'pas de match' }}</small>
+                    <small v-else>{{ m.adversaire ? 'vs ' + m.adversaire : 'pas de match' }}<template v-if="m.adversaire && m.date && m.date !== data.journee.date"> · {{ TT.dateLabel(m.date, true) }}</template></small>
                 </button>
             </div>
         </div>
@@ -56,7 +56,7 @@
             <div class="card accent">
                 <h2>2. Le match</h2>
                 <h3>{{ match.equipe }} <span style="color:var(--muted)">vs</span> {{ match.adversaire || '(adversaire non renseigné)' }}</h3>
-                <p class="help">{{ match.lieu === 'exterieur' ? '🚗 À l’extérieur' : '🏠 À domicile' }}<span v-if="match.heure"> · {{ match.heure }}</span><span v-if="match.note"> · {{ match.note }}</span></p>
+                <p class="help">{{ match.lieu === 'exterieur' ? '🚗 À l’extérieur' : '🏠 À domicile' }} · {{ TT.dateLabel(match.date || data.journee.date) }}<span v-if="match.heure"> à {{ match.heure }}</span><span v-if="match.note"> · {{ match.note }}</span></p>
 
                 <div class="scoreboard">
                     <div><div class="name">{{ match.equipe }}</div><div class="num sp">{{ scoreSp }}</div></div>

@@ -50,7 +50,7 @@
                 <div class="match-line" v-for="m in data.journee.matchs" :key="m.equipe">
                     <div>
                         <div class="who">{{ m.equipe }} <span style="color:var(--muted)">vs</span> {{ m.adversaire || '—' }}</div>
-                        <div class="meta">{{ m.lieu === 'exterieur' ? '🚗 Extérieur' : '🏠 Domicile' }} · {{ m.heure || 'heure ?' }}<span v-if="m.note"> · {{ m.note }}</span><span v-if="m.maj"> · encodé à {{ TT.heure(m.maj) }}</span></div>
+                        <div class="meta">{{ m.lieu === 'exterieur' ? '🚗 Extérieur' : '🏠 Domicile' }} · <strong v-if="m.date && m.date !== data.journee.date" class="jour-diff">{{ TT.dateLabel(m.date, true) }}</strong> {{ m.heure || 'heure ?' }}<span v-if="m.note"> · {{ m.note }}</span><span v-if="m.maj"> · encodé à {{ TT.heure(m.maj) }}</span></div>
                     </div>
                     <div class="score" :class="resultClass(m)">{{ m.score_sp === null ? '– : –' : m.score_sp + ' : ' + m.score_adv }}</div>
                 </div>
@@ -65,12 +65,20 @@
                 </div>
                 <div class="table-scroll">
                     <table>
-                        <thead><tr><th>Équipe</th><th>Adversaire</th><th>Lieu</th><th>Heure</th><th>Note</th></tr></thead>
+                        <thead><tr><th>Équipe</th><th>Adversaire</th><th>Lieu</th><th>Jour</th><th>Heure</th><th>Note</th></tr></thead>
                         <tbody>
                             <tr v-for="m in journeeForm.matchs" :key="m.equipe">
                                 <td><strong>{{ m.equipe }}</strong></td>
                                 <td><input type="text" list="advList" v-model="m.adversaire" placeholder="ex : Rulles C ou Bye"></td>
-                                <td><select v-model="m.lieu"><option value="domicile">🏠 Domicile</option><option value="exterieur">🚗 Extérieur</option></select></td>
+                                <td><select v-model="m.lieu" @change="onLieuChange(m)"><option value="domicile">🏠 Domicile</option><option value="exterieur">🚗 Extérieur</option></select></td>
+                                <td>
+                                    <select v-model="m.jour" @change="onJourChange(m)">
+                                        <option value="samedi">Samedi</option>
+                                        <option value="vendredi">Vendredi</option>
+                                        <option value="autre">Autre date…</option>
+                                    </select>
+                                    <input type="date" v-model="m.date" v-if="m.jour === 'autre'" style="margin-top:6px">
+                                </td>
                                 <td><input type="time" v-model="m.heure"></td>
                                 <td><input type="text" v-model="m.note" placeholder="ex : à 3 joueurs"></td>
                             </tr>
@@ -91,9 +99,15 @@
         <template v-if="tab === 'equipes'">
             <div class="card">
                 <h2>Équipes de la saison</h2>
-                <p class="help">Une équipe par ligne. Les titulaires pré-remplissent la page capitaine (4 max, séparés par des virgules) mais chaque capitaine peut aligner n'importe quel joueur du club.</p>
+                <p class="help">Une équipe par ligne. Les titulaires pré-remplissent la page capitaine (4 max, séparés par des virgules) mais chaque capitaine peut aligner n'importe quel joueur du club. Coche « vendredi » pour les équipes qui reçoivent le vendredi à 20:00 : le jour se réglera tout seul quand tu prépares une journée.</p>
                 <div class="field" style="margin-top:12px"><label>Équipes</label><textarea v-model="equipesForm.equipesText"></textarea></div>
-                <div class="field" v-for="e in equipesList" :key="e"><label>Titulaires {{ e }}</label><input type="text" v-model="equipesForm.titulaires[e]" placeholder="Prénom 1, Prénom 2, Prénom 3, Prénom 4"></div>
+                <div class="field" v-for="e in equipesList" :key="e">
+                    <label>Titulaires {{ e }}</label>
+                    <div class="row">
+                        <input type="text" v-model="equipesForm.titulaires[e]" placeholder="Prénom 1, Prénom 2, Prénom 3, Prénom 4">
+                        <label class="check" style="flex:0 0 auto"><input type="checkbox" :value="e" v-model="equipesForm.vendredi_domicile"> vendredi à domicile</label>
+                    </div>
+                </div>
                 <div class="field"><label>Tous les joueurs du club (un par ligne)</label><textarea v-model="equipesForm.joueursText" style="min-height:160px"></textarea></div>
                 <button class="btn primary block" @click="saveEquipes" :disabled="saving">Enregistrer les équipes</button>
             </div>
@@ -154,7 +168,7 @@
                 <div class="match-line" v-for="m in j.matchs" :key="m.equipe">
                     <div>
                         <div class="who">{{ m.equipe }} <span style="color:var(--muted)">vs</span> {{ m.adversaire || '—' }}</div>
-                        <div class="meta">{{ m.lieu === 'exterieur' ? '🚗' : '🏠' }} {{ (m.joueurs || []).map(p => p.nom + ' ' + p.victoires).join(' · ') }}</div>
+                        <div class="meta">{{ m.lieu === 'exterieur' ? '🚗' : '🏠' }} <span v-if="m.date && m.date !== j.date" class="jour-diff">{{ TT.dateLabel(m.date, true) }}</span> {{ (m.joueurs || []).map(p => p.nom + ' ' + p.victoires).join(' · ') }}</div>
                     </div>
                     <div class="score" :class="resultClass(m)">{{ m.score_sp === null ? '– : –' : m.score_sp + ' : ' + m.score_adv }}</div>
                 </div>

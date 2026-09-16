@@ -176,8 +176,11 @@ function applyJournee(data, body) {
 
   const matchs = body.matchs.map((m) => {
     if (!data.equipes.includes(m.equipe)) throw invalid(`Équipe inconnue : ${m.equipe}`);
+    const date = String(m.date || body.date);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw invalid(`Date invalide pour ${m.equipe}`);
     return {
       equipe: m.equipe,
+      date,
       adversaire: String(m.adversaire || '').trim(),
       lieu: m.lieu === 'exterieur' ? 'exterieur' : 'domicile',
       heure: String(m.heure || '').trim(),
@@ -223,13 +226,14 @@ function applyEquipes(data, body) {
 
   data.equipes = equipes;
   data.titulaires = titulaires;
+  data.vendredi_domicile = (Array.isArray(body.vendredi_domicile) ? body.vendredi_domicile : data.vendredi_domicile || []).filter((e) => equipes.includes(e));
   data.joueurs_club = [...club].sort((a, b) => a.localeCompare(b, 'fr'));
   // Garde la journée cohérente avec la liste d'équipes
   if (data.journee) {
     data.journee.matchs = data.journee.matchs.filter((m) => equipes.includes(m.equipe));
     for (const e of equipes) {
       if (!data.journee.matchs.some((m) => m.equipe === e)) {
-        data.journee.matchs.push({ equipe: e, adversaire: '', lieu: 'domicile', heure: '', note: '', score_sp: null, score_adv: null, forfait: null, joueurs: [], maj: null });
+        data.journee.matchs.push({ equipe: e, date: data.journee.date, adversaire: '', lieu: 'domicile', heure: '', note: '', score_sp: null, score_adv: null, forfait: null, joueurs: [], maj: null });
       }
     }
     data.journee.matchs.sort((a, b) => equipes.indexOf(a.equipe) - equipes.indexOf(b.equipe));

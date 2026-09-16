@@ -92,7 +92,7 @@
                 <div class="right-column">
                     <!-- MATCHS DU JOUR -->
                     <div class="glass-panel matches-panel">
-                        <h2 class="section-title">Matchs du jour</h2>
+                        <h2 class="section-title">Matchs de la journée</h2>
                         <div class="matches-list">
                             <div class="match-row" v-for="(m, idx) in matchRows" :key="idx">
                                 <div class="match-icon-wrapper"><span class="match-icon">{{ m.home ? '🏠' : '🚗' }}</span></div>
@@ -102,7 +102,7 @@
                                     <span class="team-away" :class="m.right.isSp ? m.spClass : ''">{{ m.right.name }}<small v-if="m.note" class="match-note"> {{ m.note }}</small></span>
                                 </div>
                                 <div class="match-meta">
-                                    <span class="match-time">{{ m.heure }}</span>
+                                    <span class="match-time"><span v-if="m.jour" class="match-day">{{ m.jour }}</span>{{ m.heure }}</span>
                                     <span class="status-pill" :class="m.status.cls">{{ m.status.text }}</span>
                                 </div>
                             </div>

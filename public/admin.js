@@ -17,7 +17,7 @@ createApp({
       tab: 'journee',
       saving: false,
       journeeForm: { numero: 1, date: '', matchs: [] },
-      equipesForm: { equipesText: '', titulaires: {}, joueursText: '' },
+      equipesForm: { equipesText: '', titulaires: {}, joueursText: '', vendredi_domicile: [] },
       extrasForm: { joueur_du_mois: {}, meilleures_perfs: [], annonces: [] },
       toast: { text: '', error: false },
     };
@@ -50,18 +50,33 @@ createApp({
       this.data = data;
       const j = data.journee;
       const hasScores = j.matchs.some((m) => m.score_sp !== null);
+      const samedi = hasScores ? nextSaturday(j.date) : (j.date || nextSaturday());
       this.journeeForm = {
         numero: hasScores ? j.numero + 1 : j.numero,
-        date: hasScores ? nextSaturday(j.date) : (j.date || nextSaturday()),
+        date: samedi,
         matchs: data.equipes.map((e) => {
           const cur = j.matchs.find((m) => m.equipe === e) || {};
-          return { equipe: e, adversaire: hasScores ? '' : (cur.adversaire || ''), lieu: hasScores ? (cur.lieu === 'exterieur' ? 'domicile' : 'exterieur') : (cur.lieu || 'domicile'), heure: cur.heure || '', note: hasScores ? '' : (cur.note || '') };
+          const row = {
+            equipe: e,
+            adversaire: hasScores ? '' : (cur.adversaire || ''),
+            lieu: hasScores ? (cur.lieu === 'exterieur' ? 'domicile' : 'exterieur') : (cur.lieu || 'domicile'),
+            heure: cur.heure || '',
+            note: hasScores ? '' : (cur.note || ''),
+            jour: 'samedi', date: samedi,
+          };
+          if (hasScores) this.onLieuChange(row, samedi);       // nouvelle journée : applique la règle du vendredi
+          else if (cur.date && cur.date !== j.date) {           // journée en cours rééditée : reprend son jour
+            row.date = cur.date;
+            row.jour = cur.date === TT.addDays(j.date, -1) ? 'vendredi' : 'autre';
+          } else if (!cur.adversaire) this.onLieuChange(row, samedi); // ligne pas encore préparée : règle du vendredi
+          return row;
         }),
       };
       this.equipesForm = {
         equipesText: data.equipes.join('\n'),
         titulaires: Object.fromEntries(data.equipes.map((e) => [e, (data.titulaires?.[e] || []).join(', ')])),
         joueursText: (data.joueurs_club || []).join('\n'),
+        vendredi_domicile: [...(data.vendredi_domicile || [])],
       };
       this.extrasForm = {
         joueur_du_mois: { mode: 'auto', nom: '', victoires: 0, performances: 0, points: 0, mois: '', genre: 'H', ...(data.joueur_du_mois || {}) },
@@ -79,7 +94,21 @@ createApp({
       } catch (e) { this.showToast(e.message, true); return false; }
       finally { this.saving = false; }
     },
+    /** Domicile + équipe « vendredi » → vendredi 20:00 ; sinon samedi */
+    onLieuChange(row, samedi = this.journeeForm.date) {
+      const vendredi = row.lieu === 'domicile' && (this.data.vendredi_domicile || []).includes(row.equipe);
+      row.jour = vendredi ? 'vendredi' : 'samedi';
+      if (vendredi) row.heure = '20:00';
+      else if (row.heure === '20:00') row.heure = '';
+      this.onJourChange(row, samedi);
+    },
+    onJourChange(row, samedi = this.journeeForm.date) {
+      if (row.jour === 'samedi') row.date = samedi;
+      else if (row.jour === 'vendredi') { row.date = TT.addDays(samedi, -1); if (!row.heure) row.heure = '20:00'; }
+      else if (!row.date) row.date = samedi;
+    },
     publishJournee() {
+      this.journeeForm.matchs.forEach((m) => { if (m.jour !== 'autre') this.onJourChange(m); });
       const empty = this.journeeForm.matchs.filter((m) => !m.adversaire).map((m) => m.equipe);
       let txt = `Publier la journée ${this.journeeForm.numero} du ${this.journeeForm.date} ?`;
       if (empty.length) txt += `\n\nSans adversaire : ${empty.join(', ')}`;
@@ -91,7 +120,7 @@ createApp({
       const equipes = this.equipesList;
       const titulaires = Object.fromEntries(equipes.map((e) => [e, (this.equipesForm.titulaires[e] || '').split(',').map((s) => s.trim()).filter(Boolean)]));
       const joueurs_club = this.equipesForm.joueursText.split('\n').map((s) => s.trim()).filter(Boolean);
-      this.send({ action: 'equipes', equipes, titulaires, joueurs_club }, 'Équipes enregistrées ✔');
+      this.send({ action: 'equipes', equipes, titulaires, joueurs_club, vendredi_domicile: this.equipesForm.vendredi_domicile }, 'Équipes enregistrées ✔');
     },
     saveExtras() { this.send({ action: 'extras', ...this.extrasForm }, 'Enregistré ✔'); },
     download() {
