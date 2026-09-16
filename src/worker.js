@@ -9,6 +9,7 @@
  */
 import seed from '../data/seed.json';
 import { aftt } from './aftt.js';
+import calendrier from '../data/calendrier.json';
 
 const KEY = 'data';
 const KEY_CLASSEMENTS = 'classements';
@@ -59,6 +60,16 @@ async function handleApi(request, env, url) {
   const path = url.pathname.replace(/\/+$/, '');
 
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders() });
+
+  if (path === '/api/aftt-test' && request.method === 'GET') {   // diagnostic : les sources fédération répondent-elles ?
+    const out = {};
+    try { const c = await aftt.club('Lx108', 'TT Saint-Pierre'); out.club = { equipes: c.equipes.map((e) => e.lettre + ':' + e.divisionCourte), classements: c.classements.length }; }
+    catch (e) { out.club = { error: e.message }; }
+    try { const m = await aftt.membres('Lx108'); out.membres = { nombre: m.length, premier: m[0] }; }
+    catch (e) { out.membres = { error: e.message }; }
+    out.calendrier = { semaines: calendrier.semaines.length, genere: calendrier.genere };
+    return json({ ok: true, ...out });
+  }
 
   if (path === '/api/data' && request.method === 'GET') {
     const data = await loadData(env);
@@ -193,7 +204,7 @@ async function journeeDepuisAftt(data, semaine) {
   const numero = toInt(semaine);
   if (numero === null || numero < 1 || numero > 30) throw invalid('Numéro de semaine invalide (1 à 22)');
   const club = data.aftt?.club || 'Lx108';
-  const rencontres = await aftt.rencontres(club, numero);
+  const rencontres = (await aftt.rencontres(club, numero, { calendrier })).filter((r) => r.date);
   if (!rencontres.length) throw invalid(`Aucune rencontre trouvée pour la semaine ${numero}`);
   const samedis = rencontres.map((r) => r.date).filter((d) => new Date(d + 'T12:00:00').getDay() === 6);
   const date = (samedis.length ? samedis : rencontres.map((r) => r.date)).sort().pop();
@@ -208,14 +219,13 @@ async function journeeDepuisAftt(data, semaine) {
 /** Rafraîchit équipes, membres et classements depuis la fédération */
 async function syncAftt(env, data) {
   const club = data.aftt?.club || 'Lx108';
-  const [equipes, membres] = await Promise.all([aftt.equipes(club), aftt.membres(club)]);
-  data.equipes_aftt = equipes.map((e) => ({ equipe: data.equipes.find((n) => lettre(n) === e.lettre) || `Saint-Pierre ${e.lettre}`, ...e }));
+  const [{ equipes, classements }, membres] = await Promise.all([aftt.club(club, data.club || 'TT Saint-Pierre'), aftt.membres(club)]);
+  const nomEquipe = (l) => data.equipes.find((n) => lettre(n) === l) || `Saint-Pierre ${l}`;
+  data.equipes_aftt = equipes.map((e) => ({ equipe: nomEquipe(e.lettre), ...e }));
   data.joueurs_aftt = membres.sort((a, b) => a.position - b.position);
-  const divisions = await Promise.all(equipes.map(async (e) => ({
-    equipe: data.equipes.find((n) => lettre(n) === e.lettre) || `Saint-Pierre ${e.lettre}`,
-    lettre: e.lettre, divisionId: e.divisionId, division: e.divisionCourte, nom: e.division,
-    rows: await aftt.classement(e.divisionId),
-  })));
+  const divisions = classements.filter((c) => c.lettre).map((c) => ({
+    equipe: nomEquipe(c.lettre), lettre: c.lettre, divisionId: c.divisionId, division: c.divisionCourte, nom: c.division, rows: c.rows,
+  }));
   data.classements = { maj: new Date().toISOString(), divisions };
   await env.DATA.put(KEY_CLASSEMENTS, JSON.stringify(data.classements));
   data.aftt = { ...(data.aftt || {}), club, derniere_sync: data.classements.maj };

@@ -31,7 +31,14 @@ Le serveur interroge l'API publique de la fédération (`api.aftt.be`, TabT) pou
 - **Synchronisation** (admin, onglet Équipes, et automatiquement chaque nuit à 04:00 UTC) : divisions des équipes, membres du club avec leur classement (proposés aux capitaines), classement de chaque division (affiché sur la TV).
 - **Publication automatique** (option, désactivée par défaut) : chaque nuit, si la journée en cours est jouée, la semaine suivante est publiée sans intervention.
 
-Si l'API est indisponible, tout reste faisable à la main comme avant. Le code du client est dans `src/aftt.js`.
+**Deux sources, car l'API SOAP refuse les requêtes venant du réseau Cloudflare :**
+
+- classements et membres : lus sur les pages de data.aftt.be depuis le serveur (chaque nuit et à la demande) ;
+- calendrier (dates, heures, adversaires, lieux) : fixe pour la saison, exporté depuis un ordinateur avec
+  `npm run calendrier` (fichier `data/calendrier.json`), puis `npm run deploy`. À refaire seulement si la
+  fédération modifie le calendrier en cours de saison (match remis) ; une date peut aussi être corrigée à la main dans l'admin.
+
+Si tout est indisponible, la saisie manuelle reste possible comme avant. Le code du client est dans `src/aftt.js`.
 
 ## Structure
 

@@ -7,9 +7,11 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "seed:local": "wrangler kv key put --binding DATA --local data --path data/seed.json",
-    "seed:prod": "wrangler kv key put --binding DATA --remote data --path data/seed.json"
+    "seed:prod": "wrangler kv key put --binding DATA --remote data --path data/seed.json",
+    "calendrier": "node scripts/calendrier.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"
-  }
+  },
+  "type": "module"
 }
