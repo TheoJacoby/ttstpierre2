@@ -314,6 +314,8 @@ async function applyJournee(env, data, body) {
     await deleteScores(env, current.numero, current.matchs.map((m) => m.equipe));
   }
   data.joueurs_club = [...club].sort((a, b) => a.localeCompare(b, 'fr'));
+  // Une journée ne peut pas être à la fois en cours et archivée
+  data.historique = (data.historique || []).filter((j) => j.numero !== numero);
 
   data.journee = { numero, date: body.date, matchs };
 
