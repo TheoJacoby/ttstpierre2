@@ -177,6 +177,19 @@ body {
 .rk-pts small, .rk-played small { font-weight: 400; color: #888; }
 .player-rank { margin-left: 0.5vw; color: var(--primary-orange); font-size: 0.7em; font-weight: 700; background: rgba(255,107,53,0.12); padding: 1px 5px; border-radius: 4px; vertical-align: middle; }
 
+/* Podium du mois */
+.podium { flex: 1; display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 1vw; align-items: end; min-height: 0; }
+.podium-card { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 12px; padding: 0.8vh 0.6vw; background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.06); height: 82%; }
+.podium-card.p1 { order: 2; height: 100%; background: linear-gradient(180deg, rgba(255,107,53,0.18), rgba(255,255,255,0.02)); border-color: rgba(255,107,53,0.45); }
+.podium-card.p2 { order: 1; }
+.podium-card.p3 { order: 3; }
+.podium-medal { font-size: 2rem; line-height: 1; margin-bottom: 0.4vh; }
+.podium-name { font-weight: 800; font-size: 1.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.podium-card.p1 .podium-name { font-size: 1.35rem; }
+.podium-points { font-weight: 900; color: var(--success); font-size: 1.6rem; line-height: 1.2; }
+.podium-points small { color: #888; font-weight: 400; font-size: 0.7rem; }
+.podium-meta { color: #888; font-size: 0.8rem; }
+
 /* Helpers */
 .team-winner { color: var(--success) !important; text-shadow: 0 0 10px rgba(0, 242, 169, 0.3); }
 .team-loser { color: var(--danger) !important; opacity: 0.85; }

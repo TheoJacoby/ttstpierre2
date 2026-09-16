@@ -59,69 +59,28 @@ createApp({
         };
       });
     },
-    seasonStats() {
-      const all = [...(this.data?.historique || []), this.journee];
-      const acc = new Map();
-      for (const j of all) for (const m of j.matchs || []) {
-        if (!hasStarted(m) || m.forfait) continue;
-        for (const p of m.joueurs || []) {
-          const s = acc.get(p.nom) || { nom: p.nom, victoires: 0, matchs: 0 };
-          s.victoires += p.victoires; s.matchs += 1; acc.set(p.nom, s);
-        }
-      }
-      return [...acc.values()]
-        .map((s) => ({ ...s, pct: s.matchs ? Math.round((s.victoires / (s.matchs * 4)) * 100) : 0 }))
-        .sort((a, b) => b.victoires - a.victoires || b.pct - a.pct || a.nom.localeCompare(b.nom, 'fr'))
-        .slice(0, 8);
-    },
-    /** Mois de référence pour les points fédération : le mois précédent s'il a des données, sinon le mois en cours */
+    /** Dernier mois TERMINÉ ayant des points fédération (le mois en cours n'est jamais affiché) */
     moisPoints() {
       const mois = this.data?.points?.mois || {};
       const d = this.now;
       const cur = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      const prev = new Date(d.getFullYear(), d.getMonth() - 1, 1);
-      const prevKey = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}`;
-      if (mois[prevKey]?.joueurs?.length) return { key: prevKey, data: mois[prevKey], enCours: false };
-      if (mois[cur]?.joueurs?.length) return { key: cur, data: mois[cur], enCours: true };
-      const keys = Object.keys(mois).filter((k) => mois[k].joueurs?.length).sort();
-      return keys.length ? { key: keys.pop(), data: mois[keys[keys.length - 1]] || mois[keys.pop()], enCours: false } : null;
+      const keys = Object.keys(mois).filter((k) => k < cur && mois[k].joueurs?.length).sort();
+      if (!keys.length) return null;
+      const key = keys[keys.length - 1];
+      return { key, data: mois[key] };
     },
     moisLabel() {
       if (!this.moisPoints) return '';
       const [y, m] = this.moisPoints.key.split('-').map(Number);
-      return new Date(y, m - 1, 1).toLocaleDateString('fr-BE', { month: 'long' }) + (this.moisPoints.enCours ? ' · en cours' : '');
+      return new Date(y, m - 1, 1).toLocaleDateString('fr-BE', { month: 'long' });
     },
     joueurDuMois() {
       const cfg = this.data?.joueur_du_mois || {};
       if (cfg.mode === 'manuel' && cfg.nom) return { ...cfg, auto: false };
-      // Mode auto : points du classement numérique de la fédération (fiches joueurs)
-      if (this.moisPoints) {
-        const best = this.moisPoints.data.joueurs[0];
-        return { auto: true, federation: true, nom: best.nom, classement: best.classement, points: best.points, victoires: best.victoires, matchs: best.matchs, mois: this.moisLabel, genre: cfg.genre || 'H' };
-      }
-      // Mode auto : le joueur avec le plus de victoires sur le mois en cours (sinon le dernier mois joué)
-      const all = [...(this.data?.historique || []), this.journee].filter((j) => j.date && j.matchs?.some(hasStarted));
-      if (!all.length) return null;
-      const byMonth = new Map();
-      for (const j of all) {
-        const d = parseDate(j.date); const key = `${d.getFullYear()}-${d.getMonth()}`;
-        if (!byMonth.has(key)) byMonth.set(key, { d, matchs: [] });
-        byMonth.get(key).matchs.push(...j.matchs.filter((m) => hasStarted(m) && !m.forfait));
-      }
-      const nowKey = `${this.now.getFullYear()}-${this.now.getMonth()}`;
-      const month = byMonth.get(nowKey) || [...byMonth.values()].sort((a, b) => b.d - a.d)[0];
-      const acc = new Map();
-      for (const m of month.matchs) for (const p of m.joueurs || []) {
-        const s = acc.get(p.nom) || { nom: p.nom, victoires: 0, matchs: 0 };
-        s.victoires += p.victoires; s.matchs += 1; acc.set(p.nom, s);
-      }
-      const best = [...acc.values()].sort((a, b) => b.victoires - a.victoires || a.matchs - b.matchs)[0];
-      if (!best) return null;
-      return {
-        auto: true, nom: best.nom, victoires: best.victoires, matchs: best.matchs,
-        pct: Math.round((best.victoires / (best.matchs * 4)) * 100),
-        mois: month.d.toLocaleDateString('fr-BE', { month: 'long' }), genre: cfg.genre || 'H',
-      };
+      // Mode auto : points du classement numérique de la fédération, mois terminé uniquement
+      if (!this.moisPoints) return null;
+      const best = this.moisPoints.data.joueurs[0];
+      return { auto: true, federation: true, nom: best.nom, classement: best.classement, points: best.points, victoires: best.victoires, matchs: best.matchs, mois: this.moisLabel, genre: cfg.genre || 'H' };
     },
     perfs() {
       const manuelles = this.data?.meilleures_perfs || [];
@@ -129,7 +88,7 @@ createApp({
       // Sinon : meilleures perfs du mois d'après les points fédération
       return (this.moisPoints?.data.perfs || []).slice(0, 3).map((p) => ({ nom: p.nom, points: Math.round(p.delta), detail: `${p.adversaire} (${p.classement})` }));
     },
-    moisTop() { return (this.moisPoints?.data.joueurs || []).slice(0, 8); },
+    podium() { return (this.moisPoints?.data.joueurs || []).slice(0, 3); },
     annonces() {
       const today = this.now.toISOString().slice(0, 10);
       return (this.data?.annonces || []).filter((a) => !a.fin || a.fin >= today);
@@ -144,11 +103,10 @@ createApp({
       const s = [];
       if (this.annonces.length) s.push({ type: 'annonces' });
       if (this.perfs.length) s.push({ type: 'perfs' });
-      if (this.moisTop.length) s.push({ type: 'mois' });
-      if (this.seasonStats.length) s.push({ type: 'top' });
+      if (this.podium.length) s.push({ type: 'podium' });
       return s.length ? s : [{ type: 'vide' }];
     },
-    currentSlide() { return this.slides[this.slideIndex % this.slides.length]; },
+    currentSlide() { const s = this.slides; return s[((this.slideIndex % s.length) + s.length) % s.length]; },
     clockTime() { return this.now.toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' }); },
     clockSeconds() { return ':' + String(this.now.getSeconds()).padStart(2, '0'); },
     clockDate() { return this.now.toLocaleDateString('fr-BE', { weekday: 'long', day: '2-digit', month: 'long' }); },

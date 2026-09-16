@@ -219,10 +219,14 @@ export async function fiche(licence) {
 }
 
 /** Cumule par mois les points de plusieurs fiches : [{ m: membre, journees }] -> { maj, mois: { 'AAAA-MM': { joueurs, perfs } } } */
-export function cumulMensuel(fiches) {
+/** Journée hors interclubs (tournoi, masters, critérium…) d'après son libellé */
+export const estTournoi = (label) => /tournoi|masters|open|crit[ée]rium|championnat|coupe|challenge|top\s*\d|international/i.test(label || '');
+
+export function cumulMensuel(fiches, { tournois = false } = {}) {
   const mois = {};
   for (const { m, journees } of fiches) {
     for (const j of journees) {
+      if (!tournois && estTournoi(j.label)) continue;   // seuls les interclubs comptent, sauf option
       const key = j.date.slice(0, 7);
       const M = (mois[key] ||= { joueurs: {}, perfs: [] });
       const J = (M.joueurs[m.licence] ||= { nom: m.nom, classement: m.classement, licence: m.licence, points: 0, victoires: 0, matchs: 0, journees: 0 });
@@ -233,7 +237,7 @@ export function cumulMensuel(fiches) {
       for (const x of j.matchs) if (x.victoire && x.delta > 0) M.perfs.push({ nom: m.nom, delta: x.delta, adversaire: x.adversaire, classement: x.classement, date: j.date, label: j.label });
     }
   }
-  const out = { maj: new Date().toISOString(), mois: {} };
+  const out = { maj: new Date().toISOString(), tournois, mois: {} };
   for (const [key, M] of Object.entries(mois)) {
     out.mois[key] = {
       joueurs: Object.values(M.joueurs).sort((a, b) => b.points - a.points || b.victoires - a.victoires || a.nom.localeCompare(b.nom, 'fr')),

@@ -17,7 +17,7 @@ createApp({
       tab: 'journee',
       saving: false,
       journeeForm: { numero: 1, date: '', matchs: [] },
-      afttSemaine: 1, importing: false, importInfo: '', autoImport: false,
+      afttSemaine: 1, importing: false, importInfo: '', autoImport: false, compterTournois: false,
       equipesForm: { equipesText: '', titulaires: {}, joueursText: '', vendredi_domicile: [] },
       extrasForm: { joueur_du_mois: {}, meilleures_perfs: [], annonces: [] },
       toast: { text: '', error: false },
@@ -27,6 +27,7 @@ createApp({
   computed: {
     currentHasScores() { return this.data?.journee?.matchs.some((m) => m.score_sp !== null) || false; },
     equipesList() { return this.equipesForm.equipesText.split('\n').map((s) => s.trim()).filter(Boolean); },
+    moisCourant() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; },
     moisTries() {
       const mois = this.data?.points?.mois || {};
       return Object.fromEntries(Object.keys(mois).sort().reverse().slice(0, 3).map((k) => [k, mois[k]]));
@@ -58,6 +59,7 @@ createApp({
       const hasScores = j.matchs.some((m) => m.score_sp !== null);
       const samedi = hasScores ? nextSaturday(j.date) : (j.date || nextSaturday());
       this.autoImport = !!data.aftt?.auto_import;
+      this.compterTournois = !!data.aftt?.compter_tournois;
       this.afttSemaine = hasScores ? j.numero + 1 : j.numero;
       this.journeeForm = {
         numero: hasScores ? j.numero + 1 : j.numero,
@@ -140,6 +142,7 @@ createApp({
       try { await this.send({ action: 'aftt_points' }, 'Points recalculés ✔'); }
       finally { this.importing = false; }
     },
+    saveCompterTournois() { this.send({ action: 'aftt_config', compter_tournois: this.compterTournois }, 'Réglage enregistré · pense à recalculer'); },
     saveAutoImport() { this.send({ action: 'aftt_config', auto_import: this.autoImport }, this.autoImport ? 'Publication automatique activée' : 'Publication automatique désactivée'); },
     async publishJournee() {
       this.journeeForm.matchs.forEach((m) => { if (m.jour !== 'autre') this.onJourChange(m); });

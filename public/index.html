@@ -85,7 +85,7 @@
                     </div>
                     <div class="glass-card highlight-card" v-else>
                         <h2 class="card-title">Joueur du mois</h2>
-                        <div class="empty-state">Calculé automatiquement dès les premiers résultats de la saison.</div>
+                        <div class="empty-state">Calculé automatiquement à la fin de chaque mois, d'après les points gagnés en interclubs.</div>
                     </div>
                 </div>
 
@@ -124,25 +124,14 @@
                                         </div>
                                     </div>
                                 </template>
-                                <template v-else-if="currentSlide.type === 'mois'">
-                                    <h2 class="section-title">Classement du mois <span class="orange-dot">.</span> <span class="section-sub">{{ moisLabel }} · points fédération</span></h2>
-                                    <div class="top-grid">
-                                        <div class="top-row" v-for="(s, i) in moisTop" :key="s.licence">
-                                            <span class="top-rank">{{ i + 1 }}</span>
-                                            <span class="top-name">{{ s.nom }}<small class="top-cl"> {{ s.classement }}</small></span>
-                                            <span class="top-vic">{{ s.points > 0 ? '+' : '' }}{{ s.points }}<small> pts</small></span>
-                                            <span class="top-pct">{{ s.victoires }}<small>/{{ s.matchs }}</small></span>
-                                        </div>
-                                    </div>
-                                </template>
-                                <template v-else-if="currentSlide.type === 'top'">
-                                    <h2 class="section-title">Top joueurs de la saison <span class="orange-dot">.</span></h2>
-                                    <div class="top-grid">
-                                        <div class="top-row" v-for="(s, i) in seasonStats" :key="s.nom">
-                                            <span class="top-rank">{{ i + 1 }}</span>
-                                            <span class="top-name">{{ s.nom }}</span>
-                                            <span class="top-vic">{{ s.victoires }}<small> v.</small></span>
-                                            <span class="top-pct">{{ s.pct }}%</span>
+                                <template v-else-if="currentSlide.type === 'podium'">
+                                    <h2 class="section-title">Podium du mois <span class="orange-dot">.</span> <span class="section-sub">{{ moisLabel }} · points interclubs</span></h2>
+                                    <div class="podium">
+                                        <div class="podium-card" v-for="(p, i) in podium" :key="p.licence" :class="'p' + (i + 1)">
+                                            <span class="podium-medal">{{ ['🥇', '🥈', '🥉'][i] }}</span>
+                                            <span class="podium-name">{{ p.nom }}<small class="top-cl"> {{ p.classement }}</small></span>
+                                            <span class="podium-points">{{ p.points > 0 ? '+' : '' }}{{ p.points }}<small> pts</small></span>
+                                            <span class="podium-meta">{{ p.victoires }} V / {{ p.matchs }} matchs</span>
                                         </div>
                                     </div>
                                 </template>

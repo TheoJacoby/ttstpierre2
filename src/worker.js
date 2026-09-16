@@ -29,7 +29,7 @@ export default {
   /** Tâche planifiée (voir wrangler.toml) : synchronise classements et membres, publie la semaine suivante si demandé */
   async scheduled(event, env) {
     const data = await loadData(env);
-    if (event.cron === '30 4 * * *') {                 // deuxième passage : points des fiches joueurs (une requête par joueur)
+    if (event.cron === '30 4 3 * *') {                 // le 3 de chaque mois : points du mois écoulé (une requête par joueur)
       try { await syncPoints(env, data); } catch (e) { console.error('points fédération :', e.message); }
       return;
     }
@@ -122,7 +122,12 @@ async function handleApi(request, env, url) {
       }
       case 'aftt_sync':   return withData(env, (data) => syncAftt(env, data));
       case 'aftt_points': { const data = await loadData(env); await syncPoints(env, data); return json({ ok: true, data }); }
-      case 'aftt_config': return withData(env, (data) => { data.aftt = { ...(data.aftt || {}), auto_import: !!body.auto_import }; return data; });
+      case 'aftt_config': return withData(env, (data) => {
+        data.aftt = { ...(data.aftt || {}) };
+        if ('auto_import' in body) data.aftt.auto_import = !!body.auto_import;
+        if ('compter_tournois' in body) data.aftt.compter_tournois = !!body.compter_tournois;
+        return data;
+      });
       default:         return json({ ok: false, error: 'Action inconnue' }, 400);
     }
   }
@@ -416,7 +421,7 @@ async function syncPoints(env, data) {
     const res = await Promise.all(lot.map(async (m) => { try { return { m, journees: await fiche(m.licence) }; } catch (e) { console.warn(e.message); return { m, journees: [] }; } }));
     fiches.push(...res);
   }
-  const out = cumulMensuel(fiches);
+  const out = cumulMensuel(fiches, { tournois: !!data.aftt?.compter_tournois });
   await env.DATA.put(KEY_POINTS, JSON.stringify(out));
   data.points = out;
   return data;

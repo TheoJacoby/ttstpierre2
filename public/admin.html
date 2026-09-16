@@ -148,10 +148,14 @@
                     </select>
                 </div>
                 <div class="import-box" v-if="extrasForm.joueur_du_mois.mode === 'auto'">
-                    <p class="help">Chaque nuit à 04:30, le serveur lit la fiche data.aftt.be de chaque membre et additionne les points gagnés par mois. La TV affiche le mois précédent dès qu'il est terminé, sinon le mois en cours. Dernier calcul : {{ data.points?.maj ? new Date(data.points.maj).toLocaleString('fr-BE') : 'jamais' }}.</p>
+                    <p class="help">Le 3 de chaque mois, le serveur lit la fiche data.aftt.be de chaque membre et additionne les points gagnés en interclubs le mois écoulé. La TV n'affiche que des mois terminés, jamais le mois en cours. Dernier calcul : {{ data.points?.maj ? new Date(data.points.maj).toLocaleString('fr-BE') : 'jamais' }}.</p>
+                    <label class="check" style="margin-top:8px">
+                        <input type="checkbox" v-model="compterTournois" @change="saveCompterTournois">
+                        Compter aussi les tournois (par défaut, seuls les interclubs comptent)
+                    </label>
                     <button class="btn ghost" style="margin-top:8px" @click="syncPoints" :disabled="saving || importing">{{ importing ? 'Lecture des fiches…' : '🔄 Recalculer maintenant' }}</button>
                     <div v-for="(m, key) in moisTries" :key="key" style="margin-top:12px">
-                        <strong>{{ moisLabel(key) }}</strong>
+                        <strong>{{ moisLabel(key) }}</strong> <span class="meta" v-if="key >= moisCourant">(mois en cours, pas encore affiché sur la TV)</span>
                         <div class="match-line" v-for="(j, i) in m.joueurs.slice(0, 5)" :key="j.licence">
                             <div class="who">{{ i + 1 }}. {{ j.nom }} <span class="meta">{{ j.classement }} · {{ j.victoires }} V / {{ j.matchs }} matchs</span></div>
                             <div class="score" :class="j.points >= 0 ? 'win' : 'loss'">{{ j.points > 0 ? '+' : '' }}{{ j.points }}</div>
