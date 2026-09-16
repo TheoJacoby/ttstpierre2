@@ -143,9 +143,20 @@
                 <div class="field">
                     <label>Mode</label>
                     <select v-model="extrasForm.joueur_du_mois.mode">
-                        <option value="auto">Automatique (le plus de victoires du mois, calculé depuis les scores)</option>
+                        <option value="auto">Automatique : points du classement numérique de la fédération (fiches joueurs, chaque nuit)</option>
                         <option value="manuel">Manuel (je choisis)</option>
                     </select>
+                </div>
+                <div class="import-box" v-if="extrasForm.joueur_du_mois.mode === 'auto'">
+                    <p class="help">Chaque nuit à 04:30, le serveur lit la fiche data.aftt.be de chaque membre et additionne les points gagnés par mois. La TV affiche le mois précédent dès qu'il est terminé, sinon le mois en cours. Dernier calcul : {{ data.points?.maj ? new Date(data.points.maj).toLocaleString('fr-BE') : 'jamais' }}.</p>
+                    <button class="btn ghost" style="margin-top:8px" @click="syncPoints" :disabled="saving || importing">{{ importing ? 'Lecture des fiches…' : '🔄 Recalculer maintenant' }}</button>
+                    <div v-for="(m, key) in moisTries" :key="key" style="margin-top:12px">
+                        <strong>{{ moisLabel(key) }}</strong>
+                        <div class="match-line" v-for="(j, i) in m.joueurs.slice(0, 5)" :key="j.licence">
+                            <div class="who">{{ i + 1 }}. {{ j.nom }} <span class="meta">{{ j.classement }} · {{ j.victoires }} V / {{ j.matchs }} matchs</span></div>
+                            <div class="score" :class="j.points >= 0 ? 'win' : 'loss'">{{ j.points > 0 ? '+' : '' }}{{ j.points }}</div>
+                        </div>
+                    </div>
                 </div>
                 <template v-if="extrasForm.joueur_du_mois.mode === 'manuel'">
                     <div class="grid-2">
@@ -162,6 +173,7 @@
 
             <div class="card">
                 <h2>Meilleures perfs (max 6)</h2>
+                <p class="help">Laisse vide pour afficher automatiquement les trois plus gros gains de points du mois (fédération). Remplis pour forcer un affichage manuel.</p>
                 <div class="row" v-for="(p, i) in extrasForm.meilleures_perfs" :key="i" style="margin-bottom:8px">
                     <div style="flex:2"><input type="text" v-model="p.nom" placeholder="Nom"></div>
                     <div><input type="number" v-model.number="p.points" placeholder="Points"></div>

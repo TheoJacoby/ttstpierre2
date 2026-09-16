@@ -27,6 +27,10 @@ createApp({
   computed: {
     currentHasScores() { return this.data?.journee?.matchs.some((m) => m.score_sp !== null) || false; },
     equipesList() { return this.equipesForm.equipesText.split('\n').map((s) => s.trim()).filter(Boolean); },
+    moisTries() {
+      const mois = this.data?.points?.mois || {};
+      return Object.fromEntries(Object.keys(mois).sort().reverse().slice(0, 3).map((k) => [k, mois[k]]));
+    },
   },
   async mounted() { if (this.password) await this.login(true); },
   methods: {
@@ -128,6 +132,12 @@ createApp({
     async syncAftt() {
       this.importing = true;
       try { await this.send({ action: 'aftt_sync' }, 'Fédération synchronisée ✔'); }
+      finally { this.importing = false; }
+    },
+    moisLabel(key) { const [y, m] = key.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString('fr-BE', { month: 'long', year: 'numeric' }); },
+    async syncPoints() {
+      this.importing = true;
+      try { await this.send({ action: 'aftt_points' }, 'Points recalculés ✔'); }
       finally { this.importing = false; }
     },
     saveAutoImport() { this.send({ action: 'aftt_config', auto_import: this.autoImport }, this.autoImport ? 'Publication automatique activée' : 'Publication automatique désactivée'); },

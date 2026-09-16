@@ -74,9 +74,31 @@ createApp({
         .sort((a, b) => b.victoires - a.victoires || b.pct - a.pct || a.nom.localeCompare(b.nom, 'fr'))
         .slice(0, 8);
     },
+    /** Mois de référence pour les points fédération : le mois précédent s'il a des données, sinon le mois en cours */
+    moisPoints() {
+      const mois = this.data?.points?.mois || {};
+      const d = this.now;
+      const cur = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const prev = new Date(d.getFullYear(), d.getMonth() - 1, 1);
+      const prevKey = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}`;
+      if (mois[prevKey]?.joueurs?.length) return { key: prevKey, data: mois[prevKey], enCours: false };
+      if (mois[cur]?.joueurs?.length) return { key: cur, data: mois[cur], enCours: true };
+      const keys = Object.keys(mois).filter((k) => mois[k].joueurs?.length).sort();
+      return keys.length ? { key: keys.pop(), data: mois[keys[keys.length - 1]] || mois[keys.pop()], enCours: false } : null;
+    },
+    moisLabel() {
+      if (!this.moisPoints) return '';
+      const [y, m] = this.moisPoints.key.split('-').map(Number);
+      return new Date(y, m - 1, 1).toLocaleDateString('fr-BE', { month: 'long' }) + (this.moisPoints.enCours ? ' · en cours' : '');
+    },
     joueurDuMois() {
       const cfg = this.data?.joueur_du_mois || {};
       if (cfg.mode === 'manuel' && cfg.nom) return { ...cfg, auto: false };
+      // Mode auto : points du classement numérique de la fédération (fiches joueurs)
+      if (this.moisPoints) {
+        const best = this.moisPoints.data.joueurs[0];
+        return { auto: true, federation: true, nom: best.nom, classement: best.classement, points: best.points, victoires: best.victoires, matchs: best.matchs, mois: this.moisLabel, genre: cfg.genre || 'H' };
+      }
       // Mode auto : le joueur avec le plus de victoires sur le mois en cours (sinon le dernier mois joué)
       const all = [...(this.data?.historique || []), this.journee].filter((j) => j.date && j.matchs?.some(hasStarted));
       if (!all.length) return null;
@@ -101,7 +123,13 @@ createApp({
         mois: month.d.toLocaleDateString('fr-BE', { month: 'long' }), genre: cfg.genre || 'H',
       };
     },
-    perfs() { return this.data?.meilleures_perfs || []; },
+    perfs() {
+      const manuelles = this.data?.meilleures_perfs || [];
+      if (manuelles.length) return manuelles;
+      // Sinon : meilleures perfs du mois d'après les points fédération
+      return (this.moisPoints?.data.perfs || []).slice(0, 3).map((p) => ({ nom: p.nom, points: Math.round(p.delta), detail: `${p.adversaire} (${p.classement})` }));
+    },
+    moisTop() { return (this.moisPoints?.data.joueurs || []).slice(0, 8); },
     annonces() {
       const today = this.now.toISOString().slice(0, 10);
       return (this.data?.annonces || []).filter((a) => !a.fin || a.fin >= today);
@@ -116,6 +144,7 @@ createApp({
       const s = [];
       if (this.annonces.length) s.push({ type: 'annonces' });
       if (this.perfs.length) s.push({ type: 'perfs' });
+      if (this.moisTop.length) s.push({ type: 'mois' });
       if (this.seasonStats.length) s.push({ type: 'top' });
       return s.length ? s : [{ type: 'vide' }];
     },

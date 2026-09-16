@@ -8,11 +8,12 @@
  * (CAPTAIN_PASSWORD, ADMIN_PASSWORD) et ne quittent jamais le serveur.
  */
 import seed from '../data/seed.json';
-import { aftt } from './aftt.js';
+import { aftt, fiche, cumulMensuel } from './aftt.js';
 import calendrier from '../data/calendrier.json';
 
 const KEY = 'data';
 const KEY_CLASSEMENTS = 'classements';
+const KEY_POINTS = 'points';
 /** Chaque score vit dans sa propre clé : deux capitaines n'écrivent jamais au même endroit. */
 const scoreKey = (numero, equipe) => `score:${numero}:${equipe}`;
 const SCORE_FIELDS = ['score_sp', 'score_adv', 'forfait', 'joueurs', 'maj'];
@@ -28,6 +29,10 @@ export default {
   /** Tâche planifiée (voir wrangler.toml) : synchronise classements et membres, publie la semaine suivante si demandé */
   async scheduled(event, env) {
     const data = await loadData(env);
+    if (event.cron === '30 4 * * *') {                 // deuxième passage : points des fiches joueurs (une requête par joueur)
+      try { await syncPoints(env, data); } catch (e) { console.error('points fédération :', e.message); }
+      return;
+    }
     try { await syncAftt(env, data); } catch (e) { console.error('sync fédération :', e.message); }
     if (data.aftt?.auto_import) {
       const today = new Date().toISOString().slice(0, 10);
@@ -116,6 +121,7 @@ async function handleApi(request, env, url) {
         return json({ ok: true, journee: await journeeDepuisAftt(data, body.semaine) });
       }
       case 'aftt_sync':   return withData(env, (data) => syncAftt(env, data));
+      case 'aftt_points': { const data = await loadData(env); await syncPoints(env, data); return json({ ok: true, data }); }
       case 'aftt_config': return withData(env, (data) => { data.aftt = { ...(data.aftt || {}), auto_import: !!body.auto_import }; return data; });
       default:         return json({ ok: false, error: 'Action inconnue' }, 400);
     }
@@ -157,7 +163,9 @@ async function loadData(env) {
       SCORE_FIELDS.forEach((f) => { m[f] = sc[f] ?? (f === 'joueurs' ? [] : null); });
     }
   }
-  data.classements = (await env.DATA.get(KEY_CLASSEMENTS, 'json')) || { maj: null, divisions: [] };
+  const [classements, points] = await env.DATA.get([KEY_CLASSEMENTS, KEY_POINTS], { type: 'json' }).then((m) => [m.get(KEY_CLASSEMENTS), m.get(KEY_POINTS)]);
+  data.classements = classements || { maj: null, divisions: [] };
+  data.points = points || { maj: null, mois: {} };
   // Les nouveaux noms encodés par les capitaines apparaissent dans la liste du club sans écrire le document
   const club = new Set(data.joueurs_club || []);
   matchs.forEach((m) => (m.joueurs || []).forEach((j) => club.add(j.nom)));
@@ -192,6 +200,7 @@ async function storeDoc(env, data) {
   // Les scores de la journée en cours vivent dans leurs propres clés, les classements aussi : pas de copie dans le document
   (toStore.journee?.matchs || []).forEach((m) => { m.score_sp = null; m.score_adv = null; m.forfait = null; m.joueurs = []; m.maj = null; });
   delete toStore.classements;
+  delete toStore.points;
   await env.DATA.put(KEY, JSON.stringify(toStore));
 }
 
@@ -395,6 +404,22 @@ function restore(body) {
   const d = body.data;
   if (!d || typeof d !== 'object' || !Array.isArray(d.equipes) || !d.journee) throw invalid('Sauvegarde invalide');
   return d;
+}
+
+/** Lit la fiche de chaque membre et cumule les points du classement numérique par mois */
+async function syncPoints(env, data) {
+  const membres = data.joueurs_aftt || [];
+  if (!membres.length) throw invalid('Synchronise d’abord les membres (bouton « Synchroniser maintenant »)');
+  const fiches = [];
+  for (let i = 0; i < membres.length; i += 6) {   // 6 fiches à la fois
+    const lot = membres.slice(i, i + 6);
+    const res = await Promise.all(lot.map(async (m) => { try { return { m, journees: await fiche(m.licence) }; } catch (e) { console.warn(e.message); return { m, journees: [] }; } }));
+    fiches.push(...res);
+  }
+  const out = cumulMensuel(fiches);
+  await env.DATA.put(KEY_POINTS, JSON.stringify(out));
+  data.points = out;
+  return data;
 }
 
 /* ---------- Utilitaires ---------- */

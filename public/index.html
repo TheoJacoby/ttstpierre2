@@ -64,8 +64,13 @@
                                 <div class="avatar-glow"></div>
                             </div>
                             <div class="player-info">
-                                <h3 class="player-hero-name">{{ joueurDuMois.nom }}</h3>
-                                <div class="stats-grid" v-if="joueurDuMois.auto">
+                                <h3 class="player-hero-name">{{ joueurDuMois.nom }}<small class="player-rank" v-if="joueurDuMois.classement">{{ joueurDuMois.classement }}</small></h3>
+                                <div class="stats-grid" v-if="joueurDuMois.federation">
+                                    <div class="stat-box accent"><span class="stat-num">+{{ joueurDuMois.points }}</span><span class="stat-label">Points</span></div>
+                                    <div class="stat-box"><span class="stat-num">{{ joueurDuMois.victoires }}</span><span class="stat-label">Victoires</span></div>
+                                    <div class="stat-box"><span class="stat-num">{{ joueurDuMois.matchs }}</span><span class="stat-label">Matchs</span></div>
+                                </div>
+                                <div class="stats-grid" v-else-if="joueurDuMois.auto">
                                     <div class="stat-box"><span class="stat-num">{{ joueurDuMois.victoires }}</span><span class="stat-label">Victoires</span></div>
                                     <div class="stat-box accent"><span class="stat-num">{{ joueurDuMois.pct }}%</span><span class="stat-label">Réussite</span></div>
                                     <div class="stat-box"><span class="stat-num">{{ joueurDuMois.matchs }}</span><span class="stat-label">Interclubs</span></div>
@@ -112,9 +117,21 @@
                                 <template v-if="currentSlide.type === 'perfs'">
                                     <h2 class="section-title">Meilleures perfs <span class="orange-dot">.</span></h2>
                                     <div class="performances-grid">
-                                        <div class="perf-card" v-for="p in perfs" :key="p.nom">
+                                        <div class="perf-card" v-for="(p, i) in perfs" :key="i">
                                             <span class="perf-points">+{{ p.points }}</span>
                                             <span class="perf-name">{{ p.nom }}</span>
+                                            <span class="perf-detail" v-if="p.detail">vs {{ p.detail }}</span>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template v-else-if="currentSlide.type === 'mois'">
+                                    <h2 class="section-title">Classement du mois <span class="orange-dot">.</span> <span class="section-sub">{{ moisLabel }} · points fédération</span></h2>
+                                    <div class="top-grid">
+                                        <div class="top-row" v-for="(s, i) in moisTop" :key="s.licence">
+                                            <span class="top-rank">{{ i + 1 }}</span>
+                                            <span class="top-name">{{ s.nom }}<small class="top-cl"> {{ s.classement }}</small></span>
+                                            <span class="top-vic">{{ s.points > 0 ? '+' : '' }}{{ s.points }}<small> pts</small></span>
+                                            <span class="top-pct">{{ s.victoires }}<small>/{{ s.matchs }}</small></span>
                                         </div>
                                     </div>
                                 </template>

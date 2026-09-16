@@ -188,3 +188,57 @@ async function scrapeClub(club, nomClub) {
   if (!equipes.length) throw new Error('data.aftt.be : aucune équipe lue');
   return { equipes, classements };
 }
+
+/* ---------- Fiche joueur : points gagnés / perdus par rencontre (classement numérique) ---------- */
+
+/** Rencontres d'un joueur sur la saison, regroupées par journée, avec les points de chaque match */
+export async function fiche(licence) {
+  const res = await fetch(`${SITE}/tools/fiche.php?licenceID=${encodeURIComponent(licence)}`, { headers: UA, signal: AbortSignal.timeout(20000) });
+  if (!res.ok) throw new Error(`fiche ${licence} : HTTP ${res.status}`);
+  const html = await res.text();
+  const journees = [];
+  for (const card of html.split('day-result-card').slice(1)) {
+    const head = text((card.match(/<h6[^>]*>([\s\S]*?)<\/h6>/) || [, ''])[1]);
+    const m = head.match(/(\d{2})\/(\d{2})\/(\d{4})\s*-?\s*(.*)$/);
+    if (!m) continue;
+    const date = `${m[3]}-${m[2]}-${m[1]}`;
+    const matchs = [];
+    for (const mc of card.split('match-card-modern').slice(1)) {
+      const adversaire = text((mc.match(/class="opponent-link"[^>]*>([\s\S]*?)<\/button>/) || [, ''])[1]);
+      const classement = text((mc.match(/fa-trophy[^>]*><\/i>\s*([^<]*)/) || [, ''])[1]);
+      const score = text((mc.match(/<h5[^>]*>([\s\S]*?)<\/h5>/) || [, ''])[1]);
+      const deltaTxt = text((mc.match(/class="match-delta[^"]*"[^>]*>([\s\S]*?)<\/span>/) || [, ''])[1]);
+      const delta = parseFloat(deltaTxt.replace(/\s*pts?/i, '').replace('+-', '').replace(',', '.')) || 0;
+      const [a, b] = score.split('-').map((x) => parseInt(x, 10));
+      matchs.push({ adversaire, classement, score, delta, victoire: Number.isFinite(a) && Number.isFinite(b) ? a > b : delta > 0 });
+    }
+    if (!matchs.length) continue;
+    journees.push({ date, label: m[4].trim(), points: +matchs.reduce((t, x) => t + x.delta, 0).toFixed(2), matchs });
+  }
+  return journees;
+}
+
+/** Cumule par mois les points de plusieurs fiches : [{ m: membre, journees }] -> { maj, mois: { 'AAAA-MM': { joueurs, perfs } } } */
+export function cumulMensuel(fiches) {
+  const mois = {};
+  for (const { m, journees } of fiches) {
+    for (const j of journees) {
+      const key = j.date.slice(0, 7);
+      const M = (mois[key] ||= { joueurs: {}, perfs: [] });
+      const J = (M.joueurs[m.licence] ||= { nom: m.nom, classement: m.classement, licence: m.licence, points: 0, victoires: 0, matchs: 0, journees: 0 });
+      J.points = +(J.points + j.points).toFixed(2);
+      J.victoires += j.matchs.filter((x) => x.victoire).length;
+      J.matchs += j.matchs.length;
+      J.journees += 1;
+      for (const x of j.matchs) if (x.victoire && x.delta > 0) M.perfs.push({ nom: m.nom, delta: x.delta, adversaire: x.adversaire, classement: x.classement, date: j.date, label: j.label });
+    }
+  }
+  const out = { maj: new Date().toISOString(), mois: {} };
+  for (const [key, M] of Object.entries(mois)) {
+    out.mois[key] = {
+      joueurs: Object.values(M.joueurs).sort((a, b) => b.points - a.points || b.victoires - a.victoires || a.nom.localeCompare(b.nom, 'fr')),
+      perfs: M.perfs.sort((a, b) => b.delta - a.delta).slice(0, 8),
+    };
+  }
+  return out;
+}
