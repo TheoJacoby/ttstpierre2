@@ -18,7 +18,7 @@ de fichier `data.json` à modifier à la main ni de token GitHub dans le navigat
   de ses 4 joueurs et celles de l'adversaire au fil de la soirée, et appuie sur *Enregistrer*.
   Le score de l'équipe est la somme des victoires. Total plafonné à 16. Forfait possible en un bouton.
 - **La TV** affiche les matchs du jour, fait tourner les résultats déjà encodés (avec les joueurs),
-  calcule le joueur du mois et le top des joueurs de la saison, et fait défiler perfs / annonces.
+  affiche les classements des divisions, le joueur du mois (points fédération) et fait défiler perfs / podium du mois.
 - **Pendant la semaine**, l'admin publie la journée suivante (adversaires, lieu, heure) : la journée
   précédente part dans l'historique avec ses scores. Il peut aussi gérer les équipes, les joueurs,
   le joueur du mois (auto ou manuel), les meilleures perfs, et télécharger une sauvegarde.
@@ -94,5 +94,4 @@ Ensuite, à chaque modification du code : `npm run deploy`. Les données ne sont
 - Un interclub = 16 matchs, 4 joueurs par équipe, 4 simples chacun.
 - Score de Saint-Pierre = somme des victoires des joueurs ; score adverse encodé séparément ; total ≤ 16.
 - Statuts : *À venir* (rien encodé), *En cours* (< 16), *Terminé* (= 16), *Forfait*, *Bye*.
-- Joueur du mois automatique = le plus de victoires sur le mois en cours (ou le dernier mois joué).
-- Les annonces disparaissent après leur date de fin.
+- Joueur du mois automatique = le plus de points fédération gagnés en interclubs sur le dernier mois terminé (calcul le 3 du mois).
