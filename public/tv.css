@@ -144,6 +144,16 @@ body {
 .annonces-list { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 0.8vh; }
 .annonce { font-size: 1.6rem; font-weight: 600; background: rgba(255,107,53,0.08); border-left: 4px solid var(--primary-orange); padding: 0.8vh 1vw; border-radius: 8px; }
 
+/* Mise en évidence Saint-Pierre : plus gras + mini logo ; adversaire un cran plus discret */
+.team-home.sp, .team-away.sp, .team-name.sp { font-weight: 900; letter-spacing: 0.2px; }
+.team-home.adv, .team-away.adv, .team-name.adv { font-weight: 600; color: #c3c3cc; }
+.mini-logo {
+    /* n'affiche que la mascotte (partie gauche du logo) */
+    height: 1.4em; width: 1.12em; object-fit: cover; object-position: left center;
+    vertical-align: -0.34em; margin-right: 0.3em;
+    filter: invert(1) hue-rotate(180deg) brightness(1.5) saturate(1.2);
+}
+
 /* Helpers */
 .team-winner { color: var(--success) !important; text-shadow: 0 0 10px rgba(0, 242, 169, 0.3); }
 .team-loser { color: var(--danger) !important; opacity: 0.85; }
