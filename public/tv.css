@@ -145,9 +145,9 @@ body {
 .annonce { font-size: 1.6rem; font-weight: 600; background: rgba(255,107,53,0.08); border-left: 4px solid var(--primary-orange); padding: 0.8vh 1vw; border-radius: 8px; }
 
 /* Mise en évidence Saint-Pierre : plus gras + mini logo ; adversaire un cran plus discret */
-.team-home.sp, .team-away.sp, .team-name.sp { font-weight: 900; letter-spacing: 0.2px; }
+.team-home.sp, .team-away.sp, .team-name.sp { font-weight: 800; letter-spacing: 0.2px; color: #f3b48c; } /* orange doux, moins saturé que l'accent */
 .team-home.adv, .team-away.adv, .team-name.adv { font-weight: 600; color: #c3c3cc; }
-.team-letter { color: var(--primary-orange); font-weight: 900; }
+.team-letter { font-weight: 900; }
 .team-winner .team-letter, .team-loser .team-letter, .team-draw .team-letter { color: inherit; }
 
 /* Helpers */
