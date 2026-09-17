@@ -1,0 +1,25 @@
+/* Animation de fin de match */
+.fete-overlay { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; background: rgba(8, 8, 12, 0); opacity: 0; transition: opacity 0.5s, background 0.5s; pointer-events: none; overflow: hidden; }
+.fete-overlay.on { opacity: 1; background: rgba(8, 8, 12, 0.82); pointer-events: auto; }
+.fete-fx { position: absolute; inset: 0; overflow: hidden; }
+.fete-content { position: relative; text-align: center; padding: 4vh 6vw; border-radius: 24px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(6px); transform: scale(0.85); transition: transform 0.6s cubic-bezier(0.2, 1.4, 0.4, 1); max-width: 90vw; }
+.fete-overlay.on .fete-content { transform: scale(1); }
+.fete-emoji { font-size: clamp(4rem, 14vh, 9rem); line-height: 1; animation: fete-pop 0.9s cubic-bezier(0.2, 1.6, 0.4, 1); }
+.fete-titre { font-size: clamp(1.4rem, 4.5vh, 3.2rem); font-weight: 900; color: #fff; margin-top: 1.5vh; letter-spacing: 0.5px; }
+.fete-sous { font-size: clamp(0.9rem, 2.4vh, 1.4rem); color: #bbb; margin-top: 0.6vh; }
+.fete-mot { font-size: clamp(1.2rem, 4vh, 2.6rem); font-weight: 900; text-transform: uppercase; letter-spacing: 3px; margin-top: 2vh; }
+.fete-victoire .fete-mot { color: #00f2a9; text-shadow: 0 0 20px rgba(0,242,169,0.5); }
+.fete-nul .fete-mot { color: #ffd700; }
+.fete-defaite .fete-mot { color: #ff4b4b; }
+.fete-defaite .fete-emoji { animation: fete-tremble 1.2s ease-in-out infinite; }
+.fete-nul .fete-emoji { animation: fete-shake 1.4s ease-in-out infinite; }
+
+.confetti { position: absolute; top: -20px; display: block; opacity: 0.95; animation: confetti-fall linear forwards; }
+@keyframes confetti-fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0.7; } }
+.larme { position: absolute; top: 38%; font-size: 1.6rem; animation: larme-fall ease-in forwards; opacity: 0; }
+@keyframes larme-fall { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(60vh); opacity: 0; } }
+.bulle { position: absolute; bottom: -10%; animation: bulle-up ease-out forwards; opacity: 0; }
+@keyframes bulle-up { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 0.9; } 100% { transform: translateY(-110vh); opacity: 0; } }
+@keyframes fete-pop { 0% { transform: scale(0.2) rotate(-20deg); } 100% { transform: scale(1) rotate(0); } }
+@keyframes fete-tremble { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+@keyframes fete-shake { 0%, 100% { transform: translateX(-6px); } 50% { transform: translateX(6px); } }

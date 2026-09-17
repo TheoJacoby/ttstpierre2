@@ -94,6 +94,7 @@ createApp({
     async save() {
       if (this.validationError) return;
       this.saving = true;
+      const dejaFini = this.match && this.match.score_sp !== null && this.match.score_sp + this.match.score_adv >= MAX_SCORE;
       try {
         const payload = {
           password: this.password, action: 'score', equipe: this.selectedTeam,
@@ -105,6 +106,10 @@ createApp({
         this.data = res.data;
         this.initForm();
         this.showToast(`Enregistré à ${TT.heure(this.match.maj)} ✔`);
+        const m = this.match;
+        if (!dejaFini && !m.forfait && m.score_sp + m.score_adv >= MAX_SCORE) {
+          Fete.show({ type: Fete.typeFor(m.score_sp, m.score_adv), titre: `${m.equipe} ${m.score_sp} - ${m.score_adv} ${m.adversaire}`, sousTitre: 'Bien joué, résultat enregistré', duree: 5000 });
+        }
       } catch (e) {
         this.showToast(e.message, true);
       } finally { this.saving = false; }

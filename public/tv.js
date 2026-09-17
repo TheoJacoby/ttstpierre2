@@ -120,12 +120,28 @@ createApp({
         const res = await fetch('/api/data?t=' + Date.now(), { cache: 'no-store' });
         const body = await res.json();
         if (!res.ok || !body.ok) throw new Error(body.error || res.statusText);
+        const prev = this.data;
         this.data = body.data;
         this.lastOk = new Date();
+        this.detectFins(prev, body.data);
       } catch (e) {
         console.error('Chargement impossible :', e);
         if (!this.data) setTimeout(() => this.load(), 5000);
       }
+    },
+    /** Un match vient de passer à « terminé » (hors forfait) : petite animation avec le score */
+    detectFins(prev, next) {
+      if (!prev || !next?.journee || prev.journee?.numero !== next.journee.numero) return;
+      const fins = next.journee.matchs.filter((m) => {
+        const avant = prev.journee.matchs.find((x) => x.equipe === m.equipe);
+        return avant && !isFinished(avant) && isFinished(m) && !m.forfait;
+      });
+      fins.forEach((m, i) => setTimeout(() => Fete.show({
+        type: Fete.typeFor(m.score_sp, m.score_adv),
+        titre: `${m.equipe}  ${m.score_sp} - ${m.score_adv}  ${m.adversaire}`,
+        sousTitre: m.lieu === 'exterieur' ? 'À l’extérieur' : 'À domicile',
+        duree: 8000,
+      }), i * 9000));
     },
     nextResult() {
       if (this.classements.length < 2) return;
