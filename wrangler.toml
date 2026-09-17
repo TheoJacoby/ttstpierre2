@@ -14,6 +14,15 @@ run_worker_first = ["/api/*"]
 binding = "DATA"
 id = "f3331fcc124a48fbadf0cf04c1977066"
 
+# Scores de la journée en cours : Durable Object (cohérent, immédiat)
+[[durable_objects.bindings]]
+name = "SCORES"
+class_name = "Scores"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Scores"]
+
 # Chaque nuit à 04:00 UTC : synchronisation fédération (classements, membres, import auto si activé).
 # Le 3 de chaque mois à 04:30 UTC : lecture des fiches joueurs -> joueur du mois écoulé (la fédération
 # comptabilise les points le 1er du mois suivant).

@@ -9,11 +9,14 @@
  */
 import seed from '../data/seed.json';
 import { aftt, fiche, cumulMensuel } from './aftt.js';
+export { Scores } from './scores.js';
 import calendrier from '../data/calendrier.json';
 
 const KEY = 'data';
 const KEY_CLASSEMENTS = 'classements';
 const KEY_POINTS = 'points';
+/** Accès au Durable Object des scores (un seul pour tout le club) */
+const scoresDO = (env) => env.SCORES.get(env.SCORES.idFromName('scores'));
 /** Chaque score vit dans sa propre clé : deux capitaines n'écrivent jamais au même endroit. */
 const scoreKey = (numero, equipe) => `score:${numero}:${equipe}`;
 const SCORE_FIELDS = ['score_sp', 'score_adv', 'forfait', 'joueurs', 'maj'];
@@ -111,8 +114,10 @@ async function handleApi(request, env, url) {
         await deleteAllScores(env);
         const d = restore(body);
         // Les scores de la journée en cours contenus dans la sauvegarde retrouvent leurs clés
-        await Promise.all((d.journee.matchs || []).filter((m) => m.score_sp !== null).map((m) =>
-          env.DATA.put(scoreKey(d.journee.numero, m.equipe), JSON.stringify(Object.fromEntries(SCORE_FIELDS.map((f) => [f, m[f] ?? null]))))));
+        const so = scoresDO(env);
+        for (const m of (d.journee.matchs || []).filter((x) => x.score_sp !== null)) {
+          await so.put(scoreKey(d.journee.numero, m.equipe), Object.fromEntries(SCORE_FIELDS.map((f) => [f, m[f] ?? null])));
+        }
         return d;
       });
       case 'reset':    return withData(env, async () => { await deleteAllScores(env); return structuredClone(seed); });
@@ -161,10 +166,17 @@ async function loadData(env) {
   const matchs = data.journee?.matchs || [];
   if (matchs.length) {
     const keys = matchs.map((m) => scoreKey(data.journee.numero, m.equipe));
-    const scores = await env.DATA.get(keys, { type: 'json' });   // lecture groupée
+    const so = scoresDO(env);
+    const scores = await so.getMany(keys);
+    // Migration douce : une clé encore dans l'ancien stockage KV est reprise une fois, puis effacée
+    const manquantes = keys.filter((k) => !(k in scores));
+    if (manquantes.length) {
+      const anciennes = await env.DATA.get(manquantes, { type: 'json' });
+      for (const [k, v] of anciennes) if (v) { scores[k] = v; await so.put(k, v); await env.DATA.delete(k); }
+    }
     for (const m of matchs) {
       // Les clés sont la seule source de vérité : sans clé, pas de score
-      const sc = scores.get(scoreKey(data.journee.numero, m.equipe)) || { score_sp: null, score_adv: null, forfait: null, joueurs: [], maj: null };
+      const sc = scores[scoreKey(data.journee.numero, m.equipe)] || { score_sp: null, score_adv: null, forfait: null, joueurs: [], maj: null };
       SCORE_FIELDS.forEach((f) => { m[f] = sc[f] ?? (f === 'joueurs' ? [] : null); });
     }
   }
@@ -180,16 +192,11 @@ async function loadData(env) {
 }
 
 async function deleteScores(env, numero, equipes) {
-  await Promise.all(equipes.map((e) => env.DATA.delete(scoreKey(numero, e))));
+  await scoresDO(env).del(equipes.map((e) => scoreKey(numero, e)));
 }
 
 async function deleteAllScores(env) {
-  let cursor;
-  do {
-    const page = await env.DATA.list({ prefix: 'score:', cursor });
-    await Promise.all(page.keys.map((k) => env.DATA.delete(k.name)));
-    cursor = page.list_complete ? undefined : page.cursor;
-  } while (cursor);
+  await scoresDO(env).delPrefix('score:');
 }
 
 async function withData(env, mutate) {
@@ -280,14 +287,14 @@ async function saveScore(env, body) {
     if (scoreSp + scoreAdv > MAX_SCORE) throw invalid(`Total ${scoreSp + scoreAdv} > ${MAX_SCORE} : vérifie les victoires`);
 
     if (scoreSp + scoreAdv === 0 && cleaned.length === 0) {
-      await env.DATA.delete(key);                       // remise à zéro explicite
+      await scoresDO(env).del([key]);                   // remise à zéro explicite
       SCORE_FIELDS.forEach((f) => { match[f] = f === 'joueurs' ? [] : null; });
       return json({ ok: true, data });
     }
     record = { score_sp: scoreSp, score_adv: scoreAdv, forfait: null, joueurs: cleaned, maj: new Date().toISOString() };
   }
 
-  await env.DATA.put(key, JSON.stringify(record));
+  await scoresDO(env).put(key, record);
   Object.assign(match, record);
   record.joueurs.forEach((j) => { if (!data.joueurs_club.includes(j.nom)) data.joueurs_club.push(j.nom); });
   return json({ ok: true, data });
