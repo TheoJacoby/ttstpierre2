@@ -129,12 +129,13 @@ createApp({
         if (!this.data) setTimeout(() => this.load(), 5000);
       }
     },
-    /** Un match vient de passer à « terminé » (hors forfait) : petite animation avec le score */
+    /** Un résultat final vient d'arriver ou de changer (hors forfait) : petite animation avec le score */
     detectFins(prev, next) {
       if (!prev || !next?.journee || prev.journee?.numero !== next.journee.numero) return;
       const fins = next.journee.matchs.filter((m) => {
         const avant = prev.journee.matchs.find((x) => x.equipe === m.equipe);
-        return avant && !isFinished(avant) && isFinished(m) && !m.forfait;
+        if (!avant || !isFinished(m) || m.forfait) return false;
+        return !isFinished(avant) || avant.score_sp !== m.score_sp || avant.score_adv !== m.score_adv;
       });
       fins.forEach((m, i) => setTimeout(() => Fete.show({
         type: Fete.typeFor(m.score_sp, m.score_adv),
