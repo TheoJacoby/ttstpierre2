@@ -71,7 +71,7 @@ export const aftt = {
         matchId: field(b, 'MatchId'),
         semaine: parseInt(field(b, 'WeekName'), 10),
         lettre: (ours.match(/\s([A-Z])$/) || [])[1] || '',
-        adversaire: other.replace(/\s*\(fg\)\s*$/i, ''),
+        adversaire: other,
         lieu: home ? 'domicile' : 'exterieur',
         date: field(b, 'Date'),
         heure: field(b, 'Time').slice(0, 5),
@@ -170,7 +170,7 @@ async function scrapeClub(club, nomClub) {
     for (const tr of tbody.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/g)) {
       const cells = [...tr[1].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map((m) => text(m[1]));
       if (cells.length < 8) continue;
-      const equipe = cells[1].replace(/\s*\(fg\)\s*$/i, '');
+      const equipe = cells[1];   // garde la mention « (fg) » = forfait général
       rows.push({
         pos: parseInt(cells[0], 10) || 0, equipe,
         club: nomClub && equipe.startsWith(nomClub) ? club : '',
