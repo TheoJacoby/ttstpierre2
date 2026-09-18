@@ -7,7 +7,7 @@
     <link rel="icon" href="img/logoTT.png">
     <meta name="theme-color" content="#121216">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="app.css?v=3">
+    <link rel="stylesheet" href="app.css?v=4">
     <script src="vendor/vue.global.prod.js"></script>
     <script src="api.js?v=3"></script>
 </head>
@@ -106,16 +106,26 @@
         <template v-if="tab === 'equipes'">
             <div class="card">
                 <h2>Équipes de la saison</h2>
-                <p class="help">Une équipe par ligne. Les titulaires pré-remplissent la page capitaine (4 max, séparés par des virgules) mais chaque capitaine peut aligner n'importe quel joueur du club. Coche « vendredi » pour les équipes qui reçoivent le vendredi à 20:00 : le jour se réglera tout seul quand tu prépares une journée.</p>
+                <p class="help">Une équipe par ligne. Les titulaires (choisis dans la liste des affiliés synchronisée avec la fédération) pré-remplissent la page capitaine, mais chaque capitaine peut aligner n'importe quel joueur du club. Coche « vendredi » pour les équipes qui reçoivent le vendredi à 20:00.</p>
                 <div class="field" style="margin-top:12px"><label>Équipes</label><textarea v-model="equipesForm.equipesText"></textarea></div>
-                <div class="field" v-for="e in equipesList" :key="e">
-                    <label>Titulaires {{ e }}</label>
-                    <div class="row">
-                        <input type="text" v-model="equipesForm.titulaires[e]" placeholder="Prénom 1, Prénom 2, Prénom 3, Prénom 4">
+                <div class="msg info" v-if="!(data.joueurs_aftt || []).length">Aucun joueur synchronisé : utilise « Synchroniser maintenant » ci-dessous, puis reviens choisir les titulaires.</div>
+                <div class="card-sub" v-for="e in equipesList" :key="e">
+                    <div class="row" style="align-items:center;margin-bottom:8px">
+                        <h3 style="flex:1">{{ e }}</h3>
                         <label class="check" style="flex:0 0 auto"><input type="checkbox" :value="e" v-model="equipesForm.vendredi_domicile"> vendredi à domicile</label>
                     </div>
+                    <div class="grid-2">
+                        <select v-for="i in 4" :key="i" v-model="equipesForm.titulaires[e][i - 1]">
+                            <option value="">— Titulaire {{ i }} —</option>
+                            <option v-for="j in data.joueurs_aftt" :key="j.licence" :value="j.nom">{{ j.nom }} · {{ j.classement }}</option>
+                            <option v-if="equipesForm.titulaires[e][i - 1] && !estAffilie(equipesForm.titulaires[e][i - 1])" :value="equipesForm.titulaires[e][i - 1]">{{ equipesForm.titulaires[e][i - 1] }} (hors liste)</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="field"><label>Tous les joueurs du club (un par ligne)</label><textarea v-model="equipesForm.joueursText" style="min-height:160px"></textarea></div>
+                <details style="margin:12px 0">
+                    <summary class="help" style="cursor:pointer">Autres noms proposés aux capitaines (surnoms, joueurs non affiliés) — facultatif</summary>
+                    <div class="field" style="margin-top:8px"><label>Un nom par ligne</label><textarea v-model="equipesForm.joueursText" style="min-height:120px"></textarea></div>
+                </details>
                 <button class="btn primary block" @click="saveEquipes" :disabled="saving">Enregistrer les équipes</button>
             </div>
 
@@ -241,6 +251,6 @@
         <div class="toast" :class="{ error: toast.error }" v-if="toast.text">{{ toast.text }}</div>
     </transition>
 </div>
-<script src="admin.js?v=3"></script>
+<script src="admin.js?v=4"></script>
 </body>
 </html>

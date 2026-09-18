@@ -120,3 +120,4 @@ label.check input { width: 20px; height: 20px; accent-color: var(--orange); }
 .modal-text { font-size: 1.05rem; line-height: 1.5; margin-bottom: 16px; }
 .modal-input { margin-bottom: 16px; }
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.card-sub { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; }

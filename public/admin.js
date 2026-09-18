@@ -26,7 +26,11 @@ createApp({
   },
   computed: {
     currentHasScores() { return this.data?.journee?.matchs.some((m) => m.score_sp !== null) || false; },
-    equipesList() { return this.equipesForm.equipesText.split('\n').map((s) => s.trim()).filter(Boolean); },
+    equipesList() {
+      const list = this.equipesForm.equipesText.split('\n').map((s) => s.trim()).filter(Boolean);
+      list.forEach((e) => { if (!this.equipesForm.titulaires[e]) this.equipesForm.titulaires[e] = ['', '', '', '']; });
+      return list;
+    },
     moisCourant() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; },
     moisTries() {
       const mois = this.data?.points?.mois || {};
@@ -82,10 +86,11 @@ createApp({
           return row;
         }),
       };
+      const officiels = new Set((data.joueurs_aftt || []).map((j) => j.nom));
       this.equipesForm = {
         equipesText: data.equipes.join('\n'),
-        titulaires: Object.fromEntries(data.equipes.map((e) => [e, (data.titulaires?.[e] || []).join(', ')])),
-        joueursText: (data.joueurs_club || []).join('\n'),
+        titulaires: Object.fromEntries(data.equipes.map((e) => [e, [0, 1, 2, 3].map((i) => (data.titulaires?.[e] || [])[i] || '')])),
+        joueursText: (data.joueurs_club || []).filter((n) => !officiels.has(n)).join('\n'),
         vendredi_domicile: [...(data.vendredi_domicile || [])],
       };
       this.extrasForm = {
@@ -135,6 +140,7 @@ createApp({
       try { await this.send({ action: 'aftt_sync' }, 'Fédération synchronisée ✔'); }
       finally { this.importing = false; }
     },
+    estAffilie(nom) { return (this.data?.joueurs_aftt || []).some((j) => j.nom === nom); },
     moisLabel(key) { const [y, m] = key.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString('fr-BE', { month: 'long', year: 'numeric' }); },
     async syncPoints() {
       this.importing = true;
@@ -154,7 +160,7 @@ createApp({
     },
     saveEquipes() {
       const equipes = this.equipesList;
-      const titulaires = Object.fromEntries(equipes.map((e) => [e, (this.equipesForm.titulaires[e] || '').split(',').map((s) => s.trim()).filter(Boolean)]));
+      const titulaires = Object.fromEntries(equipes.map((e) => [e, (this.equipesForm.titulaires[e] || []).map((s) => String(s).trim()).filter(Boolean)]));
       const joueurs_club = this.equipesForm.joueursText.split('\n').map((s) => s.trim()).filter(Boolean);
       this.send({ action: 'equipes', equipes, titulaires, joueurs_club, vendredi_domicile: this.equipesForm.vendredi_domicile }, 'Équipes enregistrées ✔');
     },
