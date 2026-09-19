@@ -7,7 +7,7 @@
     <link rel="icon" href="img/logoTT.png">
     <meta name="theme-color" content="#121216">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="app.css?v=3">
+    <link rel="stylesheet" href="app.css?v=5">
     <link rel="stylesheet" href="fete.css?v=1">
     <script src="vendor/vue.global.prod.js"></script>
     <script src="api.js?v=3"></script>
@@ -61,7 +61,7 @@
                 <p class="help">{{ match.lieu === 'exterieur' ? '🚗 À l’extérieur' : '🏠 À domicile' }} · {{ TT.dateLabel(match.date || data.journee.date) }}<span v-if="match.heure"> à {{ match.heure }}</span><span v-if="match.note"> · {{ match.note }}</span></p>
 
                 <div class="scoreboard">
-                    <div><div class="name">{{ match.equipe }}</div><div class="num sp">{{ scoreSp }}</div></div>
+                    <div><div class="name">{{ match.equipe }}</div><div class="num sp">{{ form.score_sp }}</div></div>
                     <div class="sep">–</div>
                     <div><div class="name">{{ match.adversaire || 'Adversaire' }}</div><div class="num">{{ form.score_adv }}</div></div>
                 </div>
@@ -73,35 +73,21 @@
             </div>
 
             <div class="card" v-if="!form.forfait">
-                <h2>3. Nos joueurs et leurs victoires</h2>
-                <p class="help">Le score de {{ match.equipe }} est la somme des victoires. Mets à jour pendant la soirée, puis appuie sur Enregistrer.</p>
-                <div class="player-row" v-for="(row, i) in form.joueurs" :key="i">
-                    <div>
-                        <select v-model="row.nom">
-                            <option value="">— Joueur {{ i + 1 }} —</option>
-                            <optgroup label="Joueurs affiliés" v-if="data.joueurs_aftt && data.joueurs_aftt.length">
-                                <option v-for="j in data.joueurs_aftt" :key="j.licence" :value="j.nom">{{ j.nom }} · {{ j.classement }}</option>
-                            </optgroup>
-                            <optgroup label="Autres noms" v-if="autresNoms(row).length">
-                                <option v-for="n in autresNoms(row)" :key="n" :value="n">{{ n }}</option>
-                            </optgroup>
-                            <option value="__nouveau__">+ Nouveau joueur…</option>
-                        </select>
+                <h2>3. Le score</h2>
+                <p class="help">Un appui sur +1 après chaque match gagné, de part et d'autre. Tu peux enregistrer autant de fois que tu veux pendant la soirée.</p>
+                <div class="compteurs">
+                    <div class="compteur">
+                        <div class="compteur-nom">{{ match.equipe }}</div>
+                        <div class="compteur-val sp">{{ form.score_sp }}</div>
+                        <button class="btn primary block" @click="plus('score_sp')" :disabled="total >= 16">+1</button>
+                        <button class="btn ghost small block" style="margin-top:8px" @click="moins('score_sp')" :disabled="form.score_sp <= 0">−1</button>
                     </div>
-                    <div class="stepper">
-                        <button type="button" @click="dec(row)" :disabled="row.victoires <= 0">−</button>
-                        <span class="val">{{ row.victoires }}</span>
-                        <button type="button" @click="inc(row)" :disabled="row.victoires >= 4 || total >= 16">+</button>
+                    <div class="compteur">
+                        <div class="compteur-nom">{{ match.adversaire || 'Adversaire' }}</div>
+                        <div class="compteur-val">{{ form.score_adv }}</div>
+                        <button class="btn block" @click="plus('score_adv')" :disabled="total >= 16">+1</button>
+                        <button class="btn ghost small block" style="margin-top:8px" @click="moins('score_adv')" :disabled="form.score_adv <= 0">−1</button>
                     </div>
-                </div>
-            </div>
-
-            <div class="card" v-if="!form.forfait">
-                <h2>4. Victoires de l’adversaire</h2>
-                <div class="stepper" style="justify-content:center">
-                    <button type="button" @click="form.score_adv = Math.max(0, form.score_adv - 1)" :disabled="form.score_adv <= 0">−</button>
-                    <span class="val" style="font-size:2rem;min-width:60px">{{ form.score_adv }}</span>
-                    <button type="button" @click="form.score_adv++" :disabled="form.score_adv >= 16 || total >= 16">+</button>
                 </div>
             </div>
 
@@ -145,6 +131,6 @@
         <div class="toast" :class="{ error: toast.error }" v-if="toast.text">{{ toast.text }}</div>
     </transition>
 </div>
-<script src="capitaine.js?v=4"></script>
+<script src="capitaine.js?v=5"></script>
 </body>
 </html>

@@ -121,3 +121,10 @@ label.check input { width: 20px; height: 20px; accent-color: var(--orange); }
 .modal-input { margin-bottom: 16px; }
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
 .card-sub { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+.compteurs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.compteur { background: var(--card-2); border: 1px solid var(--border); border-radius: 14px; padding: 14px 10px; text-align: center; }
+.compteur-nom { font-size: 0.85rem; color: var(--muted); font-weight: 600; min-height: 2.4em; display: flex; align-items: center; justify-content: center; }
+.compteur-val { font-size: 3.4rem; font-weight: 900; line-height: 1.1; margin-bottom: 10px; }
+.compteur-val.sp { color: var(--orange); }
+.compteur .btn.block { min-height: 56px; font-size: 1.3rem; }
+.compteur .btn.small.block { min-height: 38px; font-size: 1rem; }

@@ -283,8 +283,10 @@ async function saveScore(env, body) {
     }
     const scoreAdv = toInt(body.score_adv);
     if (scoreAdv === null || scoreAdv < 0 || scoreAdv > MAX_SCORE) throw invalid(`Score adverse invalide (0 à ${MAX_SCORE})`);
-    const scoreSp = cleaned.reduce((sum, j) => sum + j.victoires, 0);
-    if (scoreSp + scoreAdv > MAX_SCORE) throw invalid(`Total ${scoreSp + scoreAdv} > ${MAX_SCORE} : vérifie les victoires`);
+    // Score de l'équipe : saisi directement, ou somme des victoires si des joueurs sont fournis
+    const scoreSp = body.score_sp === undefined ? cleaned.reduce((sum, j) => sum + j.victoires, 0) : toInt(body.score_sp);
+    if (scoreSp === null || scoreSp < 0 || scoreSp > MAX_SCORE) throw invalid(`Score invalide (0 à ${MAX_SCORE})`);
+    if (scoreSp + scoreAdv > MAX_SCORE) throw invalid(`Total ${scoreSp + scoreAdv} > ${MAX_SCORE} : vérifie le score`);
 
     if (scoreSp + scoreAdv === 0 && cleaned.length === 0) {
       await scoresDO(env).del([key]);                   // remise à zéro explicite
