@@ -14,86 +14,9 @@
     "Saint-Pierre E",
     "Saint-Pierre F"
   ],
-  "titulaires": {
-    "Saint-Pierre A": [
-      "Denis",
-      "Antoine",
-      "Rémi",
-      "Benja"
-    ],
-    "Saint-Pierre B": [
-      "Gilles",
-      "Eric",
-      "Théo",
-      "Simon"
-    ],
-    "Saint-Pierre C": [
-      "Eric V.",
-      "Marc",
-      "Tchouse",
-      "Assef"
-    ],
-    "Saint-Pierre D": [
-      "Lucas",
-      "Titi",
-      "Éric C.",
-      "Aurélien"
-    ],
-    "Saint-Pierre E": [
-      "Nico Maas",
-      "Fred",
-      "Nico Schmit",
-      "Irchad"
-    ],
-    "Saint-Pierre F": [
-      "Alina",
-      "Anastasia",
-      "Enzo",
-      "Sophie"
-    ]
-  },
   "vendredi_domicile": [
     "Saint-Pierre A",
     "Saint-Pierre D"
-  ],
-  "joueurs_club": [
-    "Alina",
-    "Anastasia",
-    "Antoine",
-    "Assef",
-    "Aurélien",
-    "Axel",
-    "Benja",
-    "Charly",
-    "Clément",
-    "Closse",
-    "Cyril",
-    "Dany",
-    "Denis",
-    "Enzo",
-    "Eric",
-    "Eric V.",
-    "Éric C.",
-    "Flo",
-    "Fred",
-    "Gilles",
-    "Irchad",
-    "Kevin",
-    "Leo",
-    "Louis",
-    "Lucas",
-    "Marc",
-    "Mathilde",
-    "Nico Maas",
-    "Nico Schmit",
-    "Rémi",
-    "Romain",
-    "Simon",
-    "Simon B.",
-    "Sophie",
-    "Tchouse",
-    "Théo",
-    "Titi"
   ],
   "joueurs_aftt": [],
   "equipes_aftt": [],

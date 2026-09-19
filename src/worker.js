@@ -21,8 +21,6 @@ const scoresDO = (env) => env.SCORES.get(env.SCORES.idFromName('scores'));
 const scoreKey = (numero, equipe) => `score:${numero}:${equipe}`;
 const SCORE_FIELDS = ['score_sp', 'score_adv', 'forfait', 'joueurs', 'maj'];
 const MAX_SCORE = 16;      // un interclub = 16 matchs
-const MAX_VICTOIRES = 4;   // 4 simples par joueur
-const MAX_JOUEURS = 4;
 
 /** Erreur "métier" renvoyée telle quelle à l'utilisateur (HTTP 400). */
 class ValidationError extends Error {}
@@ -183,11 +181,9 @@ async function loadData(env) {
   const [classements, points] = await env.DATA.get([KEY_CLASSEMENTS, KEY_POINTS], { type: 'json' }).then((m) => [m.get(KEY_CLASSEMENTS), m.get(KEY_POINTS)]);
   data.classements = classements || { maj: null, divisions: [] };
   data.points = points || { maj: null, mois: {} };
-  delete data.annonces;   // fonctionnalité retirée
-  // Les nouveaux noms encodés par les capitaines apparaissent dans la liste du club sans écrire le document
-  const club = new Set(data.joueurs_club || []);
-  matchs.forEach((m) => (m.joueurs || []).forEach((j) => club.add(j.nom)));
-  data.joueurs_club = [...club].sort((a, b) => a.localeCompare(b, 'fr'));
+  delete data.annonces;                    // fonctionnalités retirées
+  delete data.titulaires;
+  delete data.joueurs_club;
   return data;
 }
 
@@ -268,37 +264,22 @@ async function saveScore(env, body) {
   if (forfait) {
     record = { score_sp: forfait === 'adv' ? MAX_SCORE : 0, score_adv: forfait === 'adv' ? 0 : MAX_SCORE, forfait, joueurs: [], maj: new Date().toISOString() };
   } else {
-    const joueurs = Array.isArray(body.joueurs) ? body.joueurs : [];
-    if (joueurs.length > MAX_JOUEURS) throw invalid(`Maximum ${MAX_JOUEURS} joueurs`);
-    const cleaned = [];
-    const seen = new Set();
-    for (const j of joueurs) {
-      const nom = String(j?.nom || '').trim();
-      if (!nom) continue;
-      if (seen.has(nom.toLowerCase())) throw invalid(`Le joueur "${nom}" apparaît deux fois`);
-      seen.add(nom.toLowerCase());
-      const v = toInt(j.victoires);
-      if (v === null || v < 0 || v > MAX_VICTOIRES) throw invalid(`Victoires invalides pour ${nom} (0 à ${MAX_VICTOIRES})`);
-      cleaned.push({ nom, victoires: v });
-    }
+    const scoreSp = toInt(body.score_sp);
     const scoreAdv = toInt(body.score_adv);
-    if (scoreAdv === null || scoreAdv < 0 || scoreAdv > MAX_SCORE) throw invalid(`Score adverse invalide (0 à ${MAX_SCORE})`);
-    // Score de l'équipe : saisi directement, ou somme des victoires si des joueurs sont fournis
-    const scoreSp = body.score_sp === undefined ? cleaned.reduce((sum, j) => sum + j.victoires, 0) : toInt(body.score_sp);
     if (scoreSp === null || scoreSp < 0 || scoreSp > MAX_SCORE) throw invalid(`Score invalide (0 à ${MAX_SCORE})`);
+    if (scoreAdv === null || scoreAdv < 0 || scoreAdv > MAX_SCORE) throw invalid(`Score adverse invalide (0 à ${MAX_SCORE})`);
     if (scoreSp + scoreAdv > MAX_SCORE) throw invalid(`Total ${scoreSp + scoreAdv} > ${MAX_SCORE} : vérifie le score`);
 
-    if (scoreSp + scoreAdv === 0 && cleaned.length === 0) {
+    if (scoreSp + scoreAdv === 0) {
       await scoresDO(env).del([key]);                   // remise à zéro explicite
       SCORE_FIELDS.forEach((f) => { match[f] = f === 'joueurs' ? [] : null; });
       return json({ ok: true, data });
     }
-    record = { score_sp: scoreSp, score_adv: scoreAdv, forfait: null, joueurs: cleaned, maj: new Date().toISOString() };
+    record = { score_sp: scoreSp, score_adv: scoreAdv, forfait: null, joueurs: [], maj: new Date().toISOString() };
   }
 
   await scoresDO(env).put(key, record);
   Object.assign(match, record);
-  record.joueurs.forEach((j) => { if (!data.joueurs_club.includes(j.nom)) data.joueurs_club.push(j.nom); });
   return json({ ok: true, data });
 }
 
@@ -324,7 +305,6 @@ async function applyJournee(env, data, body) {
   });
 
   const current = data.journee;   // déjà fusionnée avec les scores par équipe (loadData)
-  const club = new Set(data.joueurs_club || []);
 
   if (current && current.numero === numero) {
     // Même numéro republié : on garde les scores des équipes dont l'adversaire n'a pas changé
@@ -347,7 +327,6 @@ async function applyJournee(env, data, body) {
     }
     await deleteScores(env, current.numero, current.matchs.map((m) => m.equipe));
   }
-  data.joueurs_club = [...club].sort((a, b) => a.localeCompare(b, 'fr'));
   // Une journée ne peut pas être à la fois en cours et archivée
   data.historique = (data.historique || []).filter((j) => j.numero !== numero);
 
@@ -362,18 +341,8 @@ async function applyJournee(env, data, body) {
 function applyEquipes(data, body) {
   if (!Array.isArray(body.equipes) || !body.equipes.length) throw invalid('Il faut au moins une équipe');
   const equipes = body.equipes.map((e) => String(e).trim()).filter(Boolean);
-  const titulaires = {};
-  for (const e of equipes) {
-    const list = Array.isArray(body.titulaires?.[e]) ? body.titulaires[e] : [];
-    titulaires[e] = list.map((n) => String(n).trim()).filter(Boolean).slice(0, MAX_JOUEURS);
-  }
-  const club = new Set((body.joueurs_club || data.joueurs_club || []).map((n) => String(n).trim()).filter(Boolean));
-  Object.values(titulaires).flat().forEach((n) => club.add(n));
-
   data.equipes = equipes;
-  data.titulaires = titulaires;
   data.vendredi_domicile = (Array.isArray(body.vendredi_domicile) ? body.vendredi_domicile : data.vendredi_domicile || []).filter((e) => equipes.includes(e));
-  data.joueurs_club = [...club].sort((a, b) => a.localeCompare(b, 'fr'));
   // Garde la journée cohérente avec la liste d'équipes
   if (data.journee) {
     data.journee.matchs = data.journee.matchs.filter((m) => equipes.includes(m.equipe));

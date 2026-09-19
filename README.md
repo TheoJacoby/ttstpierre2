@@ -14,13 +14,12 @@ de fichier `data.json` à modifier à la main ni de token GitHub dans le navigat
 
 ## Comment ça marche
 
-- **Le samedi**, chaque capitaine ouvre `/capitaine`, choisit son équipe, met à jour les victoires
-  de ses 4 joueurs et celles de l'adversaire au fil de la soirée, et appuie sur *Enregistrer*.
-  Le score de l'équipe est la somme des victoires. Total plafonné à 16. Forfait possible en un bouton.
-- **La TV** affiche les matchs du jour, fait tourner les résultats déjà encodés (avec les joueurs),
-  affiche les classements des divisions, le joueur du mois (points fédération) et fait défiler perfs / podium du mois.
+- **Le samedi**, chaque capitaine ouvre `/capitaine`, choisit son équipe et appuie sur *+1* après chaque
+  match gagné, de part et d'autre, puis sur *Enregistrer*. Total plafonné à 16. Forfait en un bouton.
+- **La TV** affiche les matchs de la journée, fait tourner les classements des six divisions,
+  le joueur du mois (points fédération) et fait défiler meilleures perfs / podium du mois.
 - **Pendant la semaine**, l'admin publie la journée suivante (adversaires, lieu, heure) : la journée
-  précédente part dans l'historique avec ses scores. Il peut aussi gérer les équipes, les joueurs,
+  précédente part dans l'historique avec ses scores. Il peut aussi gérer les équipes,
   le joueur du mois (auto ou manuel), les meilleures perfs, et télécharger une sauvegarde.
 
 ## Fédération (AFTT)
@@ -51,7 +50,8 @@ public/            fichiers servis tels quels
   vendor/vue.global.prod.js          Vue 3 (local, pas de CDN)
 src/worker.js      API (/api/data, /api/login, /api/capitaine, /api/admin) + validation + tâche planifiée
 src/aftt.js        client de l'API de la fédération (TabT)
-data/seed.json     données de départ d'une saison (équipes, joueurs, adversaires connus)
+data/seed.json     données de départ d'une saison (équipes, adversaires connus)
+data/calendrier.json  calendrier officiel de la saison (généré par `npm run calendrier`)
 wrangler.toml      configuration Cloudflare
 ```
 
@@ -92,6 +92,6 @@ Ensuite, à chaque modification du code : `npm run deploy`. Les données ne sont
 ## Règles métier
 
 - Un interclub = 16 matchs, 4 joueurs par équipe, 4 simples chacun.
-- Score de Saint-Pierre = somme des victoires des joueurs ; score adverse encodé séparément ; total ≤ 16.
+- Les deux scores sont encodés séparément par le capitaine ; total ≤ 16.
 - Statuts : *À venir* (rien encodé), *En cours* (< 16), *Terminé* (= 16), *Forfait*, *Bye*.
 - Joueur du mois automatique = le plus de points fédération gagnés en interclubs sur le dernier mois terminé (calcul le 3 du mois).
