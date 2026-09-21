@@ -39,6 +39,16 @@ Le serveur interroge l'API publique de la fédération (`api.aftt.be`, TabT) pou
 
 Si tout est indisponible, la saisie manuelle reste possible comme avant. Le code du client est dans `src/aftt.js`.
 
+## TV du club : robustesse
+
+La page tourne des heures sans personne devant, souvent sur un navigateur de téléviseur peu puissant.
+
+- **Chien de garde** : sans données depuis cinq minutes, la page se recharge toute seule ; elle se recharge
+  aussi après six heures d'affilée, à un moment calme (aucune animation, aucun match en cours).
+- **Mode léger** : ouvrir `/?leger=1` supprime les effets coûteux (halos flous d'arrière-plan, flou derrière
+  les cartes, halos lumineux) et réduit les confettis. Le choix est mémorisé dans le navigateur de la TV.
+  `/?leger=0` revient à l'affichage complet.
+
 ## Structure
 
 ```

@@ -16,9 +16,10 @@ window.Fete = (() => {
         <div class="fete-mot">${type === 'victoire' ? 'Victoire !' : type === 'nul' ? 'Match nul' : 'Défaite…'}</div>
       </div>`;
     const fx = overlay.querySelector('.fete-fx');
-    if (type === 'victoire') confettis(fx, 140);
-    else if (type === 'defaite') larmes(fx, 26);
-    else poignee(fx, 18);
+    const leger = document.documentElement.classList.contains('leger');
+    if (type === 'victoire') confettis(fx, leger ? 45 : 140);
+    else if (type === 'defaite') larmes(fx, leger ? 12 : 26);
+    else poignee(fx, leger ? 9 : 18);
     document.body.appendChild(overlay);
     requestAnimationFrame(() => overlay.classList.add('on'));
     timer = setTimeout(hide, duree);

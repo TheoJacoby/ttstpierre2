@@ -5,6 +5,8 @@ const REFRESH_MS = 10000;   // relecture des données
 const ROTATE_MS = 10000;    // rotation des résultats
 const SLIDE_MS = 12000;     // rotation du panneau du bas
 const OFFLINE_AFTER_MS = 3 * 60 * 1000;
+const WATCHDOG_MS = 5 * 60 * 1000;           // sans données depuis ce délai : on recharge la page
+const MAX_UPTIME_MS = 6 * 60 * 60 * 1000;    // rechargement préventif après une longue journée
 const MAX_SCORE = 16;
 const LIVE_BEFORE_MS = 15 * 60 * 1000;      // surbrillance 15 min avant le début
 const LIVE_MAX_MS = 4 * 60 * 60 * 1000;     // ... et au plus 4 h après, si le score n'est jamais encodé
@@ -27,6 +29,7 @@ createApp({
     return {
       data: null,
       lastOk: null,
+      startedAt: Date.now(),
       now: new Date(),
       resultIndex: 0,
       isFading: false,
@@ -137,6 +140,7 @@ createApp({
     setInterval(() => { this.now = new Date(); }, 1000);
     setInterval(() => this.nextResult(), ROTATE_MS);
     setInterval(() => { this.slideIndex++; }, SLIDE_MS);
+    setInterval(() => this.chienDeGarde(), 60000);
   },
   methods: {
     async load() {
@@ -152,6 +156,16 @@ createApp({
         console.error('Chargement impossible :', e);
         if (!this.data) setTimeout(() => this.load(), 5000);
       }
+    },
+    /**
+     * Filet de sécurité pour la TV du club : elle tourne des heures sans personne devant.
+     * Si les données ne rentrent plus, ou après une très longue journée, on recharge la page.
+     */
+    chienDeGarde() {
+      const maintenant = Date.now();
+      if (this.lastOk && maintenant - this.lastOk > WATCHDOG_MS) { location.reload(); return; }
+      const calme = !document.querySelector('.fete-overlay') && !this.matchRows.some((m) => m.live);
+      if (maintenant - this.startedAt > MAX_UPTIME_MS && calme) location.reload();
     },
     /** Un résultat final vient d'arriver ou de changer (hors forfait) : petite animation avec le score */
     detectFins(prev, next) {

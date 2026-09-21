@@ -193,6 +193,18 @@ body {
 .podium-points small { color: #888; font-weight: 400; font-size: 0.7rem; }
 .podium-meta { color: #888; font-size: 0.8rem; }
 
+/* MODE LÉGER (/?leger=1) : supprime les effets coûteux pour les navigateurs de téléviseur */
+.leger .ambient-light { display: none; }
+.leger body { background: #0b0b0f; }
+.leger .glass-card, .leger .glass-panel, .leger .clock {
+    backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(255, 255, 255, 0.055);
+}
+.leger .avatar-glow { display: none; }
+.leger .score-badge, .leger .perf-points, .leger .team-winner { filter: none; text-shadow: none; }
+.leger .match-row.live { box-shadow: none; }
+.leger .results-container { transition: opacity 0.4s; }
+.leger .results-container.fading { filter: none; transform: none; }
+
 /* Helpers */
 .team-winner { color: var(--success) !important; text-shadow: 0 0 10px rgba(0, 242, 169, 0.3); }
 .team-loser { color: var(--danger) !important; opacity: 0.85; }
