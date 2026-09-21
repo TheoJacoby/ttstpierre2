@@ -132,7 +132,7 @@ body {
 .perf-points { font-weight: 900; color: var(--success); font-size: 2.2rem; line-height: 1; margin-bottom: 0.6vh; text-shadow: 0 0 15px rgba(0, 242, 169, 0.2); }
 .perf-name { font-weight: 600; font-size: 1rem; color: #bbb; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .perf-detail { font-size: 0.75rem; color: #777; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.top-cl { color: #888; font-weight: 400; font-size: 0.8em; }
+.top-cl { color: #888; font-weight: 400; font-size: 0.8em; margin-left: 0.45em; }
 .top-pct small { color: #777; }
 
 .top-grid { flex: 1; display: grid; grid-template-columns: repeat(2, 1fr); grid-auto-rows: 1fr; column-gap: 1.5vw; row-gap: 0.4vh; min-height: 0; }
