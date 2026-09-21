@@ -30,7 +30,8 @@ createApp({
       data: null,
       lastOk: null,
       startedAt: Date.now(),
-      now: new Date(),
+      now: new Date(),        // secondes : uniquement pour l'horloge
+      nowSlow: new Date(),    // pas de 30 s : tout le reste, pour ne pas tout recalculer chaque seconde
       resultIndex: 0,
       isFading: false,
       slideIndex: 0,
@@ -51,7 +52,7 @@ createApp({
       return list.length ? list[this.resultIndex % list.length] : null;
     },
     todayIso() {
-      const d = this.now;
+      const d = this.nowSlow;
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     },
     matchRows() {
@@ -74,7 +75,7 @@ createApp({
     },
     rankOf() { return (nom) => this.fiches.get(nom)?.classement || ''; },
     moisCourant() {
-      const d = this.now;
+      const d = this.nowSlow;
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     },
     /** Mois affiché : le mois en cours dès qu'il a des points, sinon le dernier mois terminé */
@@ -132,12 +133,13 @@ createApp({
     clockTime() { return this.now.toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' }); },
     clockSeconds() { return ':' + String(this.now.getSeconds()).padStart(2, '0'); },
     clockDate() { return this.now.toLocaleDateString('fr-BE', { weekday: 'long', day: '2-digit', month: 'long' }); },
-    offline() { return this.lastOk && this.now - this.lastOk > OFFLINE_AFTER_MS; },
+    offline() { return this.lastOk && this.nowSlow - this.lastOk > OFFLINE_AFTER_MS; },
   },
   async mounted() {
     await this.load();
     setInterval(() => this.load(), REFRESH_MS);
     setInterval(() => { this.now = new Date(); }, 1000);
+    setInterval(() => { this.nowSlow = new Date(); }, 30000);
     setInterval(() => this.nextResult(), ROTATE_MS);
     setInterval(() => { this.slideIndex++; }, SLIDE_MS);
     setInterval(() => this.chienDeGarde(), 60000);
@@ -218,7 +220,7 @@ createApp({
       const start = parseDate(date);
       if (!start || isNaN(h)) return false;
       start.setHours(h, min || 0, 0, 0);
-      const diff = this.now - start;
+      const diff = this.nowSlow - start;
       return diff >= -LIVE_BEFORE_MS && diff <= LIVE_MAX_MS;
     },
     score(v) { return v === null || v === undefined ? '–' : v; },
