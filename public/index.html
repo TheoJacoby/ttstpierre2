@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="tv.css?v=5">
+    <link rel="stylesheet" href="tv.css?v=7">
     <link rel="stylesheet" href="fete.css?v=1">
     <script src="vendor/vue.global.prod.js"></script>
 </head>
@@ -54,39 +54,39 @@
                     </div>
 
                     <!-- JOUEUR DU MOIS -->
-                    <div class="glass-card highlight-card" v-if="joueurDuMois">
+                    <div class="glass-card highlight-card" v-if="joueurDuMoment">
                         <div class="card-header">
-                            <h2 class="card-title">{{ joueurDuMois.genre === 'F' ? 'Joueuse' : 'Joueur' }} du mois</h2>
-                            <span class="month-badge">{{ joueurDuMois.mois }}</span>
+                            <h2 class="card-title">{{ joueurDuMoment.genre === 'F' ? 'Joueuse' : 'Joueur' }} {{ joueurDuMoment.enCours === false ? 'du mois' : 'du moment' }}</h2>
+                            <span class="month-badge">{{ joueurDuMoment.mois }}<template v-if="joueurDuMoment.enCours"> · {{ moisJournees }} j.</template><template v-else-if="joueurDuMoment.federation"> · final</template></span>
                         </div>
                         <div class="player-of-month">
                             <div class="player-avatar">
-                                <div class="avatar-circle">{{ joueurDuMois.genre === 'F' ? '👩' : '👨' }}</div>
+                                <div class="avatar-circle">{{ joueurDuMoment.genre === 'F' ? '👩' : '👨' }}</div>
                                 <div class="avatar-glow"></div>
                             </div>
                             <div class="player-info">
-                                <h3 class="player-hero-name">{{ joueurDuMois.nom }}<small class="player-rank" v-if="joueurDuMois.classement">{{ joueurDuMois.classement }}</small></h3>
-                                <div class="stats-grid" v-if="joueurDuMois.federation">
-                                    <div class="stat-box accent"><span class="stat-num">+{{ joueurDuMois.points }}</span><span class="stat-label">Points</span></div>
-                                    <div class="stat-box"><span class="stat-num">{{ joueurDuMois.victoires }}</span><span class="stat-label">Victoires</span></div>
-                                    <div class="stat-box"><span class="stat-num">{{ joueurDuMois.matchs }}</span><span class="stat-label">Matchs</span></div>
+                                <h3 class="player-hero-name">{{ joueurDuMoment.nom }}<small class="player-rank" v-if="joueurDuMoment.classement">{{ joueurDuMoment.classement }}</small></h3>
+                                <div class="stats-grid" v-if="joueurDuMoment.federation">
+                                    <div class="stat-box accent"><span class="stat-num">+{{ joueurDuMoment.points }}</span><span class="stat-label">Points</span></div>
+                                    <div class="stat-box"><span class="stat-num">{{ joueurDuMoment.victoires }}</span><span class="stat-label">Victoires</span></div>
+                                    <div class="stat-box"><span class="stat-num">{{ joueurDuMoment.matchs }}</span><span class="stat-label">Matchs</span></div>
                                 </div>
-                                <div class="stats-grid" v-else-if="joueurDuMois.auto">
-                                    <div class="stat-box"><span class="stat-num">{{ joueurDuMois.victoires }}</span><span class="stat-label">Victoires</span></div>
-                                    <div class="stat-box accent"><span class="stat-num">{{ joueurDuMois.pct }}%</span><span class="stat-label">Réussite</span></div>
-                                    <div class="stat-box"><span class="stat-num">{{ joueurDuMois.matchs }}</span><span class="stat-label">Interclubs</span></div>
+                                <div class="stats-grid" v-else-if="joueurDuMoment.auto">
+                                    <div class="stat-box"><span class="stat-num">{{ joueurDuMoment.victoires }}</span><span class="stat-label">Victoires</span></div>
+                                    <div class="stat-box accent"><span class="stat-num">{{ joueurDuMoment.pct }}%</span><span class="stat-label">Réussite</span></div>
+                                    <div class="stat-box"><span class="stat-num">{{ joueurDuMoment.matchs }}</span><span class="stat-label">Interclubs</span></div>
                                 </div>
                                 <div class="stats-grid" v-else>
-                                    <div class="stat-box"><span class="stat-num">{{ joueurDuMois.victoires }}</span><span class="stat-label">Victoires</span></div>
-                                    <div class="stat-box accent"><span class="stat-num">{{ joueurDuMois.performances }}</span><span class="stat-label">Perfs</span></div>
-                                    <div class="stat-box"><span class="stat-num">+{{ joueurDuMois.points }}</span><span class="stat-label">Points</span></div>
+                                    <div class="stat-box"><span class="stat-num">{{ joueurDuMoment.victoires }}</span><span class="stat-label">Victoires</span></div>
+                                    <div class="stat-box accent"><span class="stat-num">{{ joueurDuMoment.performances }}</span><span class="stat-label">Perfs</span></div>
+                                    <div class="stat-box"><span class="stat-num">+{{ joueurDuMoment.points }}</span><span class="stat-label">Points</span></div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="glass-card highlight-card" v-else>
-                        <h2 class="card-title">Joueur du mois</h2>
-                        <div class="empty-state">Calculé automatiquement à la fin de chaque mois, d'après les points gagnés en interclubs.</div>
+                        <h2 class="card-title">Joueur du moment</h2>
+                        <div class="empty-state">Classement des points gagnés en interclubs sur le mois en cours, remis à zéro chaque 1er.</div>
                     </div>
                 </div>
 
@@ -125,8 +125,19 @@
                                         </div>
                                     </div>
                                 </template>
+                                <template v-else-if="currentSlide.type === 'palmares'">
+                                    <h2 class="section-title">Palmarès de la saison <span class="orange-dot">.</span> <span class="section-sub">champions des mois écoulés</span></h2>
+                                    <div class="palmares-grid">
+                                        <div class="top-row" v-for="p in palmares" :key="p.key">
+                                            <span class="top-rank">🏅</span>
+                                            <span class="top-name">{{ p.champion.nom }}<small class="top-cl"> {{ p.champion.classement }}</small></span>
+                                            <span class="top-vic">{{ p.champion.points > 0 ? '+' : '' }}{{ p.champion.points }}<small> pts</small></span>
+                                            <span class="top-pct">{{ p.mois }}</span>
+                                        </div>
+                                    </div>
+                                </template>
                                 <template v-else-if="currentSlide.type === 'podium'">
-                                    <h2 class="section-title">Podium du mois <span class="orange-dot">.</span> <span class="section-sub">{{ moisLabel }} · points interclubs</span></h2>
+                                    <h2 class="section-title">Podium {{ moisPoints && moisPoints.enCours ? 'du moment' : 'du mois' }} <span class="orange-dot">.</span> <span class="section-sub">{{ moisLabel }} · points interclubs</span></h2>
                                     <div class="podium">
                                         <div class="podium-card" v-for="(p, i) in podium" :key="p.licence" :class="'p' + (i + 1)">
                                             <span class="podium-medal">{{ ['🥇', '🥈', '🥉'][i] }}</span>
@@ -154,6 +165,6 @@
     </div>
 
     <script src="fete.js?v=1"></script>
-    <script src="tv.js?v=5"></script>
+    <script src="tv.js?v=7"></script>
 </body>
 </html>

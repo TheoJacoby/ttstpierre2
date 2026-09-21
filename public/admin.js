@@ -30,7 +30,7 @@ createApp({
     moisCourant() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; },
     moisTries() {
       const mois = this.data?.points?.mois || {};
-      return Object.fromEntries(Object.keys(mois).sort().reverse().slice(0, 3).map((k) => [k, mois[k]]));
+      return Object.fromEntries(Object.keys(mois).sort().reverse().slice(0, 4).map((k) => [k, mois[k]]));
     },
   },
   async mounted() { if (this.password) await this.login(true); },

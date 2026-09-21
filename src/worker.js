@@ -30,7 +30,7 @@ export default {
   /** Tâche planifiée (voir wrangler.toml) : synchronise classements et membres, publie la semaine suivante si demandé */
   async scheduled(event, env) {
     const data = await loadData(env);
-    if (event.cron === '30 4 3 * *') {                 // le 3 de chaque mois : points du mois écoulé (une requête par joueur)
+    if (event.cron === '30 4 * * *') {                 // chaque nuit : points des fiches joueurs (une requête par joueur)
       try { await syncPoints(env, data); } catch (e) { console.error('points fédération :', e.message); }
       return;
     }

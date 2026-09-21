@@ -23,11 +23,10 @@ class_name = "Scores"
 tag = "v1"
 new_sqlite_classes = ["Scores"]
 
-# Chaque nuit à 04:00 UTC : synchronisation fédération (classements, membres, import auto si activé).
-# Le 3 de chaque mois à 04:30 UTC : lecture des fiches joueurs -> joueur du mois écoulé (la fédération
-# comptabilise les points le 1er du mois suivant).
+# Chaque nuit (UTC) : 04:00 synchronisation fédération (classements, membres, import auto si activé),
+# 04:30 lecture des fiches joueurs -> points du mois en cours (joueur du moment, podium, palmarès).
 [triggers]
-crons = ["0 4 * * *", "30 4 3 * *"]
+crons = ["0 4 * * *", "30 4 * * *"]
 
 [observability]
 enabled = true

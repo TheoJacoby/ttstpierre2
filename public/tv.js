@@ -14,6 +14,10 @@ function parseDate(iso) {
   const [y, m, d] = iso.split('-').map(Number);
   return new Date(y, m - 1, d);
 }
+function nomMois(key) {
+  const [y, m] = key.split('-').map(Number);
+  return new Date(y, m - 1, 1).toLocaleDateString('fr-BE', { month: 'long' });
+}
 function isBye(m) { return /^bye$/i.test((m.adversaire || '').trim()); }
 function isFinished(m) { return m.forfait || (m.score_sp !== null && m.score_sp + m.score_adv >= MAX_SCORE); }
 function hasStarted(m) { return m.score_sp !== null && m.score_adv !== null; }
@@ -60,33 +64,52 @@ createApp({
       });
     },
     classements() { return (this.data?.classements?.divisions || []).filter((d) => d.rows && d.rows.length); },
-    rankOf() {
+    fiches() {
       const map = new Map();
-      (this.data?.joueurs_aftt || []).forEach((j) => map.set(j.nom, j.classement));
-      return (nom) => map.get(nom) || '';
+      (this.data?.joueurs_aftt || []).forEach((j) => map.set(j.nom, j));
+      return map;
     },
-    /** Dernier mois TERMINÉ ayant des points fédération (le mois en cours n'est jamais affiché) */
+    rankOf() { return (nom) => this.fiches.get(nom)?.classement || ''; },
+    moisCourant() {
+      const d = this.now;
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    },
+    /** Mois affiché : le mois en cours dès qu'il a des points, sinon le dernier mois terminé */
     moisPoints() {
       const mois = this.data?.points?.mois || {};
-      const d = this.now;
-      const cur = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const cur = this.moisCourant;
+      if (mois[cur]?.joueurs?.length) return { key: cur, data: mois[cur], enCours: true };
       const keys = Object.keys(mois).filter((k) => k < cur && mois[k].joueurs?.length).sort();
       if (!keys.length) return null;
       const key = keys[keys.length - 1];
-      return { key, data: mois[key] };
+      return { key, data: mois[key], enCours: false };
     },
-    moisLabel() {
-      if (!this.moisPoints) return '';
-      const [y, m] = this.moisPoints.key.split('-').map(Number);
-      return new Date(y, m - 1, 1).toLocaleDateString('fr-BE', { month: 'long' });
+    moisLabel() { return this.moisPoints ? nomMois(this.moisPoints.key) : ''; },
+    /** Nombre de journées déjà comptabilisées ce mois */
+    moisJournees() { return (this.moisPoints?.data.joueurs || []).reduce((n, j) => Math.max(n, j.journees || 0), 0); },
+    /** Champions des mois terminés, hors mois actuellement mis en avant */
+    palmares() {
+      const mois = this.data?.points?.mois || {};
+      const cur = this.moisCourant;
+      const affiche = this.moisPoints?.key;
+      return Object.keys(mois)
+        .filter((k) => k < cur && k !== affiche && mois[k].joueurs?.length)
+        .sort().reverse()
+        .map((k) => ({ key: k, mois: nomMois(k), champion: mois[k].joueurs[0] }));
     },
-    joueurDuMois() {
+    joueurDuMoment() {
       const cfg = this.data?.joueur_du_mois || {};
       if (cfg.mode === 'manuel' && cfg.nom) return { ...cfg, auto: false };
-      // Mode auto : points du classement numérique de la fédération, mois terminé uniquement
+      // Mode auto : points du classement numérique de la fédération
       if (!this.moisPoints) return null;
       const best = this.moisPoints.data.joueurs[0];
-      return { auto: true, federation: true, nom: best.nom, classement: best.classement, points: best.points, victoires: best.victoires, matchs: best.matchs, mois: this.moisLabel, genre: cfg.genre || 'H' };
+      const femme = this.fiches.get(best.nom)?.femme;   // donné par la fédération, sinon réglage manuel
+      return {
+        auto: true, federation: true, enCours: this.moisPoints.enCours,
+        nom: best.nom, classement: best.classement, points: best.points,
+        victoires: best.victoires, matchs: best.matchs, mois: this.moisLabel,
+        genre: femme === undefined ? (cfg.genre || 'H') : (femme ? 'F' : 'H'),
+      };
     },
     perfs() {
       const manuelles = this.data?.meilleures_perfs || [];
@@ -99,6 +122,7 @@ createApp({
       const s = [];
       if (this.perfs.length) s.push({ type: 'perfs' });
       if (this.podium.length) s.push({ type: 'podium' });
+      if (this.palmares.length) s.push({ type: 'palmares' });
       return s.length ? s : [{ type: 'vide' }];
     },
     currentSlide() { const s = this.slides; return s[((this.slideIndex % s.length) + s.length) % s.length]; },

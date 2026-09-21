@@ -17,10 +17,10 @@ de fichier `data.json` à modifier à la main ni de token GitHub dans le navigat
 - **Le samedi**, chaque capitaine ouvre `/capitaine`, choisit son équipe et appuie sur *+1* après chaque
   match gagné, de part et d'autre, puis sur *Enregistrer*. Total plafonné à 16. Forfait en un bouton.
 - **La TV** affiche les matchs de la journée, fait tourner les classements des six divisions,
-  le joueur du mois (points fédération) et fait défiler meilleures perfs / podium du mois.
+  le joueur du moment (points fédération) et fait défiler meilleures perfs / podium / palmarès.
 - **Pendant la semaine**, l'admin publie la journée suivante (adversaires, lieu, heure) : la journée
   précédente part dans l'historique avec ses scores. Il peut aussi gérer les équipes,
-  le joueur du mois (auto ou manuel), les meilleures perfs, et télécharger une sauvegarde.
+  le joueur du moment (auto ou manuel), les meilleures perfs, et télécharger une sauvegarde.
 
 ## Fédération (AFTT)
 
@@ -94,4 +94,6 @@ Ensuite, à chaque modification du code : `npm run deploy`. Les données ne sont
 - Un interclub = 16 matchs, 4 joueurs par équipe, 4 simples chacun.
 - Les deux scores sont encodés séparément par le capitaine ; total ≤ 16.
 - Statuts : *À venir* (rien encodé), *En cours* (< 16), *Terminé* (= 16), *Forfait*, *Bye*.
-- Joueur du mois automatique = le plus de points fédération gagnés en interclubs sur le dernier mois terminé (calcul le 3 du mois).
+- Joueur du moment automatique = le plus de points fédération gagnés en interclubs depuis le début du mois,
+  recalculé chaque nuit et remis à zéro le 1er. Les mois terminés forment le palmarès de la saison.
+  Une journée d'interclubs est reconnue à son code de rencontre (par exemple `PLX01/334`) ; les tournois sont exclus.

@@ -85,9 +85,10 @@ export const aftt = {
 
   /** Membres du club avec leur classement : API, sinon page data.aftt.be */
   async membres(club) {
+    let liste;
     try {
       const xml = await call('GetMembers', { Club: club });
-      return blocks(xml, 'MemberEntries').map((b) => ({
+      liste = blocks(xml, 'MemberEntries').map((b) => ({
         nom: prettyName(field(b, 'FirstName'), field(b, 'LastName')),
         classement: field(b, 'Ranking'),
         licence: field(b, 'UniqueIndex'),
@@ -95,8 +96,16 @@ export const aftt = {
       }));
     } catch (e) {
       console.warn('API membres indisponible, lecture du site :', e.message);
-      return scrapeMembres(club);
+      liste = await scrapeMembres(club);
     }
+    // Genre : la page du club distingue un onglet « Dames isolées »
+    try {
+      const dames = await scrapeDames(club);
+      liste.forEach((m) => { m.femme = dames.has(m.licence); });
+    } catch (e) {
+      console.warn('Liste des dames indisponible :', e.message);
+    }
+    return liste;
   },
 
   /** Équipes + classements de leurs divisions : API, sinon page data.aftt.be */
@@ -149,6 +158,16 @@ async function scrapeMembres(club) {
   }
   if (!out.length) throw new Error('data.aftt.be : aucun membre lu');
   return out;
+}
+
+/** Licences figurant dans l'onglet « Dames isolées » de la page du club */
+async function scrapeDames(club) {
+  const res = await fetch(`${SITE}/ranking/clubs.php?indice=${encodeURIComponent(club)}`, { headers: UA, signal: AbortSignal.timeout(20000) });
+  if (!res.ok) throw new Error(`data.aftt.be : HTTP ${res.status}`);
+  const html = await res.text();
+  const pane = html.split(/id="listing-women"/)[1];
+  if (!pane) return new Set();
+  return new Set([...pane.matchAll(/licenceID=(\d+)/g)].map((m) => m[1]));
 }
 
 async function scrapeClub(club, nomClub) {
@@ -219,14 +238,17 @@ export async function fiche(licence) {
 }
 
 /** Cumule par mois les points de plusieurs fiches : [{ m: membre, journees }] -> { maj, mois: { 'AAAA-MM': { joueurs, perfs } } } */
-/** Journée hors interclubs (tournoi, masters, critérium…) d'après son libellé */
-export const estTournoi = (label) => /tournoi|masters|open|crit[ée]rium|championnat|coupe|challenge|top\s*\d|international/i.test(label || '');
+/**
+ * Journée d'interclubs : son libellé porte le code de la rencontre, par exemple
+ * « 18/09/2026 - PLX01/334 - Attert ». Un tournoi s'appelle « Tournoi Rulles ».
+ */
+export const estInterclub = (label) => /\b[A-Z]{2,}[A-Z0-9]*\/\d+\b/.test(label || '');
 
 export function cumulMensuel(fiches, { tournois = false } = {}) {
   const mois = {};
   for (const { m, journees } of fiches) {
     for (const j of journees) {
-      if (!tournois && estTournoi(j.label)) continue;   // seuls les interclubs comptent, sauf option
+      if (!tournois && !estInterclub(j.label)) continue;   // seuls les interclubs comptent, sauf option
       const key = j.date.slice(0, 7);
       const M = (mois[key] ||= { joueurs: {}, perfs: [] });
       const J = (M.joueurs[m.licence] ||= { nom: m.nom, classement: m.classement, licence: m.licence, points: 0, victoires: 0, matchs: 0, journees: 0 });
