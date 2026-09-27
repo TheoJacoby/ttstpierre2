@@ -45,9 +45,12 @@ La page tourne des heures sans personne devant, souvent sur un navigateur de té
 
 - **Chien de garde** : sans données depuis cinq minutes, la page se recharge toute seule ; elle se recharge
   aussi après six heures d'affilée, à un moment calme (aucune animation, aucun match en cours).
-- **Mode léger** : ouvrir `/?leger=1` supprime les effets coûteux (halos flous d'arrière-plan, flou derrière
-  les cartes, halos lumineux) et réduit les confettis. Le choix est mémorisé dans le navigateur de la TV.
-  `/?leger=0` revient à l'affichage complet.
+- **Mode léger** : ouvrir `/?leger=1` remplace tous les flous calculés en continu (halos d'arrière-plan,
+  effet verre dépoli des cartes, halo de l'avatar) par des dégradés équivalents, dessinés une fois, et réduit
+  les confettis. L'ambiance est conservée, mais il ne reste aucun filtre ni aucune animation permanente.
+  Le choix est mémorisé dans le navigateur de la TV ; `/?leger=0` revient à l'affichage complet.
+- **Coût d'affichage** : seule l'horloge dépend de la seconde. Le reste (matchs, classements, podium) ne se
+  recalcule que toutes les 30 secondes.
 
 ## Structure
 

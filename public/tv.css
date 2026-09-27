@@ -193,17 +193,29 @@ body {
 .podium-points small { color: #888; font-weight: 400; font-size: 0.7rem; }
 .podium-meta { color: #888; font-size: 0.8rem; }
 
-/* MODE LÉGER (/?leger=1) : supprime les effets coûteux pour les navigateurs de téléviseur */
+/*
+ * MODE LÉGER (/?leger=1) pour les navigateurs de téléviseur.
+ * On garde l'ambiance mais on supprime tout ce qui se recalcule en continu :
+ * les flous (filter / backdrop-filter) et les animations de fond sont remplacés
+ * par des dégradés, dessinés une seule fois et quasi gratuits ensuite.
+ */
 .leger .ambient-light { display: none; }
-.leger body { background: #0b0b0f; }
-.leger .glass-card, .leger .glass-panel, .leger .clock {
-    backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(255, 255, 255, 0.055);
+.leger body {
+    background:
+        radial-gradient(60vw 55vw at 10% 5%, rgba(255, 107, 53, 0.22), transparent 62%),
+        radial-gradient(52vw 48vw at 92% 95%, rgba(74, 0, 224, 0.24), transparent 62%),
+        radial-gradient(34vw 30vw at 54% 36%, rgba(0, 210, 255, 0.10), transparent 65%),
+        radial-gradient(circle at top center, #1a1a20 0%, #000000 100%);
 }
-.leger .avatar-glow { display: none; }
-.leger .score-badge, .leger .perf-points, .leger .team-winner { filter: none; text-shadow: none; }
-.leger .match-row.live { box-shadow: none; }
-.leger .results-container { transition: opacity 0.4s; }
-.leger .results-container.fading { filter: none; transform: none; }
+.leger .glass-card, .leger .glass-panel, .leger .clock {
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.035));
+}
+.leger .highlight-card { background: linear-gradient(160deg, rgba(255, 107, 53, 0.10), rgba(255, 255, 255, 0.03)); }
+.leger .avatar-glow { filter: none; background: radial-gradient(circle, rgba(255, 107, 53, 0.6), transparent 70%); }
+.leger .score-badge { filter: none; }
+.leger .results-container { filter: none; transition: opacity 0.5s ease, transform 0.5s ease; }
+.leger .results-container.fading { filter: none; opacity: 0; transform: translateY(12px); }
 
 /* Helpers */
 .team-winner { color: var(--success) !important; text-shadow: 0 0 10px rgba(0, 242, 169, 0.3); }

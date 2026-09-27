@@ -8,14 +8,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="tv.css?v=9">
+    <link rel="stylesheet" href="tv.css?v=11">
     <script>
       /* Mode léger pour les téléviseurs peu puissants : ouvrir la page avec ?leger=1 (mémorisé, ?leger=0 pour revenir) */
       (function () {
         try {
           var p = new URLSearchParams(location.search);
           if (p.has('leger')) localStorage.setItem('tt_leger', p.get('leger') === '0' ? '' : '1');
-          if (localStorage.getItem('tt_leger')) document.documentElement.classList.add('leger');
+          if (localStorage.getItem('tt_leger')) {
+            document.documentElement.classList.add('leger');
+            // On retire carrément les halos du document : rien à composer, rien à animer
+            addEventListener('DOMContentLoaded', function () {
+              document.querySelectorAll('.ambient-light').forEach(function (el) { el.remove(); });
+            });
+          }
         } catch (e) {}
       })();
     </script>
