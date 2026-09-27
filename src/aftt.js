@@ -7,6 +7,12 @@
  * si l'API ne répond pas. Aucun identifiant n'est nécessaire.
  */
 const SITE = 'https://data.aftt.be';
+/**
+ * La page interclubs affiche le classement cumulé JUSQU'À la semaine demandée, et part
+ * sur la semaine 1 si on ne précise rien. En demandant la dernière semaine de la saison,
+ * on obtient toujours le classement le plus récent publié par la fédération.
+ */
+const DERNIERE_SEMAINE = 22;
 const ENDPOINT = 'https://api.aftt.be/';
 const NS = 'http://api.frenoy.net/TabTAPI';
 
@@ -173,7 +179,7 @@ async function scrapeDames(club) {
 async function scrapeClub(club, nomClub) {
   const res = await fetch(`${SITE}/interclubs/rankings.php`, {
     method: 'POST', headers: { ...UA, 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `indice=${encodeURIComponent(club)}`, signal: AbortSignal.timeout(20000),
+    body: `indice=${encodeURIComponent(club)}&semaine=${DERNIERE_SEMAINE}`, signal: AbortSignal.timeout(20000),
   });
   if (!res.ok) throw new Error(`data.aftt.be : HTTP ${res.status}`);
   const html = await res.text();
