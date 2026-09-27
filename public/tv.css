@@ -204,7 +204,7 @@ body {
     background:
         radial-gradient(60vw 55vw at 10% 5%, rgba(255, 107, 53, 0.22), transparent 62%),
         radial-gradient(52vw 48vw at 92% 95%, rgba(74, 0, 224, 0.24), transparent 62%),
-        radial-gradient(34vw 30vw at 54% 36%, rgba(0, 210, 255, 0.10), transparent 65%),
+        radial-gradient(44vw 38vw at 54% 34%, rgba(40, 140, 255, 0.05), transparent 72%),
         radial-gradient(circle at top center, #1a1a20 0%, #000000 100%);
 }
 .leger .glass-card, .leger .glass-panel, .leger .clock {
