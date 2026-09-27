@@ -80,7 +80,7 @@ body {
 .forfait-note { color: #aaa; text-align: center; padding: 1vh; }
 
 /* Joueur du mois */
-.highlight-card { flex: 1; background: linear-gradient(160deg, rgba(255,255,255,0.05), transparent); justify-content: center; }
+.highlight-card { flex: 1; justify-content: center; }   /* même fond que les autres cartes */
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1vh; }
 .month-badge { font-size: 0.8rem; background: rgba(255,107,53,0.2); color: var(--primary-orange); padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(255,107,53,0.3); text-transform: capitalize; }
 .player-of-month { display: flex; flex-direction: column; align-items: center; gap: 1vh; }
@@ -211,7 +211,6 @@ body {
     backdrop-filter: none; -webkit-backdrop-filter: none;
     background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.035));
 }
-.leger .highlight-card { background: linear-gradient(160deg, rgba(255, 107, 53, 0.10), rgba(255, 255, 255, 0.03)); }
 .leger .avatar-glow { filter: none; background: radial-gradient(circle, rgba(255, 107, 53, 0.6), transparent 70%); }
 .leger .score-badge { filter: none; }
 .leger .results-container { filter: none; transition: opacity 0.5s ease, transform 0.5s ease; }
